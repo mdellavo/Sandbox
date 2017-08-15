@@ -55,8 +55,6 @@ public class ParticleSystem implements Entity {
     @Override
     public void initialize(GL4 gl) {
         gl.glGenBuffers(1, vertexBufferId);
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, vertexBufferId.get(0));
-        gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW);
 
         shader = new ShaderProgram(gl);
         shader.addShader(gl, GL4.GL_VERTEX_SHADER, ResourceUtil.getStringResource("shaders/particle.vert.glsl"));
@@ -72,12 +70,24 @@ public class ParticleSystem implements Entity {
     @Override
     public void draw(GL4 gl) {
         updateVertices();
+
+        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, vertexBufferId.get(0));
+        gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW);
+
+        gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 6 * Float.BYTES, 0);
+        gl.glEnableVertexAttribArray(0);
+
+        gl.glVertexAttribPointer(1, 3, GL.GL_FLOAT, false, 6 * Float.BYTES, 3 * Float.BYTES);
+        gl.glEnableVertexAttribArray(1);
+
         gl.glUseProgram(shader.program);
+
         gl.glDrawArrays(GL.GL_POINTS, 0, NUM_PARATICLES);
     }
 
     private void updateVertices() {
         for (int i=0; i<NUM_PARATICLES; i++) {
+
             Particle p = particles.get(i);
             int offset = 6 * i;
             vertexBuffer.put(offset, p.position.x);

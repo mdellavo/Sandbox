@@ -12,4 +12,11 @@ public class RandomUtil {
         return instance;
     }
 
+    public static float randomRange(float min, float max) {
+        return min + ((max-min) * getInstance().nextFloat());
+    }
+
+    public static int randomInt(int min, int max) {
+        return min + getInstance().nextInt(max-min);
+    }
 }

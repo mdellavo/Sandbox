@@ -7,6 +7,7 @@ import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.Animator;
+import org.quuux.opengl.util.GLUtil;
 
 import java.io.File;
 import java.net.URL;
@@ -59,10 +60,9 @@ class Sandbox implements KeyListener, GLEventListener {
     @Override
     public void init(GLAutoDrawable drawable) {
         GL4 gl = drawable.getGL().getGL4();
-
         System.out.println(String.format("OpenGL Version: %s", gl.glGetString(GL.GL_VERSION)));
 
-        gl.glClearColor(0, 0, 0, 0);
+        gl.glClearColor(0, 0, 0, 1);
 
         root.initialize(gl);
 

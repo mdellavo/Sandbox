@@ -10,13 +10,14 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL4;
 
 import com.jogamp.opengl.util.GLBuffers;
+import org.quuux.opengl.util.GLUtil;
 import org.quuux.opengl.util.RandomUtil;
 import org.quuux.opengl.util.ResourceUtil;
 
 
 public class ParticleSystem implements Entity {
 
-    private static final int NUM_PARATICLES = 10;
+    private static final int NUM_PARATICLES = 500;
 
     Vec3F position;
     List<Particle> particles = new ArrayList<>(NUM_PARATICLES);
@@ -36,10 +37,13 @@ public class ParticleSystem implements Entity {
     }
 
     private void recycleParticle(Particle p) {
-        Random random = RandomUtil.getInstance();
-        Vec3F velocity = new Vec3F(random.nextFloat(), random.nextFloat(), random.nextFloat());
-        Vec3F acceleration = new Vec3F(random.nextFloat(), random.nextFloat(), random.nextFloat());
-        p.recycle(position, velocity, acceleration);
+        Vec3F velocity = new Vec3F(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
+        velocity.scale(.001f);
+        Vec3F acceleration = new Vec3F(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
+        acceleration.scale(.001f);
+
+        Vec3F color = new Vec3F(RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1));
+        p.recycle(new Vec3F(position), velocity, acceleration, color);
     }
 
     @Override
@@ -71,17 +75,18 @@ public class ParticleSystem implements Entity {
     public void draw(GL4 gl) {
         updateVertices();
 
+        gl.glPointSize(3);
+
         gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, vertexBufferId.get(0));
         gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW);
 
         gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 6 * Float.BYTES, 0);
         gl.glEnableVertexAttribArray(0);
-
+        
         gl.glVertexAttribPointer(1, 3, GL.GL_FLOAT, false, 6 * Float.BYTES, 3 * Float.BYTES);
         gl.glEnableVertexAttribArray(1);
 
         gl.glUseProgram(shader.program);
-
         gl.glDrawArrays(GL.GL_POINTS, 0, NUM_PARATICLES);
     }
 
@@ -93,9 +98,9 @@ public class ParticleSystem implements Entity {
             vertexBuffer.put(offset, p.position.x);
             vertexBuffer.put(offset + 1, p.position.y);
             vertexBuffer.put(offset + 2, p.position.z);
-            vertexBuffer.put(offset + 3,1);
-            vertexBuffer.put(offset + 4, 1);
-            vertexBuffer.put(offset + 5, 1);
+            vertexBuffer.put(offset + 3, p.color.x);
+            vertexBuffer.put(offset + 4, p.color.y);
+            vertexBuffer.put(offset + 5, p.color.z);
         }
     }
 
@@ -111,11 +116,12 @@ public class ParticleSystem implements Entity {
             return age < lifespan;
         }
 
-        void recycle(Vec3F position, Vec3F velocity, Vec3F acceleration) {
+        void recycle(Vec3F position, Vec3F velocity, Vec3F acceleration, Vec3F color) {
             age = 0;
             this.position = position;
             this.velocity = velocity;
             this.acceleration = acceleration;
+            this.color = color;
         }
 
         void update(long t) {

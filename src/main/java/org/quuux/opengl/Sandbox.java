@@ -7,10 +7,6 @@ import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.Animator;
-import org.quuux.opengl.util.GLUtil;
-
-import java.io.File;
-import java.net.URL;
 
 class Sandbox implements KeyListener, GLEventListener {
 

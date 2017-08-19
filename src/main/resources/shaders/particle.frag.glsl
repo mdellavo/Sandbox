@@ -3,7 +3,9 @@
 out vec4 FragColor;
 in vec3 vertexColor;
 
+uniform sampler2D particleTexture;
+
 void main()
 {
-    FragColor = vec4(vertexColor, 1.0);
+    FragColor = texture(particleTexture, gl_PointCoord) * vec4(vertexColor, 1.0);
 }

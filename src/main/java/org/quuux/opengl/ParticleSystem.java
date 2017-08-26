@@ -11,19 +11,20 @@ import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.util.GLBuffers;
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;
+import org.joml.Vector3d;
 import org.quuux.opengl.util.RandomUtil;
 import org.quuux.opengl.util.ResourceUtil;
 
 
 public class ParticleSystem implements Entity {
 
-    private static final int NUM_PARATICLES = 25000;
+    private static final int NUM_PARATICLES = 5000;
 
     Matrix4d model = new Matrix4d().identity();
     Matrix4f mvp = new Matrix4f();
     FloatBuffer mvpBuffer = GLBuffers.newDirectFloatBuffer(16);
 
-    Vec3 position;
+    Vector3d position;
     List<Particle> particles = new ArrayList<>(NUM_PARATICLES);
 
     FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(6 * NUM_PARATICLES);
@@ -32,7 +33,7 @@ public class ParticleSystem implements Entity {
     Texture texture;
     ShaderProgram shader;
 
-    ParticleSystem(Vec3 position) {
+    ParticleSystem(Vector3d position) {
         this.position = position;
         for (int i=0; i<NUM_PARATICLES; i++) {
             Particle p = new Particle();
@@ -42,13 +43,13 @@ public class ParticleSystem implements Entity {
     }
 
     private void recycleParticle(Particle p) {
-        Vec3 acceleration = new Vec3(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
-        acceleration.scale(.0001);
-        Vec3 velocity = new Vec3(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
-        velocity.scale(.02f);
+        Vector3d acceleration = new Vector3d(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
+        acceleration.mul(.0001);
+        Vector3d velocity = new Vector3d(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
+        velocity.mul(.02f);
 
-        Vec3 color = new Vec3(RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1));
-        p.recycle(new Vec3(position), velocity, acceleration, color);
+        Vector3d color = new Vector3d(RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1));
+        p.recycle(new Vector3d(position), velocity, acceleration, color);
     }
 
     @Override
@@ -133,16 +134,16 @@ public class ParticleSystem implements Entity {
     static class Particle {
         int age = 0;
         int lifespan = 500;
-        Vec3 position;
-        Vec3 velocity;
-        Vec3 acceleration;
-        Vec3 color;
+        Vector3d position;
+        Vector3d velocity;
+        Vector3d acceleration;
+        Vector3d color;
 
         boolean isAlive() {
             return age < lifespan;
         }
 
-        void recycle(Vec3 position, Vec3 velocity, Vec3 acceleration, Vec3 color) {
+        void recycle(Vector3d position, Vector3d velocity, Vector3d acceleration, Vector3d color) {
             age = 0;
             this.position = position;
             this.velocity = velocity;

@@ -2,12 +2,13 @@ package org.quuux.opengl;
 
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;
+import org.joml.Vector3d;
 
 
 public class Camera {
 
     double fov, aspectRatio, zNear, zFar;
-    Vec3 eye = new Vec3(), center = new Vec3(), up = new Vec3(0, 1, 0);
+    Vector3d eye = new Vector3d(), center = new Vector3d(), up = new Vector3d(0, 1, 0);
 
     Matrix4d projectionMatrix = new Matrix4d(),
             viewMatrix = new Matrix4d(),

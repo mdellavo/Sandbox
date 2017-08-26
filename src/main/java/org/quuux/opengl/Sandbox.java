@@ -7,6 +7,7 @@ import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.Animator;
+import org.joml.Vector3d;
 
 class Sandbox implements KeyListener, GLEventListener {
 
@@ -26,7 +27,7 @@ class Sandbox implements KeyListener, GLEventListener {
     private void setup() {
         camera.setEye(0, 5, 5);
 
-        ParticleSystem ps = new ParticleSystem(new Vec3());
+        ParticleSystem ps = new ParticleSystem(new Vector3d());
         root.addChild(ps);
 
         GLProfile glProfile = GLProfile.get(GLProfile.GL4);

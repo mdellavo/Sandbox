@@ -78,7 +78,6 @@ class Sandbox implements KeyListener, GLEventListener {
         updateAll();
 
         GL4 gl = drawable.getGL().getGL4();
-
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
         root.draw(gl, camera);

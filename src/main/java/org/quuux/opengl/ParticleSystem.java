@@ -3,8 +3,6 @@ package org.quuux.opengl;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import com.jogamp.opengl.GL;
@@ -19,7 +17,7 @@ import org.quuux.opengl.util.ResourceUtil;
 
 public class ParticleSystem implements Entity {
 
-    private static final int NUM_PARATICLES = 500;
+    private static final int NUM_PARATICLES = 25000;
 
     Matrix4d model = new Matrix4d().identity();
     Matrix4f mvp = new Matrix4f();
@@ -99,9 +97,7 @@ public class ParticleSystem implements Entity {
 
     @Override
     public void draw(GL4 gl, Camera camera) {
-        updateVertices();
-
-        gl.glEnable(GL.GL_DEPTH_TEST);
+        updateVertices(camera);
 
         gl.glEnable(GL.GL_BLEND);
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
@@ -119,8 +115,8 @@ public class ParticleSystem implements Entity {
         gl.glDrawArrays(GL.GL_POINTS, 0, NUM_PARATICLES);
     }
 
-    private void updateVertices() {
-        Collections.sort(particles, comparator);
+    private void updateVertices(Camera camera) {
+
         for (int i=0; i<NUM_PARATICLES; i++) {
 
             Particle p = particles.get(i);
@@ -136,7 +132,7 @@ public class ParticleSystem implements Entity {
 
     static class Particle {
         int age = 0;
-        int lifespan = 100;
+        int lifespan = 150;
         Vec3 position;
         Vec3 velocity;
         Vec3 acceleration;
@@ -162,11 +158,4 @@ public class ParticleSystem implements Entity {
             }
         }
     }
-
-    static Comparator<Particle> comparator = new Comparator<Particle>() {
-        @Override
-        public int compare(Particle a, Particle b) {
-            return -Double.compare(a.position.z, b.position.z);
-        }
-    };
 }

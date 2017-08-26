@@ -12,8 +12,8 @@ public class RandomUtil {
         return instance;
     }
 
-    public static float randomRange(float min, float max) {
-        return min + ((max-min) * getInstance().nextFloat());
+    public static double randomRange(double min, double max) {
+        return min + ((max-min) * getInstance().nextDouble());
     }
 
     public static int randomInt(int min, int max) {

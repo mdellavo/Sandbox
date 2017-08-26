@@ -9,6 +9,8 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL4;
 
 import com.jogamp.opengl.util.GLBuffers;
+import org.joml.Matrix4d;
+import org.joml.Matrix4f;
 import org.quuux.opengl.util.RandomUtil;
 import org.quuux.opengl.util.ResourceUtil;
 
@@ -17,7 +19,11 @@ public class ParticleSystem implements Entity {
 
     private static final int NUM_PARATICLES = 500;
 
-    Vec3F position;
+    Matrix4d model = new Matrix4d().identity();
+    Matrix4f mvp = new Matrix4f();
+    FloatBuffer mvpBuffer = GLBuffers.newDirectFloatBuffer(16);
+
+    Vec3 position;
     List<Particle> particles = new ArrayList<>(NUM_PARATICLES);
 
     FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(6 * NUM_PARATICLES);
@@ -26,7 +32,7 @@ public class ParticleSystem implements Entity {
     Texture texture;
     ShaderProgram shader;
 
-    ParticleSystem(Vec3F position) {
+    ParticleSystem(Vec3 position) {
         this.position = position;
         for (int i=0; i<NUM_PARATICLES; i++) {
             Particle p = new Particle();
@@ -36,13 +42,13 @@ public class ParticleSystem implements Entity {
     }
 
     private void recycleParticle(Particle p) {
-        Vec3F acceleration = new Vec3F(0, -.0002f, 0);
+        Vec3 acceleration = new Vec3(0, -.0002f, 0);
 
-        Vec3F velocity = new Vec3F(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
+        Vec3 velocity = new Vec3(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
         velocity.scale(.02f);
 
-        Vec3F color = new Vec3F(RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1));
-        p.recycle(new Vec3F(position), velocity, acceleration, color);
+        Vec3 color = new Vec3(RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1));
+        p.recycle(new Vec3(position), velocity, acceleration, color);
     }
 
     @Override
@@ -58,7 +64,7 @@ public class ParticleSystem implements Entity {
     @Override
     public void initialize(GL4 gl) {
 
-        gl.glPointSize(30);
+        gl.glPointSize(10);
 
         shader = new ShaderProgram(gl);
         shader.addShader(gl, GL4.GL_VERTEX_SHADER, ResourceUtil.getStringResource("shaders/particle.vert.glsl"));
@@ -90,7 +96,7 @@ public class ParticleSystem implements Entity {
     }
 
     @Override
-    public void draw(GL4 gl) {
+    public void draw(GL4 gl, Camera camera) {
         updateVertices();
 
         gl.glEnable(GL.GL_BLEND);
@@ -101,6 +107,10 @@ public class ParticleSystem implements Entity {
 
         gl.glUseProgram(shader.program);
 
+        camera.modelViewProjectionMatrix(model, mvp);
+        mvp.get(mvpBuffer);
+        gl.glUniformMatrix4fv(gl.glGetUniformLocation(shader.program, "mvp"), 1, false, mvpBuffer);
+
         gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW);
         gl.glDrawArrays(GL.GL_POINTS, 0, NUM_PARATICLES);
     }
@@ -110,28 +120,28 @@ public class ParticleSystem implements Entity {
 
             Particle p = particles.get(i);
             int offset = 6 * i;
-            vertexBuffer.put(offset, p.position.x);
-            vertexBuffer.put(offset + 1, p.position.y);
-            vertexBuffer.put(offset + 2, p.position.z);
-            vertexBuffer.put(offset + 3, p.color.x);
-            vertexBuffer.put(offset + 4, p.color.y);
-            vertexBuffer.put(offset + 5, p.color.z);
+            vertexBuffer.put(offset, (float) p.position.x);
+            vertexBuffer.put(offset + 1, (float) p.position.y);
+            vertexBuffer.put(offset + 2, (float) p.position.z);
+            vertexBuffer.put(offset + 3, (float) p.color.x);
+            vertexBuffer.put(offset + 4, (float) p.color.y);
+            vertexBuffer.put(offset + 5, (float) p.color.z);
         }
     }
 
     static class Particle {
         int age = 0;
         int lifespan = 100;
-        Vec3F position;
-        Vec3F velocity;
-        Vec3F acceleration;
-        Vec3F color;
+        Vec3 position;
+        Vec3 velocity;
+        Vec3 acceleration;
+        Vec3 color;
 
         boolean isAlive() {
             return age < lifespan;
         }
 
-        void recycle(Vec3F position, Vec3F velocity, Vec3F acceleration, Vec3F color) {
+        void recycle(Vec3 position, Vec3 velocity, Vec3 acceleration, Vec3 color) {
             age = 0;
             this.position = position;
             this.velocity = velocity;

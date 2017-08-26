@@ -1,47 +1,47 @@
 package org.quuux.opengl;
 
-public class Vec3F {
-    public float x, y, z;
+public class Vec3 {
+    public double x, y, z;
 
-    public Vec3F(final float x, final float y, final float z) {
+    public Vec3(final double x, final double y, final double z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
-    public Vec3F(final Vec3F vec) {
+    public Vec3(final Vec3 vec) {
         this(vec.x, vec.y, vec.z);
     }
 
-    public Vec3F() {
+    public Vec3() {
         this(0, 0, 0);
     }
 
-    public void add(final Vec3F other) {
+    public void add(final Vec3 other) {
         this.x += other.x;
         this.y += other.y;
         this.z += other.z;
     }
 
-    public void sub(final Vec3F other) {
+    public void sub(final Vec3 other) {
         this.x -= other.x;
         this.y -= other.y;
         this.z -= other.z;
     }
 
-    public void scale(final float scale) {
+    public void scale(final double scale) {
         x *= scale;
         y *= scale;
         z *= scale;
     }
 
-    public void copy(final Vec3F other) {
+    public void copy(final Vec3 other) {
         this.x = other.x;
         this.y = other.y;
         this.z = other.z;
     }
 
-    public void set(final float x, final float y, final float z) {
+    public void set(final double x, final double y, final double z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -51,12 +51,12 @@ public class Vec3F {
         this.x = this.y = this.z = 0;
     }
 
-    public float length() {
-        return (float)Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
+    public double length() {
+        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
     }
 
     public void normalize() {
-        final float length = length();
+        final double length = length();
         if (length > 0) {
             x /= length;
             y /= length;
@@ -68,6 +68,6 @@ public class Vec3F {
 
     @Override
     public String toString() {
-        return String.format("Vec3F(%s, %s, %s)", x, y, z);
+        return String.format("Vec3(%s, %s, %s)", x, y, z);
     }
 }

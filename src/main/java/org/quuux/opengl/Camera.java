@@ -10,7 +10,8 @@ public class Camera {
     Vec3 eye = new Vec3(), center = new Vec3(), up = new Vec3(0, 1, 0);
 
     Matrix4d projectionMatrix = new Matrix4d(),
-            viewMatrix = new Matrix4d();
+            viewMatrix = new Matrix4d(),
+            scratch = new Matrix4d();
 
     public void setEye(double x, double y, double z) {
         eye.set(x, y, z);
@@ -44,6 +45,6 @@ public class Camera {
     }
 
     public void modelViewProjectionMatrix(Matrix4d model, Matrix4f dest) {
-        dest.set(new Matrix4d(projectionMatrix).mul(viewMatrix).mul(model));
+        dest.set(scratch.set(projectionMatrix).mul(viewMatrix).mul(model));
     }
 }

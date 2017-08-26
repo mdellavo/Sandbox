@@ -166,7 +166,7 @@ public class ParticleSystem implements Entity {
     static Comparator<Particle> comparator = new Comparator<Particle>() {
         @Override
         public int compare(Particle a, Particle b) {
-            return Double.compare(a.position.z, b.position.z);
+            return -Double.compare(a.position.z, b.position.z);
         }
     };
 }

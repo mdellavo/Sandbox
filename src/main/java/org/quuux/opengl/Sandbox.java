@@ -18,7 +18,7 @@ class Sandbox implements KeyListener, GLEventListener {
     static GLWindow window;
     static Animator animator;
 
-    long lastUpdate;
+    long lastUpdate, totalElapsed;
 
     EntityGroup root = new EntityGroup();
     Camera camera = new Camera();
@@ -87,10 +87,15 @@ class Sandbox implements KeyListener, GLEventListener {
     private void updateAll() {
         long now = System.currentTimeMillis();
         long elapsed = now - lastUpdate;
-        root.update(elapsed);
-        long took = System.currentTimeMillis() - now;
-        //System.out.println(String.format("update took %s", took));
+        totalElapsed += elapsed;
         lastUpdate = now;
+
+        double angle = (totalElapsed % 5000) / 5000. * 360.;
+        double eyeX = 5 * Math.cos(Math.toRadians(angle));
+        double eyeZ = 5 * Math.sin(Math.toRadians(angle));
+        camera.setEye(eyeX, 5, eyeZ);
+
+        root.update(elapsed);
     }
 
     @Override

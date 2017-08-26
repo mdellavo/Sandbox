@@ -42,8 +42,8 @@ public class ParticleSystem implements Entity {
     }
 
     private void recycleParticle(Particle p) {
-        Vec3 acceleration = new Vec3(0, -.0002f, 0);
-
+        Vec3 acceleration = new Vec3(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
+        acceleration.scale(.0001);
         Vec3 velocity = new Vec3(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
         velocity.scale(.02f);
 
@@ -132,7 +132,7 @@ public class ParticleSystem implements Entity {
 
     static class Particle {
         int age = 0;
-        int lifespan = 150;
+        int lifespan = 500;
         Vec3 position;
         Vec3 velocity;
         Vec3 acceleration;

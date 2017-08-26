@@ -3,6 +3,8 @@ package org.quuux.opengl;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.jogamp.opengl.GL;
@@ -99,6 +101,8 @@ public class ParticleSystem implements Entity {
     public void draw(GL4 gl, Camera camera) {
         updateVertices();
 
+        gl.glEnable(GL.GL_DEPTH_TEST);
+
         gl.glEnable(GL.GL_BLEND);
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -116,6 +120,7 @@ public class ParticleSystem implements Entity {
     }
 
     private void updateVertices() {
+        Collections.sort(particles, comparator);
         for (int i=0; i<NUM_PARATICLES; i++) {
 
             Particle p = particles.get(i);
@@ -157,4 +162,11 @@ public class ParticleSystem implements Entity {
             }
         }
     }
+
+    static Comparator<Particle> comparator = new Comparator<Particle>() {
+        @Override
+        public int compare(Particle a, Particle b) {
+            return Double.compare(a.position.z, b.position.z);
+        }
+    };
 }

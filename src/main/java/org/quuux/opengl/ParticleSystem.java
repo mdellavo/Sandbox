@@ -33,6 +33,9 @@ public class ParticleSystem implements Entity {
     Texture texture;
     ShaderProgram shader;
 
+    FrameBuffer framebuffer;
+    Texture renderTexture;
+
     ParticleSystem(Vector3d position) {
         this.position = position;
         for (int i=0; i<NUM_PARATICLES; i++) {
@@ -65,7 +68,13 @@ public class ParticleSystem implements Entity {
     @Override
     public void initialize(GL4 gl) {
 
-        gl.glPointSize(10);
+        framebuffer = new FrameBuffer(gl);
+        //framebuffer.bind(gl);
+
+        renderTexture = new Texture(gl);
+        //renderTexture.attach(gl, Sandbox.WIDTH, Sandbox.HEIGHT, GL.GL_RGB, null);
+
+        gl.glPointSize(8);
 
         shader = new ShaderProgram(gl);
         shader.addShader(gl, GL4.GL_VERTEX_SHADER, ResourceUtil.getStringResource("shaders/particle.vert.glsl"));
@@ -76,7 +85,9 @@ public class ParticleSystem implements Entity {
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         texture = new Texture(gl);
         ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/particle.png");
-        texture.load(gl, GL4.GL_LINEAR, GL4.GL_LINEAR, image.width, image.height, image.buffer);
+        texture.attach(gl, image.width, image.height,  GL.GL_RGBA, image.buffer);
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
 
         gl.glUniform1i(gl.glGetUniformLocation(shader.program, "particleTexture"), 0);
 
@@ -100,7 +111,7 @@ public class ParticleSystem implements Entity {
     public void draw(GL4 gl, Camera camera) {
         updateVertices(camera);
 
-        gl.glEnable(GL.GL_BLEND);
+        gl.glEnable(GL4.GL_BLEND);
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
         gl.glActiveTexture(GL4.GL_TEXTURE0);

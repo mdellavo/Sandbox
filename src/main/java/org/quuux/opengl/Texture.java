@@ -18,18 +18,13 @@ public class Texture {
     }
 
     public void bind(GL4 gl) {
-        gl.glEnable(GL4.GL_TEXTURE_2D);
         gl.glBindTexture(GL.GL_TEXTURE_2D, texture);
     }
 
-    public void load(GL4 gl, int minFilter, int magFilter, int width, int height, ByteBuffer buffer) {
+    public void attach(GL4 gl, int width, int height, int format, ByteBuffer buffer) {
         bind(gl);
 
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, minFilter);
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, magFilter);
-
         gl.glPixelStorei(GL4.GL_UNPACK_ALIGNMENT, 4);
-        gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, GL.GL_RGBA, width, height, 0, GL4.GL_RGBA, GL4.GL_UNSIGNED_BYTE, buffer);
-        gl.glGenerateMipmap(texture);
+        gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, format, width, height, 0, format, GL4.GL_UNSIGNED_BYTE, buffer);
     }
 }

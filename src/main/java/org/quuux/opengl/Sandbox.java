@@ -16,6 +16,9 @@ class Sandbox implements KeyListener, GLEventListener {
         new Sandbox().setup();
     }
 
+    public static final int WIDTH = 1024;
+    public static final int HEIGHT = 768;
+
     static GLWindow window;
     static Animator animator;
 
@@ -36,7 +39,7 @@ class Sandbox implements KeyListener, GLEventListener {
         window = GLWindow.create(glCapabilities);
 
         window.setTitle("OpenGL Sandbox");
-        window.setSize(1024, 768);
+        window.setSize(WIDTH, HEIGHT);
 
         window.setVisible(true);
 
@@ -58,6 +61,7 @@ class Sandbox implements KeyListener, GLEventListener {
     @Override
     public void init(GLAutoDrawable drawable) {
         GL4 gl = drawable.getGL().getGL4();
+
         System.out.println(String.format("OpenGL Version: %s", gl.glGetString(GL.GL_VERSION)));
 
         gl.glClearColor(0, 0, 0, 1);
@@ -75,10 +79,10 @@ class Sandbox implements KeyListener, GLEventListener {
 
     @Override
     public void display(GLAutoDrawable drawable) {
-
         updateAll();
 
         GL4 gl = drawable.getGL().getGL4();
+
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
         root.draw(gl, camera);
@@ -103,7 +107,7 @@ class Sandbox implements KeyListener, GLEventListener {
         GL4 gl = drawable.getGL().getGL4();
         gl.glViewport(0, 0, width, height);
 
-        camera.setProjection(45., (double)width/(double)height, .1, 1000.);
+        camera.setProjection(45, (double)width/(double)height, .1, 1000.);
     }
 
     @Override

@@ -2,10 +2,16 @@ group 'org.quuux'
 version '0.1'
 
 apply plugin: 'java'
+apply plugin: 'application'
 
 sourceCompatibility = 1.8
 
-defaultTasks 'jar'
+defaultTasks 'jar run'
+
+mainClassName = "org.quuux.opengl.Sandbox"
+
+// "-Djogl.debug.TraceGL"
+applicationDefaultJvmArgs = ["-Djogl.debug.DebugGL",]
 
 jar {
     from {

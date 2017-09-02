@@ -16,12 +16,6 @@ public class EntityGroup implements Entity {
     }
 
     @Override
-    public void initialize(GL4 gl) {
-        for(Entity child : this.children)
-            child.initialize(gl);
-    }
-
-    @Override
     public void dispose(GL4 gl) {
         for (Entity child : this.children)
             child.dispose(gl);

@@ -30,9 +30,6 @@ class Sandbox implements KeyListener, GLEventListener {
     private void setup() {
         camera.setEye(0, 5, 5);
 
-        ParticleSystem ps = new ParticleSystem(new Vector3d());
-        root.addChild(ps);
-
         GLProfile glProfile = GLProfile.get(GLProfile.GL4);
         GLCapabilities glCapabilities = new GLCapabilities(glProfile);
 
@@ -65,8 +62,17 @@ class Sandbox implements KeyListener, GLEventListener {
         System.out.println(String.format("OpenGL Version: %s", gl.glGetString(GL.GL_VERSION)));
 
         gl.glClearColor(0, 0, 0, 1);
+        gl.glEnable(GL4.GL_BLEND);
+        gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
-        root.initialize(gl);
+        gl.glEnable(GL4.GL_DEPTH_TEST);
+        gl.glEnable(GL4.GL_MULTISAMPLE);
+
+        Quad quad = new Quad(new Vector3d(0, 0, -3), gl);
+        root.addChild(quad);
+
+        ParticleSystem ps = new ParticleSystem(new Vector3d(), gl);
+        root.addChild(ps);
 
         lastUpdate = System.currentTimeMillis();
     }
@@ -94,10 +100,10 @@ class Sandbox implements KeyListener, GLEventListener {
         totalElapsed += elapsed;
         lastUpdate = now;
 
-        double angle = (totalElapsed % 5000) / 5000. * 360.;
-        double eyeX = 5 * Math.cos(Math.toRadians(angle));
-        double eyeZ = 5 * Math.sin(Math.toRadians(angle));
-        camera.setEye(eyeX, 5, eyeZ);
+//        double angle = (totalElapsed % 5000) / 5000. * 360.;
+//        double eyeX = 5 * Math.cos(Math.toRadians(angle));
+//        double eyeZ = 5 * Math.sin(Math.toRadians(angle));
+//        camera.setEye(eyeX, 5, eyeZ);
 
         root.update(elapsed);
     }

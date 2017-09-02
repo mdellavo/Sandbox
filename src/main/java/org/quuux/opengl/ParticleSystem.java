@@ -3,6 +3,8 @@ package org.quuux.opengl;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.jogamp.opengl.GL;
@@ -28,7 +30,7 @@ public class ParticleSystem implements Entity {
     List<Particle> particles = new ArrayList<>(NUM_PARATICLES);
 
     FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(6 * NUM_PARATICLES);
-    IntBuffer vertexBufferId = GLBuffers.newDirectIntBuffer(1);
+    int vertexBufferId;
 
     Texture texture;
     ShaderProgram shader;
@@ -36,13 +38,48 @@ public class ParticleSystem implements Entity {
     FrameBuffer framebuffer;
     Texture renderTexture;
 
-    ParticleSystem(Vector3d position) {
+    ParticleSystem(Vector3d position, GL4 gl) {
         this.position = position;
         for (int i=0; i<NUM_PARATICLES; i++) {
             Particle p = new Particle();
             particles.add(p);
             recycleParticle(p);
         }
+
+//        framebuffer = new FrameBuffer(gl);
+//        framebuffer.bind(gl);
+//
+//        renderTexture = new Texture(gl);
+//        renderTexture.attach(gl, Sandbox.WIDTH, Sandbox.HEIGHT, GL.GL_RGB, null);
+
+        gl.glPointSize(16);
+
+        shader = new ShaderProgram(gl);
+        shader.addShader(gl, GL4.GL_VERTEX_SHADER, ResourceUtil.getStringResource("shaders/particle.vert.glsl"));
+        shader.addShader(gl, GL4.GL_FRAGMENT_SHADER, ResourceUtil.getStringResource("shaders/particle.frag.glsl"));
+        shader.link(gl);
+        gl.glUseProgram(shader.program);
+
+        gl.glActiveTexture(GL4.GL_TEXTURE0);
+        texture = new Texture(gl);
+        ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/particle.png");
+        texture.attach(gl, image.width, image.height,  GL.GL_RGBA, image.buffer);
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
+
+        gl.glUniform1i(gl.glGetUniformLocation(shader.program, "particleTexture"), 0);
+
+        IntBuffer vertexBufferId = GLBuffers.newDirectIntBuffer(1);
+        gl.glGenBuffers(1, vertexBufferId);
+        this.vertexBufferId = vertexBufferId.get(0);
+        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vertexBufferId);
+
+        gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 6 * Float.BYTES, 0);
+        gl.glEnableVertexAttribArray(0);
+
+        gl.glVertexAttribPointer(1, 3, GL.GL_FLOAT, false, 6 * Float.BYTES, 3 * Float.BYTES);
+        gl.glEnableVertexAttribArray(1);
+
     }
 
     private void recycleParticle(Particle p) {
@@ -66,53 +103,15 @@ public class ParticleSystem implements Entity {
     }
 
     @Override
-    public void initialize(GL4 gl) {
-
-        framebuffer = new FrameBuffer(gl);
-        //framebuffer.bind(gl);
-
-        renderTexture = new Texture(gl);
-        //renderTexture.attach(gl, Sandbox.WIDTH, Sandbox.HEIGHT, GL.GL_RGB, null);
-
-        gl.glPointSize(8);
-
-        shader = new ShaderProgram(gl);
-        shader.addShader(gl, GL4.GL_VERTEX_SHADER, ResourceUtil.getStringResource("shaders/particle.vert.glsl"));
-        shader.addShader(gl, GL4.GL_FRAGMENT_SHADER, ResourceUtil.getStringResource("shaders/particle.frag.glsl"));
-        shader.link(gl);
-        gl.glUseProgram(shader.program);
-
-        gl.glActiveTexture(GL4.GL_TEXTURE0);
-        texture = new Texture(gl);
-        ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/particle.png");
-        texture.attach(gl, image.width, image.height,  GL.GL_RGBA, image.buffer);
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
-
-        gl.glUniform1i(gl.glGetUniformLocation(shader.program, "particleTexture"), 0);
-
-        gl.glGenBuffers(1, vertexBufferId);
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, vertexBufferId.get(0));
-
-        gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 6 * Float.BYTES, 0);
-        gl.glEnableVertexAttribArray(0);
-
-        gl.glVertexAttribPointer(1, 3, GL.GL_FLOAT, false, 6 * Float.BYTES, 3 * Float.BYTES);
-        gl.glEnableVertexAttribArray(1);
-
-    }
-
-    @Override
     public void dispose(GL4 gl) {
+        IntBuffer vertexBufferId = GLBuffers.newDirectIntBuffer(1);
+        vertexBufferId.put(this.vertexBufferId);
         gl.glDeleteBuffers(1, vertexBufferId);
     }
 
     @Override
     public void draw(GL4 gl, Camera camera) {
         updateVertices(camera);
-
-        gl.glEnable(GL4.GL_BLEND);
-        gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         texture.bind(gl);
@@ -140,6 +139,8 @@ public class ParticleSystem implements Entity {
             vertexBuffer.put(offset + 4, (float) p.color.y);
             vertexBuffer.put(offset + 5, (float) p.color.z);
         }
+
+        Collections.sort(particles, particleComparator);
     }
 
     static class Particle {
@@ -170,4 +171,13 @@ public class ParticleSystem implements Entity {
             }
         }
     }
+
+    Comparator<Particle> particleComparator = new Comparator<Particle>() {
+        @Override
+        public int compare(Particle o1, Particle o2) {
+            if (o1.position.z == o2.position.z)
+                return 0;
+            return (o1.position.z < o2.position.z) ? -1 : 1;
+        }
+    };
 }

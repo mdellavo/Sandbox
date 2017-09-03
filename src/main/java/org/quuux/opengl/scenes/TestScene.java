@@ -3,12 +3,12 @@ package org.quuux.opengl.scenes;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL4;
 import org.joml.Vector3d;
-import org.quuux.opengl.entities.ParticleSystem;
+import org.quuux.opengl.entities.ParticleEmitter;
 import org.quuux.opengl.entities.Quad;
 
 public class TestScene extends Scene {
 
-    long totalElapsed;
+    long ticks, totalElapsed;
 
     @Override
     public void setup(GL4 gl) {
@@ -26,14 +26,15 @@ public class TestScene extends Scene {
         Quad quad = new Quad(new Vector3d(0, 0, -3), gl);
         addChild(quad);
 
-        ParticleSystem ps = new ParticleSystem(new Vector3d(), gl);
-        addChild(ps);
+        ParticleEmitter pe = new ParticleEmitter(new Vector3d(), gl);
+        addChild(pe);
 
         camera.setEye(0, 5, 5);
     }
 
     @Override
     public void update(long t) {
+        ticks += 1;
         totalElapsed += t;
 
         double angle = (totalElapsed % 5000) / 5000. * 360.;
@@ -42,6 +43,11 @@ public class TestScene extends Scene {
         camera.setEye(eyeX, 5, eyeZ);
 
         super.update(t);
+
+        if (totalElapsed % 1000 == 0) {
+            double avgElapsed = totalElapsed / ticks;
+            System.out.println("avg elapsed per tick: " + avgElapsed);
+        }
     }
 
     @Override

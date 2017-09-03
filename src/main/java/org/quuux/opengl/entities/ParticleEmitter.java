@@ -23,7 +23,7 @@ import org.quuux.opengl.util.RandomUtil;
 import org.quuux.opengl.util.ResourceUtil;
 
 
-public class ParticleSystem implements Entity {
+public class ParticleEmitter implements Entity {
 
     private static final int NUM_PARATICLES = 5000;
 
@@ -43,7 +43,7 @@ public class ParticleSystem implements Entity {
     FrameBuffer framebuffer;
     Texture renderTexture;
 
-    public ParticleSystem(Vector3d position, GL4 gl) {
+    public ParticleEmitter(Vector3d position, GL4 gl) {
         this.position = position;
         for (int i=0; i<NUM_PARATICLES; i++) {
             Particle p = new Particle();

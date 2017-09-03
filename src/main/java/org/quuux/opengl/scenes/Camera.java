@@ -1,4 +1,4 @@
-package org.quuux.opengl.lib;
+package org.quuux.opengl.scenes;
 
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;

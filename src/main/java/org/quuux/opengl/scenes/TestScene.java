@@ -3,8 +3,8 @@ package org.quuux.opengl.scenes;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL4;
 import org.joml.Vector3d;
-import org.quuux.opengl.lib.ParticleSystem;
-import org.quuux.opengl.lib.Quad;
+import org.quuux.opengl.entities.ParticleSystem;
+import org.quuux.opengl.entities.Quad;
 
 public class TestScene extends Scene {
 

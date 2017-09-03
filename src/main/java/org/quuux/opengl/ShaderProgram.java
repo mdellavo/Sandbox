@@ -7,12 +7,16 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ShaderProgram {
 
     public int program = 0;
     List<Integer> shaders = new ArrayList<>();
+
+    Map<String, Integer> uniformCache = new HashMap<>();
 
     public ShaderProgram(GL4 gl) {
         program = gl.glCreateProgram();
@@ -64,4 +68,13 @@ public class ShaderProgram {
         return program;
     }
 
+    public int getUniformLocation(GL4 gl, String name) {
+        Integer location = uniformCache.get(name);
+        if (location == null) {
+            location = gl.glGetUniformLocation(program, name);
+            uniformCache.put(name, location);
+
+        }
+        return location;
+    }
 }

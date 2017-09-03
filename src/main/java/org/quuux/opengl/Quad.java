@@ -23,14 +23,19 @@ public class Quad implements Entity {
     };
 
     final float[] textureCoords = new float[] {
-
+            0, 0,
+            1, 0,
+            1, 1,
+            0, 0,
+            0, 1,
+            1, 1,
     };
 
     Matrix4d model = new Matrix4d().identity();
     Matrix4f mvp = new Matrix4f();
     FloatBuffer mvpBuffer = GLBuffers.newDirectFloatBuffer(16);
 
-    FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(vertices.length);
+    FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(vertices.length + textureCoords.length);
     Texture texture;
     ShaderProgram shader;
 
@@ -51,14 +56,31 @@ public class Quad implements Entity {
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
 
-        gl.glUniform1i(gl.glGetUniformLocation(shader.program, "texture"), 0);
+        gl.glUniform1i(shader.getUniformLocation(gl, "texture"), 0);
 
         IntBuffer vertexBufferId = GLBuffers.newDirectIntBuffer(1);
         gl.glGenBuffers(1, vertexBufferId);
         gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, vertexBufferId.get(0));
 
-        gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 6 * Float.BYTES, 0);
+        gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 5 * Float.BYTES, 0);
         gl.glEnableVertexAttribArray(0);
+
+        gl.glVertexAttribPointer(1, 3, GL.GL_FLOAT, false, 5 * Float.BYTES, 3 * Float.BYTES);
+        gl.glEnableVertexAttribArray(1);
+
+        updateBufferData();
+    }
+
+    private void updateBufferData() {
+        int rows = vertices.length / 3;
+        for (int i=0; i<rows; i++) {
+            int offset = i * 5;
+            vertexBuffer.put(offset, vertices[i]);
+            vertexBuffer.put(offset+1, vertices[i+1]);
+            vertexBuffer.put(offset+2, vertices[i+2]);
+            vertexBuffer.put(offset+3, textureCoords[i]);
+            vertexBuffer.put(offset+4, textureCoords[i+1]);
+        }
     }
 
     @Override
@@ -67,15 +89,15 @@ public class Quad implements Entity {
     }
 
     @Override
-    public void draw(GL4 gl, Camera camera) {
+    public void draw(GL4 gl) {
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         texture.bind(gl);
 
         gl.glUseProgram(shader.program);
 
-        camera.modelViewProjectionMatrix(model, mvp);
+        Scene.getScene().getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
-        gl.glUniformMatrix4fv(gl.glGetUniformLocation(shader.program, "mvp"), 1, false, mvpBuffer);
+        gl.glUniformMatrix4fv(shader.getUniformLocation(gl, "mvp"), 1, false, mvpBuffer);
 
         gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW);
         gl.glDrawArrays(GL.GL_TRIANGLES, 0, vertices.length);

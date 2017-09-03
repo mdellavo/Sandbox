@@ -22,9 +22,9 @@ public class EntityGroup implements Entity {
     }
 
     @Override
-    public void draw(GL4 gl, Camera camera) {
+    public void draw(GL4 gl) {
         for(Entity child : this.children)
-            child.draw(gl, camera);
+            child.draw(gl);
     }
 
     public void addChild(Entity child) {

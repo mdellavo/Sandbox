@@ -48,9 +48,9 @@ public class ParticleSystem implements Entity {
 
 //        framebuffer = new FrameBuffer(gl);
 //        framebuffer.bind(gl);
-//
+
 //        renderTexture = new Texture(gl);
-//        renderTexture.attach(gl, Sandbox.WIDTH, Sandbox.HEIGHT, GL.GL_RGB, null);
+//        renderTexture.attach(gl, Config.WIDTH, Config.HEIGHT, GL.GL_RGB, null);
 
         gl.glPointSize(16);
 
@@ -67,10 +67,11 @@ public class ParticleSystem implements Entity {
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
 
-        gl.glUniform1i(gl.glGetUniformLocation(shader.program, "particleTexture"), 0);
+        gl.glUniform1i(shader.getUniformLocation(gl, "particleTexture"), 0);
 
         IntBuffer vertexBufferId = GLBuffers.newDirectIntBuffer(1);
         gl.glGenBuffers(1, vertexBufferId);
+
         this.vertexBufferId = vertexBufferId.get(0);
         gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vertexBufferId);
 
@@ -79,7 +80,6 @@ public class ParticleSystem implements Entity {
 
         gl.glVertexAttribPointer(1, 3, GL.GL_FLOAT, false, 6 * Float.BYTES, 3 * Float.BYTES);
         gl.glEnableVertexAttribArray(1);
-
     }
 
     private void recycleParticle(Particle p) {
@@ -110,23 +110,23 @@ public class ParticleSystem implements Entity {
     }
 
     @Override
-    public void draw(GL4 gl, Camera camera) {
-        updateVertices(camera);
+    public void draw(GL4 gl) {
+        updateVertices();
 
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         texture.bind(gl);
 
         gl.glUseProgram(shader.program);
 
-        camera.modelViewProjectionMatrix(model, mvp);
+        Scene.getScene().getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
-        gl.glUniformMatrix4fv(gl.glGetUniformLocation(shader.program, "mvp"), 1, false, mvpBuffer);
+        gl.glUniformMatrix4fv(shader.getUniformLocation(gl, "mvp"), 1, false, mvpBuffer);
 
         gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW);
         gl.glDrawArrays(GL.GL_POINTS, 0, NUM_PARATICLES);
     }
 
-    private void updateVertices(Camera camera) {
+    private void updateVertices() {
 
         for (int i=0; i<NUM_PARATICLES; i++) {
 

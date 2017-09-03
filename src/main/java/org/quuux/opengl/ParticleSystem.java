@@ -175,9 +175,10 @@ public class ParticleSystem implements Entity {
     Comparator<Particle> particleComparator = new Comparator<Particle>() {
         @Override
         public int compare(Particle o1, Particle o2) {
-            if (o1.position.z == o2.position.z)
-                return 0;
-            return (o1.position.z < o2.position.z) ? -1 : 1;
+            Camera camera = Scene.getScene().getCamera();
+            double d1 = camera.eye.distance(o1.position);
+            double d2 = camera.eye.distance(o2.position);
+            return -Double.compare(d1, d2);
         }
     };
 }

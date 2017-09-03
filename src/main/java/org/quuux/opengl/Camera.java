@@ -7,10 +7,10 @@ import org.joml.Vector3d;
 
 public class Camera {
 
-    double fov, aspectRatio, zNear, zFar;
-    Vector3d eye = new Vector3d(), center = new Vector3d(), up = new Vector3d(0, 1, 0);
+    public double fov, aspectRatio, zNear, zFar;
+    public Vector3d eye = new Vector3d(), center = new Vector3d(), up = new Vector3d(0, 1, 0);
 
-    Matrix4d projectionMatrix = new Matrix4d(),
+    public Matrix4d projectionMatrix = new Matrix4d(),
             viewMatrix = new Matrix4d(),
             scratch = new Matrix4d();
 

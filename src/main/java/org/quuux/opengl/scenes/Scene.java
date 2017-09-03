@@ -13,15 +13,17 @@ public abstract class Scene extends EntityGroup {
         setScene(this);
     }
 
-    public void setup(GL4 gl) {
-
-    }
+    public void setup(GL4 gl) { }
 
     public static Scene getScene() {
         return instance;
     }
 
     public static void setScene(Scene scene) {
+        if (instance != null) {
+            throw new RuntimeException("Scene is already set!");
+        }
+
         System.out.println("set scene " + scene.getClass().getSimpleName());
         instance = scene;
     }

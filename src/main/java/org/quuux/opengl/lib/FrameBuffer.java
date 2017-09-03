@@ -1,4 +1,4 @@
-package org.quuux.opengl;
+package org.quuux.opengl.lib;
 
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.util.GLBuffers;

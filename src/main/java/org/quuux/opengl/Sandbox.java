@@ -7,6 +7,8 @@ import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.Animator;
+import org.quuux.opengl.scenes.Scene;
+import org.quuux.opengl.scenes.TestScene;
 
 class Sandbox implements KeyListener, GLEventListener {
 

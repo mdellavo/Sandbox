@@ -1,4 +1,4 @@
-package org.quuux.opengl;
+package org.quuux.opengl.lib;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -14,6 +14,7 @@ import com.jogamp.opengl.util.GLBuffers;
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
+import org.quuux.opengl.scenes.Scene;
 import org.quuux.opengl.util.RandomUtil;
 import org.quuux.opengl.util.ResourceUtil;
 
@@ -38,7 +39,7 @@ public class ParticleSystem implements Entity {
     FrameBuffer framebuffer;
     Texture renderTexture;
 
-    ParticleSystem(Vector3d position, GL4 gl) {
+    public ParticleSystem(Vector3d position, GL4 gl) {
         this.position = position;
         for (int i=0; i<NUM_PARATICLES; i++) {
             Particle p = new Particle();

@@ -1,6 +1,8 @@
-package org.quuux.opengl;
+package org.quuux.opengl.scenes;
 
 import com.jogamp.opengl.GL4;
+import org.quuux.opengl.lib.Camera;
+import org.quuux.opengl.lib.EntityGroup;
 
 public abstract class Scene extends EntityGroup {
     private static Scene instance;

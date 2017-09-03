@@ -1,4 +1,4 @@
-package org.quuux.opengl;
+package org.quuux.opengl.lib;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL4;
@@ -6,6 +6,7 @@ import com.jogamp.opengl.util.GLBuffers;
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
+import org.quuux.opengl.scenes.Scene;
 import org.quuux.opengl.util.ResourceUtil;
 
 import java.nio.FloatBuffer;

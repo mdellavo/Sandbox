@@ -1,4 +1,4 @@
-package org.quuux.opengl;
+package org.quuux.opengl.lib;
 
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;

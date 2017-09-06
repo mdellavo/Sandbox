@@ -35,7 +35,9 @@ public class ParticleEmitter implements Entity {
     List<Particle> particles = new ArrayList<>(NUM_PARATICLES);
 
     FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(6 * NUM_PARATICLES);
-    int vertexBufferId;
+
+    int vbo;
+    int vao;
 
     Texture texture;
     ShaderProgram shader;
@@ -74,11 +76,15 @@ public class ParticleEmitter implements Entity {
 
         gl.glUniform1i(shader.getUniformLocation(gl, "particleTexture"), 0);
 
-        IntBuffer vertexBufferId = GLBuffers.newDirectIntBuffer(1);
-        gl.glGenBuffers(1, vertexBufferId);
+        IntBuffer tmp = GLBuffers.newDirectIntBuffer(1);
+        gl.glGenVertexArrays(1, tmp);
+        vao = tmp.get(0);
 
-        this.vertexBufferId = vertexBufferId.get(0);
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vertexBufferId);
+        gl.glBindVertexArray(vao);
+
+        gl.glGenBuffers(1, tmp);
+        vbo = tmp.get(0);
+        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vbo);
 
         gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 6 * Float.BYTES, 0);
         gl.glEnableVertexAttribArray(0);
@@ -110,7 +116,7 @@ public class ParticleEmitter implements Entity {
     @Override
     public void dispose(GL4 gl) {
         IntBuffer vertexBufferId = GLBuffers.newDirectIntBuffer(1);
-        vertexBufferId.put(this.vertexBufferId);
+        vertexBufferId.put(this.vbo);
         gl.glDeleteBuffers(1, vertexBufferId);
     }
 
@@ -123,10 +129,13 @@ public class ParticleEmitter implements Entity {
 
         gl.glUseProgram(shader.program);
 
+        gl.glBindVertexArray(vao);
+
         Scene.getScene().getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
         gl.glUniformMatrix4fv(shader.getUniformLocation(gl, "mvp"), 1, false, mvpBuffer);
 
+        //gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vbo);
         gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW);
         gl.glDrawArrays(GL.GL_POINTS, 0, NUM_PARATICLES);
     }

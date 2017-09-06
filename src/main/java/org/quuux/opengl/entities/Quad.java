@@ -16,29 +16,25 @@ import java.nio.IntBuffer;
 
 public class Quad implements Entity {
 
-    final float[] vertices = new float[] {
-            -.5f, -.5f, 0,
-            .5f, -.5f, 0,
-            .5f, .5f, 0,
-            -.5f, -.5f, 0,
-            -.5f, .5f, 0,
-            .5f, .5f, 0,
-    };
+    float vertices[] = {
+            // verticies         // texture coords
+             0.5f,  0.5f, 0.0f,  1.0f, 1.0f,  // top right
+             0.5f, -0.5f, 0.0f,  1.0f, 0.0f,  // bottom right
+            -0.5f,  0.5f, 0.0f,  0.0f, 1.0f,  // top left
 
-    final float[] textureCoords = new float[] {
-            0, 0,
-            1, 0,
-            1, 1,
-            0, 0,
-            0, 1,
-            1, 1,
+             0.5f, -0.5f, 0.0f,  1.0f, 0.0f,  // bottom right
+            -0.5f, -0.5f, 0.0f,  0.0f, 0.0f,  // bottom left
+            -0.5f,  0.5f, 0.0f,  0.0f, 1.0f,  // top left
     };
 
     Matrix4d model = new Matrix4d().identity();
     Matrix4f mvp = new Matrix4f();
     FloatBuffer mvpBuffer = GLBuffers.newDirectFloatBuffer(16);
 
-    FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(vertices.length + textureCoords.length);
+    int vbo;
+    int vao;
+
+    FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(vertices);
     Texture texture;
     ShaderProgram shader;
 
@@ -61,29 +57,24 @@ public class Quad implements Entity {
 
         gl.glUniform1i(shader.getUniformLocation(gl, "texture"), 0);
 
-        IntBuffer vertexBufferId = GLBuffers.newDirectIntBuffer(1);
-        gl.glGenBuffers(1, vertexBufferId);
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, vertexBufferId.get(0));
+        IntBuffer tmp = GLBuffers.newDirectIntBuffer(1);
+
+        gl.glGenVertexArrays(1, tmp);
+        this.vao = tmp.get(0);
+
+        gl.glBindVertexArray(this.vao);
+
+        gl.glGenBuffers(1, tmp);
+        this.vbo = tmp.get(0);
+
+        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vbo);
+        gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, vertexBuffer, GL4.GL_STATIC_DRAW);
 
         gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 5 * Float.BYTES, 0);
         gl.glEnableVertexAttribArray(0);
 
-        gl.glVertexAttribPointer(1, 3, GL.GL_FLOAT, false, 5 * Float.BYTES, 3 * Float.BYTES);
+        gl.glVertexAttribPointer(1, 2, GL.GL_FLOAT, false, 5 * Float.BYTES, 3 * Float.BYTES);
         gl.glEnableVertexAttribArray(1);
-
-        updateBufferData();
-    }
-
-    private void updateBufferData() {
-        int rows = vertices.length / 3;
-        for (int i=0; i<rows; i++) {
-            int offset = i * 5;
-            vertexBuffer.put(offset, vertices[i]);
-            vertexBuffer.put(offset+1, vertices[i+1]);
-            vertexBuffer.put(offset+2, vertices[i+2]);
-            vertexBuffer.put(offset+3, textureCoords[i]);
-            vertexBuffer.put(offset+4, textureCoords[i+1]);
-        }
     }
 
     @Override
@@ -98,13 +89,13 @@ public class Quad implements Entity {
 
         gl.glUseProgram(shader.program);
 
+        gl.glBindVertexArray(this.vao);
+
         Scene.getScene().getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
         gl.glUniformMatrix4fv(shader.getUniformLocation(gl, "mvp"), 1, false, mvpBuffer);
 
-        gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW);
-        gl.glDrawArrays(GL.GL_TRIANGLES, 0, vertices.length);
-
+        gl.glDrawArrays(GL.GL_TRIANGLES, 0, 6);
     }
 
     @Override

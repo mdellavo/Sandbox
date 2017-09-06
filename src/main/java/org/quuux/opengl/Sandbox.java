@@ -26,6 +26,8 @@ class Sandbox implements KeyListener, GLEventListener {
     private void setup() {
         GLProfile glProfile = GLProfile.get(Config.GL_PROFILE);
         GLCapabilities glCapabilities = new GLCapabilities(glProfile);
+        glCapabilities.setSampleBuffers(true);
+        glCapabilities.setNumSamples(8);
 
         window = GLWindow.create(glCapabilities);
 

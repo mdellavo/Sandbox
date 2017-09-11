@@ -21,10 +21,16 @@ public class Texture {
         gl.glBindTexture(GL.GL_TEXTURE_2D, texture);
     }
 
+    public void clear(GL4 gl) {
+        gl.glBindTexture(GL.GL_TEXTURE_2D, 0);
+    }
+
     public void attach(GL4 gl, int width, int height, int format, ByteBuffer buffer) {
         bind(gl);
 
-        gl.glPixelStorei(GL4.GL_UNPACK_ALIGNMENT, 4);
+        if (buffer != null)
+            gl.glPixelStorei(GL4.GL_UNPACK_ALIGNMENT, 4);
+
         gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, format, width, height, 0, format, GL4.GL_UNSIGNED_BYTE, buffer);
     }
 }

@@ -2,16 +2,23 @@ package org.quuux.opengl.scenes;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL4;
-import org.joml.Vector3d;
+import org.quuux.opengl.Config;
 import org.quuux.opengl.entities.ParticleEmitter;
 import org.quuux.opengl.entities.Quad;
+import org.quuux.opengl.lib.FrameBuffer;
+import org.quuux.opengl.util.Log;
 
 public class TestScene extends Scene {
 
     long ticks, totalElapsed;
 
+    FrameBuffer framebuffer;
+    ParticleEmitter pe;
+
     @Override
     public void setup(GL4 gl) {
+        Log.out("\n\n*** setup scene\n\n");
+
         super.setup(gl);
 
         gl.glClearColor(0, 0, 0, 1);
@@ -23,11 +30,12 @@ public class TestScene extends Scene {
 
         gl.glEnable(GL4.GL_MULTISAMPLE);
 
-        Quad quad = new Quad(new Vector3d(0, 0, -3), gl);
-        addChild(quad);
+        framebuffer = new FrameBuffer(gl, Config.WIDTH, Config.HEIGHT);
 
-        ParticleEmitter pe = new ParticleEmitter(new Vector3d(), gl);
-        addChild(pe);
+        pe = new ParticleEmitter(gl);
+
+        Quad quad = new Quad(gl, framebuffer.getTexture());
+        addChild(quad);
 
         camera.setEye(0, 5, 5);
     }
@@ -44,14 +52,17 @@ public class TestScene extends Scene {
 
         super.update(t);
 
-        if (totalElapsed % 1000 == 0) {
-            double avgElapsed = totalElapsed / ticks;
-            System.out.println("avg elapsed per tick: " + avgElapsed);
-        }
+        pe.update(t);
     }
 
     @Override
     public void draw(GL4 gl) {
+        Log.out("\n\n*** draw scene\n\n");
+        framebuffer.bind(gl);
+        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+        pe.draw(gl);
+        framebuffer.clear(gl);
+
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
         super.draw(gl);
     }

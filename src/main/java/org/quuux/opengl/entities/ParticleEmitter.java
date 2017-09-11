@@ -14,11 +14,11 @@ import com.jogamp.opengl.util.GLBuffers;
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
-import org.quuux.opengl.lib.FrameBuffer;
 import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.lib.Texture;
 import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.scenes.Scene;
+import org.quuux.opengl.util.Log;
 import org.quuux.opengl.util.RandomUtil;
 import org.quuux.opengl.util.ResourceUtil;
 
@@ -31,7 +31,7 @@ public class ParticleEmitter implements Entity {
     Matrix4f mvp = new Matrix4f();
     FloatBuffer mvpBuffer = GLBuffers.newDirectFloatBuffer(16);
 
-    Vector3d position;
+    Vector3d position = new Vector3d();
     List<Particle> particles = new ArrayList<>(NUM_PARATICLES);
 
     FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(6 * NUM_PARATICLES);
@@ -42,23 +42,14 @@ public class ParticleEmitter implements Entity {
     Texture texture;
     ShaderProgram shader;
 
-    FrameBuffer framebuffer;
-    Texture renderTexture;
+    public ParticleEmitter(GL4 gl) {
+        Log.out("\n\n*** emitter init\n\n");
 
-    public ParticleEmitter(Vector3d position, GL4 gl) {
-        this.position = position;
         for (int i=0; i<NUM_PARATICLES; i++) {
             Particle p = new Particle();
             particles.add(p);
             recycleParticle(p);
         }
-
-//        framebuffer = new FrameBuffer(gl);
-//        framebuffer.bind(gl);
-
-//        renderTexture = new Texture(gl);
-//        renderTexture.attach(gl, Config.WIDTH, Config.HEIGHT, GL.GL_RGB, null);
-
         gl.glPointSize(16);
 
         shader = new ShaderProgram(gl);
@@ -71,6 +62,7 @@ public class ParticleEmitter implements Entity {
         texture = new Texture(gl);
         ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/particle.png");
         texture.attach(gl, image.width, image.height,  GL.GL_RGBA, image.buffer);
+
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
 
@@ -91,6 +83,10 @@ public class ParticleEmitter implements Entity {
 
         gl.glVertexAttribPointer(1, 3, GL.GL_FLOAT, false, 6 * Float.BYTES, 3 * Float.BYTES);
         gl.glEnableVertexAttribArray(1);
+
+        gl.glBindVertexArray(0);
+        texture.clear(gl);
+        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
     }
 
     private void recycleParticle(Particle p) {
@@ -122,6 +118,8 @@ public class ParticleEmitter implements Entity {
 
     @Override
     public void draw(GL4 gl) {
+        Log.out("\n\n*** emitter draw\n\n");
+
         updateVertices();
 
         gl.glActiveTexture(GL4.GL_TEXTURE0);
@@ -129,21 +127,25 @@ public class ParticleEmitter implements Entity {
 
         gl.glUseProgram(shader.program);
 
+        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vbo);
         gl.glBindVertexArray(vao);
 
         Scene.getScene().getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
         gl.glUniformMatrix4fv(shader.getUniformLocation(gl, "mvp"), 1, false, mvpBuffer);
 
-        //gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vbo);
         gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW);
         gl.glDrawArrays(GL.GL_POINTS, 0, NUM_PARATICLES);
+
+        gl.glBindVertexArray(0);
+        texture.clear(gl);
+        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
+        gl.glUseProgram(0);
+
     }
 
     private void updateVertices() {
-
         for (int i=0; i<NUM_PARATICLES; i++) {
-
             Particle p = particles.get(i);
             int offset = 6 * i;
             vertexBuffer.put(offset, (float) p.position.x);

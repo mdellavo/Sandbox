@@ -43,7 +43,7 @@ public class ParticleEmitter implements Entity {
     ShaderProgram shader;
 
     public ParticleEmitter(GL4 gl) {
-        Log.out("\n\n*** emitter init\n\n");
+        Log.out("*** emitter init");
 
         for (int i=0; i<NUM_PARATICLES; i++) {
             Particle p = new Particle();
@@ -118,7 +118,7 @@ public class ParticleEmitter implements Entity {
 
     @Override
     public void draw(GL4 gl) {
-        Log.out("\n\n*** emitter draw\n\n");
+        Log.out("*** emitter draw");
 
         updateVertices();
 

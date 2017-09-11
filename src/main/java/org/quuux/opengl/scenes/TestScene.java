@@ -17,7 +17,7 @@ public class TestScene extends Scene {
 
     @Override
     public void setup(GL4 gl) {
-        Log.out("\n\n*** setup scene\n\n");
+        Log.out("*** setup scene");
 
         super.setup(gl);
 
@@ -57,7 +57,7 @@ public class TestScene extends Scene {
 
     @Override
     public void draw(GL4 gl) {
-        Log.out("\n\n*** draw scene\n\n");
+        Log.out("*** draw scene");
         framebuffer.bind(gl);
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
         pe.draw(gl);

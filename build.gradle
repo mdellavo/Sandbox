@@ -11,7 +11,7 @@ defaultTasks 'jar run'
 mainClassName = "org.quuux.opengl.Sandbox"
 
 // "-Djogl.debug.TraceGL"
-applicationDefaultJvmArgs = ["-Djogl.debug.DebugGL", "-Djogl.debug.TraceGL"]
+applicationDefaultJvmArgs = ["-Djogl.debug.DebugGL",]
 
 jar {
     from {

@@ -19,13 +19,13 @@ public class Quad implements Entity {
 
     float vertices[] = {
             // verticies         // texture coords
-             0.5f,  0.5f, 0.0f,  1.0f, 1.0f,  // top right
-             0.5f, -0.5f, 0.0f,  1.0f, 0.0f,  // bottom right
-            -0.5f,  0.5f, 0.0f,  0.0f, 1.0f,  // top left
+             1,  1, 0,  1, 1,  // top right
+             1, -1, 0,  1, 0,  // bottom right
+            -1,  1, 0,  0, 1,  // top left
 
-             0.5f, -0.5f, 0.0f,  1.0f, 0.0f,  // bottom right
-            -0.5f, -0.5f, 0.0f,  0.0f, 0.0f,  // bottom left
-            -0.5f,  0.5f, 0.0f,  0.0f, 1.0f,  // top left
+             1, -1, 0,  1, 0,  // bottom right
+            -1, -1, 0,  0, 0,  // bottom left
+            -1,  1, 0,  0, 1,  // top left
     };
 
     Matrix4d model = new Matrix4d().identity();
@@ -40,7 +40,7 @@ public class Quad implements Entity {
     ShaderProgram shader;
 
     public Quad(GL4 gl, Texture texture) {
-        Log.out("\n\n*** quad init\n\n");
+        Log.out("*** quad init");
 
         shader = new ShaderProgram(gl);
         shader.addShader(gl, GL4.GL_VERTEX_SHADER, ResourceUtil.getStringResource("shaders/quad.vert.glsl"));
@@ -86,7 +86,7 @@ public class Quad implements Entity {
 
     @Override
     public void draw(GL4 gl) {
-        Log.out("\n\n*** quad draw\n\n");
+        Log.out("*** quad draw");
 
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         texture.bind(gl);

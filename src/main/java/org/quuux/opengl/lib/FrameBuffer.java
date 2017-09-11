@@ -15,7 +15,7 @@ public class FrameBuffer {
     Texture texture;
 
     public FrameBuffer(GL4 gl, int width, int height) {
-        Log.out("\n\n*** Framebuffer init\n\n");
+        Log.out("*** Framebuffer init");
 
         this.width = width;
         this.height = height;

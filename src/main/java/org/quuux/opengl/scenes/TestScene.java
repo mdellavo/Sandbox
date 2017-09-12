@@ -6,22 +6,25 @@ import org.quuux.opengl.Config;
 import org.quuux.opengl.entities.ParticleEmitter;
 import org.quuux.opengl.entities.Quad;
 import org.quuux.opengl.lib.FrameBuffer;
+import org.quuux.opengl.lib.Texture;
 import org.quuux.opengl.util.Log;
+
 
 public class TestScene extends Scene {
 
     long ticks, totalElapsed;
 
-    FrameBuffer framebuffer;
+    FrameBuffer frameBuffer;
     ParticleEmitter pe;
+    Quad quad;
 
     @Override
     public void setup(GL4 gl) {
-        Log.out("*** setup scene");
+        //Log.out("*** setup scene");
 
         super.setup(gl);
 
-        gl.glClearColor(0, 0, 0, 1);
+        gl.glClearColor(0, 0, 0, .9f);
         gl.glEnable(GL4.GL_BLEND);
         gl.glBlendFunc(GL4.GL_SRC_ALPHA, GL4.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -30,12 +33,21 @@ public class TestScene extends Scene {
 
         gl.glEnable(GL4.GL_MULTISAMPLE);
 
-        framebuffer = new FrameBuffer(gl, Config.WIDTH, Config.HEIGHT);
+        frameBuffer = new FrameBuffer(gl, Config.WIDTH, Config.HEIGHT);
+
+        Texture texture = new Texture(gl);
+        texture.attach(gl, Config.WIDTH, Config.HEIGHT, GL4.GL_RGB, null);
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
+        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
+        texture.clear(gl);
+        frameBuffer.attach(gl, texture);
+
+        frameBuffer.clear(gl);
 
         pe = new ParticleEmitter(gl);
 
-        Quad quad = new Quad(gl, framebuffer.getTexture());
-        addChild(quad);
+        quad = new Quad(gl);
+        quad.setTexture(texture);
 
         camera.setEye(0, 5, 5);
     }
@@ -57,13 +69,16 @@ public class TestScene extends Scene {
 
     @Override
     public void draw(GL4 gl) {
-        Log.out("*** draw scene");
-        framebuffer.bind(gl);
+        //Log.out("*** draw scene");
+
+        // pass 1 - render particles
+        frameBuffer.bind(gl);
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
         pe.draw(gl);
-        framebuffer.clear(gl);
+        frameBuffer.clear(gl);
 
+        // render texture
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-        super.draw(gl);
+        quad.draw(gl);
     }
 }

@@ -39,8 +39,8 @@ public class Quad implements Entity {
     Texture texture;
     ShaderProgram shader;
 
-    public Quad(GL4 gl, Texture texture) {
-        Log.out("*** quad init");
+    public Quad(GL4 gl) {
+        //Log.out("*** quad init");
 
         shader = new ShaderProgram(gl);
         shader.addShader(gl, GL4.GL_VERTEX_SHADER, ResourceUtil.getStringResource("shaders/quad.vert.glsl"));
@@ -48,10 +48,7 @@ public class Quad implements Entity {
         shader.link(gl);
         gl.glUseProgram(shader.program);
 
-        this.texture = texture;
-
         gl.glActiveTexture(GL4.GL_TEXTURE0);
-        texture.bind(gl);
         gl.glUniform1i(shader.getUniformLocation(gl, "texture"), 0);
 
         IntBuffer tmp = GLBuffers.newDirectIntBuffer(1);
@@ -74,7 +71,6 @@ public class Quad implements Entity {
         gl.glEnableVertexAttribArray(1);
 
         gl.glBindVertexArray(0);
-        texture.clear(gl);
         gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
         gl.glUseProgram(0);
     }
@@ -86,7 +82,7 @@ public class Quad implements Entity {
 
     @Override
     public void draw(GL4 gl) {
-        Log.out("*** quad draw");
+        //Log.out("*** quad draw");
 
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         texture.bind(gl);
@@ -116,6 +112,10 @@ public class Quad implements Entity {
 
     public Matrix4d getModel() {
         return model;
+    }
+
+    public void setTexture(Texture texture) {
+        this.texture = texture;
     }
 
 }

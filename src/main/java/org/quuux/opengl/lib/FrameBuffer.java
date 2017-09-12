@@ -8,31 +8,17 @@ import java.nio.IntBuffer;
 
 public class FrameBuffer {
 
-    int width;
-    int height;
     int fbo;
     int rbo;
-    Texture texture;
 
     public FrameBuffer(GL4 gl, int width, int height) {
-        Log.out("*** Framebuffer init");
-
-        this.width = width;
-        this.height = height;
+        //Log.out("*** Framebuffer init");
 
         IntBuffer buffer = GLBuffers.newDirectIntBuffer(1);
 
         gl.glGenFramebuffers(1, buffer);
         fbo = buffer.get(0);
         gl.glBindFramebuffer(GL4.GL_FRAMEBUFFER, fbo);
-
-        texture = new Texture(gl);
-        texture.attach(gl, width, height, GL4.GL_RGB, null);
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
-        texture.clear(gl);
-
-        gl.glFramebufferTexture2D(GL4.GL_FRAMEBUFFER, GL4.GL_COLOR_ATTACHMENT0, GL4.GL_TEXTURE_2D, texture.texture, 0);
 
         gl.glGenRenderbuffers(1, buffer);
         rbo = buffer.get(0);
@@ -41,8 +27,6 @@ public class FrameBuffer {
         gl.glBindRenderbuffer(GL4.GL_RENDERBUFFER, 0);
 
         gl.glFramebufferRenderbuffer(GL4.GL_FRAMEBUFFER, GL4.GL_DEPTH_STENCIL_ATTACHMENT, GL4.GL_RENDERBUFFER, rbo);
-
-        assert checkStatus(gl);
     }
 
     public void bind(GL4 gl) {
@@ -57,7 +41,7 @@ public class FrameBuffer {
         return gl.glCheckFramebufferStatus(GL4.GL_FRAMEBUFFER) == GL4.GL_FRAMEBUFFER_COMPLETE;
     }
 
-    public Texture getTexture() {
-        return texture;
+    public void attach(GL4 gl, Texture texture) {
+        gl.glFramebufferTexture2D(GL4.GL_FRAMEBUFFER, GL4.GL_COLOR_ATTACHMENT0, GL4.GL_TEXTURE_2D, texture.texture, 0);
     }
 }

@@ -25,16 +25,23 @@ import org.quuux.opengl.util.ResourceUtil;
 
 public class ParticleEmitter implements Entity {
 
-    private static final int NUM_PARATICLES = 5000;
+    private static final int NUM_PARATICLES = 500;
+    private static final int TOTAL_PARTICLES = NUM_PARATICLES * 20;
+    private static final int PARTICLE_SIZE = 8;
+    private static final int PARTICLE_LIFESPAN = 100;
+
+    long ticks;
 
     Matrix4d model = new Matrix4d().identity();
     Matrix4f mvp = new Matrix4f();
     FloatBuffer mvpBuffer = GLBuffers.newDirectFloatBuffer(16);
 
     Vector3d position = new Vector3d();
-    List<Particle> particles = new ArrayList<>(NUM_PARATICLES);
 
-    FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(6 * NUM_PARATICLES);
+    List<Particle> particles = new ArrayList<>();
+    List<Particle> pool = new ArrayList<>();
+
+    FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(6 * TOTAL_PARTICLES);
 
     int vbo;
     int vao;
@@ -44,13 +51,6 @@ public class ParticleEmitter implements Entity {
 
     public ParticleEmitter(GL4 gl) {
         //Log.out("*** emitter init");
-
-        for (int i=0; i<NUM_PARATICLES; i++) {
-            Particle p = new Particle();
-            particles.add(p);
-            recycleParticle(p);
-        }
-        gl.glPointSize(16);
 
         shader = new ShaderProgram(gl);
         shader.addShader(gl, GL4.GL_VERTEX_SHADER, ResourceUtil.getStringResource("shaders/particle.vert.glsl"));
@@ -89,24 +89,62 @@ public class ParticleEmitter implements Entity {
         gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
     }
 
-    private void recycleParticle(Particle p) {
-        Vector3d acceleration = new Vector3d(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
-        acceleration.mul(.0001);
-        Vector3d velocity = new Vector3d(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
-        velocity.mul(.02f);
+    private Particle allocateParticle() {
+        if (particles.size() >= TOTAL_PARTICLES)
+            return null;
+        Particle p = (pool.size() > 0) ? pool.remove(pool.size() - 1) : new Particle();
+        particles.add(p);
+        return p;
+    }
 
-        Vector3d color = new Vector3d(RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1));
-        p.recycle(new Vector3d(position), velocity, acceleration, color);
+    private void recycleParticle(Particle p) {
+        particles.remove(p);
+        pool.add(p);
+    }
+
+    private void seedParticles() {
+        for (int i=0; i<NUM_PARATICLES; i++) {
+            Particle p = allocateParticle();
+
+            Vector3d position = new Vector3d(this.position);
+
+            Vector3d acceleration = new Vector3d(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
+            acceleration.mul(.0001);
+
+            Vector3d velocity = new Vector3d(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
+            velocity.mul(.02f);
+
+            Vector3d color = new Vector3d(RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1));
+            int lifespan = RandomUtil.randomInt(PARTICLE_LIFESPAN / 2, PARTICLE_LIFESPAN * 2);
+            p.recycle(position, velocity, acceleration, color, lifespan);
+        }
+    }
+
+    private void trail(Particle p) {
+        Particle t = allocateParticle();
+        if (t == null)
+            return;
+        Vector3d position = new Vector3d(p.position);
+        t.recycle(position, new Vector3d(), new Vector3d(), p.color, p.lifespan / 10);
     }
 
     @Override
     public void update(long t) {
-        for (int i=0; i<NUM_PARATICLES; i++) {
+        for (int i=0; i<particles.size(); i++) {
             Particle p = particles.get(i);
             p.update(t);
-            if (!p.isAlive())
+            if (!p.isAlive()) {
                 recycleParticle(p);
+            } else {
+                trail(p);
+            }
         }
+
+        if (particles.size() == 0) {
+            seedParticles();
+        }
+
+        ticks++;
     }
 
     @Override
@@ -120,7 +158,7 @@ public class ParticleEmitter implements Entity {
     public void draw(GL4 gl) {
         //Log.out("*** emitter draw");
 
-        updateVertices();
+        updateVertices(vertexBuffer);
 
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         texture.bind(gl);
@@ -134,8 +172,9 @@ public class ParticleEmitter implements Entity {
         mvp.get(mvpBuffer);
         gl.glUniformMatrix4fv(shader.getUniformLocation(gl, "mvp"), 1, false, mvpBuffer);
 
+        gl.glPointSize(PARTICLE_SIZE);
         gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW);
-        gl.glDrawArrays(GL.GL_POINTS, 0, NUM_PARATICLES);
+        gl.glDrawArrays(GL.GL_POINTS, 0, particles.size());
 
         gl.glBindVertexArray(0);
         texture.clear(gl);
@@ -144,8 +183,10 @@ public class ParticleEmitter implements Entity {
 
     }
 
-    private void updateVertices() {
-        for (int i=0; i<NUM_PARATICLES; i++) {
+    private void updateVertices(FloatBuffer vertexBuffer) {
+        Collections.sort(particles, particleComparator);
+
+        for (int i=0; i<particles.size(); i++) {
             Particle p = particles.get(i);
             int offset = 6 * i;
             vertexBuffer.put(offset, (float) p.position.x);
@@ -155,13 +196,11 @@ public class ParticleEmitter implements Entity {
             vertexBuffer.put(offset + 4, (float) p.color.y);
             vertexBuffer.put(offset + 5, (float) p.color.z);
         }
-
-        Collections.sort(particles, particleComparator);
     }
 
     static class Particle {
         int age = 0;
-        int lifespan = 500;
+        int lifespan;
         Vector3d position;
         Vector3d velocity;
         Vector3d acceleration;
@@ -171,12 +210,13 @@ public class ParticleEmitter implements Entity {
             return age < lifespan;
         }
 
-        void recycle(Vector3d position, Vector3d velocity, Vector3d acceleration, Vector3d color) {
+        void recycle(Vector3d position, Vector3d velocity, Vector3d acceleration, Vector3d color, int lifespan) {
             age = 0;
             this.position = position;
             this.velocity = velocity;
             this.acceleration = acceleration;
             this.color = color;
+            this.lifespan = lifespan;
         }
 
         void update(long t) {

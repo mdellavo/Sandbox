@@ -24,7 +24,7 @@ public class TestScene extends Scene {
 
         super.setup(gl);
 
-        gl.glClearColor(0, 0, 0, .9f);
+        gl.glClearColor(0, 0, 0, 0);
         gl.glEnable(GL4.GL_BLEND);
         gl.glBlendFunc(GL4.GL_SRC_ALPHA, GL4.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -50,6 +50,7 @@ public class TestScene extends Scene {
         quad.setTexture(texture);
 
         camera.setEye(0, 5, 5);
+
     }
 
     @Override

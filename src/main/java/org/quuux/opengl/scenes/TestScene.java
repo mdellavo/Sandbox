@@ -24,7 +24,7 @@ public class TestScene extends Scene {
 
         super.setup(gl);
 
-        gl.glClearColor(0, 0, 0, 0);
+        gl.glClearColor(0, 0, 0, 1);
         gl.glEnable(GL4.GL_BLEND);
         gl.glBlendFunc(GL4.GL_SRC_ALPHA, GL4.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -33,10 +33,12 @@ public class TestScene extends Scene {
 
         gl.glEnable(GL4.GL_MULTISAMPLE);
 
+        gl.glEnable(GL4.GL_PROGRAM_POINT_SIZE);
+
         frameBuffer = new FrameBuffer(gl, Config.WIDTH, Config.HEIGHT);
 
         Texture texture = new Texture(gl);
-        texture.attach(gl, Config.WIDTH, Config.HEIGHT, GL4.GL_RGB, null);
+        texture.attach(gl, Config.WIDTH, Config.HEIGHT, GL4.GL_RGBA, null);
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
         texture.clear(gl);

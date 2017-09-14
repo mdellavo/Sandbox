@@ -26,8 +26,8 @@ import org.quuux.opengl.util.ResourceUtil;
 public class ParticleEmitter implements Entity {
 
     private static final int NUM_PARATICLES = 500;
-    private static final int TOTAL_PARTICLES = NUM_PARATICLES * 20;
-    private static final int PARTICLE_SIZE = 8;
+    private static final int TOTAL_PARTICLES = NUM_PARATICLES * 10;
+    private static final int PARTICLE_SIZE = 24;
     private static final int PARTICLE_LIFESPAN = 100;
 
     long ticks;
@@ -41,7 +41,7 @@ public class ParticleEmitter implements Entity {
     List<Particle> particles = new ArrayList<>();
     List<Particle> pool = new ArrayList<>();
 
-    FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(6 * TOTAL_PARTICLES);
+    FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(8 * TOTAL_PARTICLES);
 
     int vbo;
     int vao;
@@ -78,11 +78,14 @@ public class ParticleEmitter implements Entity {
         vbo = tmp.get(0);
         gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vbo);
 
-        gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 6 * Float.BYTES, 0);
+        gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 8 * Float.BYTES, 0);
         gl.glEnableVertexAttribArray(0);
 
-        gl.glVertexAttribPointer(1, 3, GL.GL_FLOAT, false, 6 * Float.BYTES, 3 * Float.BYTES);
+        gl.glVertexAttribPointer(1, 4, GL.GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);
         gl.glEnableVertexAttribArray(1);
+
+        gl.glVertexAttribPointer(2, 1, GL.GL_FLOAT, false, 8 * Float.BYTES, 7 * Float.BYTES);
+        gl.glEnableVertexAttribArray(2);
 
         gl.glBindVertexArray(0);
         texture.clear(gl);
@@ -105,7 +108,7 @@ public class ParticleEmitter implements Entity {
     private void seedParticles() {
         for (int i=0; i<NUM_PARATICLES; i++) {
             Particle p = allocateParticle();
-
+            p.hasTrail = true;
             Vector3d position = new Vector3d(this.position);
 
             Vector3d acceleration = new Vector3d(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
@@ -124,8 +127,16 @@ public class ParticleEmitter implements Entity {
         Particle t = allocateParticle();
         if (t == null)
             return;
+        t.hasTrail = false;
         Vector3d position = new Vector3d(p.position);
-        t.recycle(position, new Vector3d(), new Vector3d(), p.color, p.lifespan / 10);
+        Vector3d velocity = new Vector3d();
+        velocity.add(
+                RandomUtil.randomRange(.0001, .01),
+                RandomUtil.randomRange(.0001, .01),
+                RandomUtil.randomRange(.0001, .01)
+                );
+        Vector3d acceleration = new Vector3d();
+        t.recycle(position, velocity, acceleration, p.color, p.lifespan / 5);
     }
 
     @Override
@@ -135,7 +146,7 @@ public class ParticleEmitter implements Entity {
             p.update(t);
             if (!p.isAlive()) {
                 recycleParticle(p);
-            } else {
+            } else if (p.hasTrail) {
                 trail(p);
             }
         }
@@ -172,7 +183,6 @@ public class ParticleEmitter implements Entity {
         mvp.get(mvpBuffer);
         gl.glUniformMatrix4fv(shader.getUniformLocation(gl, "mvp"), 1, false, mvpBuffer);
 
-        gl.glPointSize(PARTICLE_SIZE);
         gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW);
         gl.glDrawArrays(GL.GL_POINTS, 0, particles.size());
 
@@ -188,13 +198,16 @@ public class ParticleEmitter implements Entity {
 
         for (int i=0; i<particles.size(); i++) {
             Particle p = particles.get(i);
-            int offset = 6 * i;
+            int offset = 8 * i;
+            float agePercentile = (float) ((double) p.age / (double) p.lifespan);
             vertexBuffer.put(offset, (float) p.position.x);
             vertexBuffer.put(offset + 1, (float) p.position.y);
             vertexBuffer.put(offset + 2, (float) p.position.z);
             vertexBuffer.put(offset + 3, (float) p.color.x);
             vertexBuffer.put(offset + 4, (float) p.color.y);
             vertexBuffer.put(offset + 5, (float) p.color.z);
+            vertexBuffer.put(offset + 6, .75f * (1 - agePercentile));
+            vertexBuffer.put(offset + 7, PARTICLE_SIZE * (1 - agePercentile));
         }
     }
 
@@ -205,6 +218,7 @@ public class ParticleEmitter implements Entity {
         Vector3d velocity;
         Vector3d acceleration;
         Vector3d color;
+        boolean hasTrail;
 
         boolean isAlive() {
             return age < lifespan;

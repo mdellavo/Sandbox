@@ -35,6 +35,7 @@ public class ParticleEmitter implements Entity {
     Matrix4d model = new Matrix4d().identity();
     Matrix4f mvp = new Matrix4f();
     FloatBuffer mvpBuffer = GLBuffers.newDirectFloatBuffer(16);
+    FloatBuffer cameraBuffer = GLBuffers.newDirectFloatBuffer(3);
 
     Vector3d position = new Vector3d();
 
@@ -207,7 +208,11 @@ public class ParticleEmitter implements Entity {
             vertexBuffer.put(offset + 4, (float) p.color.y);
             vertexBuffer.put(offset + 5, (float) p.color.z);
             vertexBuffer.put(offset + 6, .75f * (1 - agePercentile));
-            vertexBuffer.put(offset + 7, PARTICLE_SIZE * (1 - agePercentile));
+
+            double distance = Scene.getScene().getCamera().center.distance(p.position);
+            if (distance <= 0)
+                distance = .000000001;
+            vertexBuffer.put(offset + 7, (float) (PARTICLE_SIZE * (1 - agePercentile) / distance));
         }
     }
 

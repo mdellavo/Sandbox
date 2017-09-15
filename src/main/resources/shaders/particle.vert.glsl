@@ -4,8 +4,9 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec4 aColor;
 layout (location = 2) in float aSize;
 
-out vec4 vertexColor;
 uniform mat4 mvp;
+
+out vec4 vertexColor;
 
 void main()
 {

@@ -211,8 +211,12 @@ public class ParticleEmitter implements Entity {
             vertexBuffer.put(offset + 1, (float) p.position.y);
             vertexBuffer.put(offset + 2, (float) p.position.z);
 
+            double hue = p.color.x + agePercentile;
+            if (hue > 1)
+                hue -= 1;
+
             int rgb = Color.HSBtoRGB(
-                    (float)p.color.x,
+                    (float)hue,
                     (float)1-agePercentile,
                     (float)1 - agePercentile
             );

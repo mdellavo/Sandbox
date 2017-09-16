@@ -19,6 +19,7 @@ import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.lib.Texture;
 import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.scenes.Scene;
+import org.quuux.opengl.util.Log;
 import org.quuux.opengl.util.RandomUtil;
 import org.quuux.opengl.util.ResourceUtil;
 
@@ -217,17 +218,20 @@ public class ParticleEmitter implements Entity {
 
             int rgb = Color.HSBtoRGB(
                     (float)hue,
-                    (float)1-agePercentile,
+                    (float)1 - agePercentile,
                     (float)1 - agePercentile
             );
 
             vertexBuffer.put(offset + 3, colorComponent(rgb, 16));
             vertexBuffer.put(offset + 4, colorComponent(rgb, 8));
             vertexBuffer.put(offset + 5, colorComponent(rgb, 0));
-            vertexBuffer.put(offset + 6, .9f * (1 - agePercentile));
+            vertexBuffer.put(offset + 6, .75f * (1 - agePercentile));
 
             double distance = Scene.getScene().getCamera().center.distance(p.position);
-            vertexBuffer.put(offset + 7, (float) (PARTICLE_SIZE/distance) * (1-agePercentile));
+            double size = (PARTICLE_SIZE/distance) * (1-agePercentile);
+            if (size > PARTICLE_SIZE)
+                size = PARTICLE_SIZE;
+            vertexBuffer.put(offset + 7, (float) size);
         }
     }
 

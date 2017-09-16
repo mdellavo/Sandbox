@@ -8,7 +8,7 @@ uniform sampler2D particleTexture;
 void main()
 {
     vec4 texColor = texture(particleTexture, gl_PointCoord) * vertexColor;
-    if (texColor.a < .2)
+    if (texColor.a < .1)
         discard;
     FragColor = texColor;
 }

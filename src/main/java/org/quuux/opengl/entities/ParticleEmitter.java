@@ -1,5 +1,6 @@
 package org.quuux.opengl.entities;
 
+import java.awt.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -18,7 +19,6 @@ import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.lib.Texture;
 import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.scenes.Scene;
-import org.quuux.opengl.util.Log;
 import org.quuux.opengl.util.RandomUtil;
 import org.quuux.opengl.util.ResourceUtil;
 
@@ -27,7 +27,7 @@ public class ParticleEmitter implements Entity {
 
     private static final int NUM_PARATICLES = 500;
     private static final int TOTAL_PARTICLES = NUM_PARATICLES * 10;
-    private static final int PARTICLE_SIZE = 24;
+    private static final int PARTICLE_SIZE = 32;
     private static final int PARTICLE_LIFESPAN = 100;
 
     long ticks;
@@ -109,7 +109,7 @@ public class ParticleEmitter implements Entity {
     private void seedParticles() {
         for (int i=0; i<NUM_PARATICLES; i++) {
             Particle p = allocateParticle();
-            p.hasTrail = true;
+            p.emitsTrail = true;
             Vector3d position = new Vector3d(this.position);
 
             Vector3d acceleration = new Vector3d(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
@@ -118,7 +118,8 @@ public class ParticleEmitter implements Entity {
             Vector3d velocity = new Vector3d(RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1), RandomUtil.randomRange(-1, 1));
             velocity.mul(.02f);
 
-            Vector3d color = new Vector3d(RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1), RandomUtil.randomRange(.5f, 1));
+            Vector3d color = new Vector3d(RandomUtil.randomRange(0, 1), 1, 1);
+
             int lifespan = RandomUtil.randomInt(PARTICLE_LIFESPAN / 2, PARTICLE_LIFESPAN * 2);
             p.recycle(position, velocity, acceleration, color, lifespan);
         }
@@ -128,7 +129,7 @@ public class ParticleEmitter implements Entity {
         Particle t = allocateParticle();
         if (t == null)
             return;
-        t.hasTrail = false;
+        t.emitsTrail = false;
         Vector3d position = new Vector3d(p.position);
         Vector3d velocity = new Vector3d();
         velocity.add(
@@ -137,7 +138,7 @@ public class ParticleEmitter implements Entity {
                 RandomUtil.randomRange(.0001, .01)
                 );
         Vector3d acceleration = new Vector3d();
-        t.recycle(position, velocity, acceleration, p.color, p.lifespan / 5);
+        t.recycle(position, velocity, acceleration, p.color, p.lifespan / 4);
     }
 
     @Override
@@ -147,7 +148,7 @@ public class ParticleEmitter implements Entity {
             p.update(t);
             if (!p.isAlive()) {
                 recycleParticle(p);
-            } else if (p.hasTrail) {
+            } else if (p.emitsTrail) {
                 trail(p);
             }
         }
@@ -194,6 +195,11 @@ public class ParticleEmitter implements Entity {
 
     }
 
+    private float colorComponent(int rgb, int shift) {
+        int value = (rgb >> shift) & 0xFF;
+        return (float)((double)value/255.);
+    }
+
     private void updateVertices(FloatBuffer vertexBuffer) {
         Collections.sort(particles, particleComparator);
 
@@ -204,15 +210,20 @@ public class ParticleEmitter implements Entity {
             vertexBuffer.put(offset, (float) p.position.x);
             vertexBuffer.put(offset + 1, (float) p.position.y);
             vertexBuffer.put(offset + 2, (float) p.position.z);
-            vertexBuffer.put(offset + 3, (float) p.color.x);
-            vertexBuffer.put(offset + 4, (float) p.color.y);
-            vertexBuffer.put(offset + 5, (float) p.color.z);
-            vertexBuffer.put(offset + 6, .75f * (1 - agePercentile));
+
+            int rgb = Color.HSBtoRGB(
+                    (float)p.color.x,
+                    (float)1-agePercentile,
+                    (float)1 - agePercentile
+            );
+
+            vertexBuffer.put(offset + 3, colorComponent(rgb, 16));
+            vertexBuffer.put(offset + 4, colorComponent(rgb, 8));
+            vertexBuffer.put(offset + 5, colorComponent(rgb, 0));
+            vertexBuffer.put(offset + 6, .9f * (1 - agePercentile));
 
             double distance = Scene.getScene().getCamera().center.distance(p.position);
-            if (distance <= 0)
-                distance = .000000001;
-            vertexBuffer.put(offset + 7, (float) (PARTICLE_SIZE * (1 - agePercentile) / distance));
+            vertexBuffer.put(offset + 7, (float) (PARTICLE_SIZE/distance) * (1-agePercentile));
         }
     }
 
@@ -223,7 +234,7 @@ public class ParticleEmitter implements Entity {
         Vector3d velocity;
         Vector3d acceleration;
         Vector3d color;
-        boolean hasTrail;
+        boolean emitsTrail;
 
         boolean isAlive() {
             return age < lifespan;

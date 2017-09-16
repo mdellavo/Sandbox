@@ -228,7 +228,7 @@ public class ParticleEmitter implements Entity {
             vertexBuffer.put(offset + 6, .75f * (1 - agePercentile));
 
             double distance = Scene.getScene().getCamera().center.distance(p.position);
-            double size = (PARTICLE_SIZE/distance) * (1-agePercentile);
+            double size = (PARTICLE_SIZE/distance) * agePercentile;
             if (size > PARTICLE_SIZE)
                 size = PARTICLE_SIZE;
             vertexBuffer.put(offset + 7, (float) size);

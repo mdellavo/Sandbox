@@ -76,9 +76,9 @@ class Sandbox implements KeyListener, GLEventListener {
         long elapsed = now - lastUpdate;
         lastUpdate = now;
 
-        Scene.getScene().update(elapsed);
+        Scene.getScene().dispatchUpdate(elapsed);
 
-        Scene.getScene().draw(gl);
+        Scene.getScene().dispatchDraw(gl);
     }
 
     @Override

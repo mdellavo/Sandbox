@@ -65,9 +65,8 @@ public class TestScene extends Scene {
         double eyeZ = 5 * Math.sin(Math.toRadians(angle));
         camera.setEye(eyeX, 5, eyeZ);
 
-        super.update(t);
-
         pe.update(t);
+
     }
 
     @Override

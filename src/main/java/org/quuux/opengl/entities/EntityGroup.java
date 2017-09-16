@@ -7,7 +7,7 @@ import java.util.List;
 
 public class EntityGroup implements Entity {
 
-    private List<Entity> children = new LinkedList<>();
+    public List<Entity> children = new LinkedList<>();
 
     @Override
     public void update(long t) {

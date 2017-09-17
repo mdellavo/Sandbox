@@ -42,7 +42,7 @@ public class ParticleEmitter implements Entity {
 
     List<Particle> particles = new ArrayList<>();
     List<Particle> pool = new ArrayList<>();
-5
+
     FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(8 * TOTAL_PARTICLES);
 
     int vbo;

@@ -30,15 +30,15 @@ public class TestScene extends Scene {
 
         gl.glEnable(GL4.GL_DEPTH_TEST);
         gl.glDepthFunc(GL4.GL_LESS);
-
         gl.glEnable(GL4.GL_MULTISAMPLE);
-
         gl.glEnable(GL4.GL_PROGRAM_POINT_SIZE);
 
         frameBuffer = new FrameBuffer(gl, Config.WIDTH, Config.HEIGHT);
 
         Texture texture = new Texture(gl);
-        texture.attach(gl, Config.WIDTH, Config.HEIGHT, GL4.GL_RGBA, null);
+        texture.bind(gl);
+        gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, GL4.GL_RGBA16F, Config.WIDTH, Config.HEIGHT, 0, GL4.GL_RGBA, GL4.GL_UNSIGNED_BYTE, null);
+
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
         texture.clear(gl);

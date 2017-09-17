@@ -26,7 +26,7 @@ import org.quuux.opengl.util.ResourceUtil;
 
 public class ParticleEmitter implements Entity {
 
-    private static final int NUM_PARATICLES = 500;
+    private static final int NUM_PARATICLES = 1000;
     private static final int TOTAL_PARTICLES = NUM_PARATICLES * 10;
     private static final int PARTICLE_SIZE = 32;
     private static final int PARTICLE_LIFESPAN = 100;
@@ -62,8 +62,10 @@ public class ParticleEmitter implements Entity {
 
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         texture = new Texture(gl);
+        texture.bind(gl);
         ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/particle.png");
-        texture.attach(gl, image.width, image.height,  GL.GL_RGBA, image.buffer);
+        gl.glPixelStorei(GL4.GL_UNPACK_ALIGNMENT, 4);
+        gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, GL4.GL_SRGB_ALPHA, image.width, image.height, 0, GL4.GL_RGBA, GL4.GL_UNSIGNED_BYTE, image.buffer);
 
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);

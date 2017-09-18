@@ -6,50 +6,52 @@ import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.*;
-import com.jogamp.opengl.util.Animator;
+import com.jogamp.opengl.util.FPSAnimator;
 import org.quuux.opengl.scenes.Scene;
 import org.quuux.opengl.scenes.TestScene;
 
 class Sandbox implements KeyListener, GLEventListener {
 
+    Scene scene;
+
     public static void main(String[] args) {
-        System.out.println("Loading sandbox...");
-        new TestScene();
-        new Sandbox().setup();
-    }
 
-    static GLWindow window;
-    static Animator animator;
-
-    long lastUpdate;
-
-    private void setup() {
         GLProfile glProfile = GLProfile.get(Config.GL_PROFILE);
         GLCapabilities glCapabilities = new GLCapabilities(glProfile);
         glCapabilities.setSampleBuffers(true);
         glCapabilities.setNumSamples(8);
 
-        window = GLWindow.create(glCapabilities);
+        GLWindow window = GLWindow.create(glCapabilities);
 
         window.setTitle("OpenGL Sandbox");
         window.setSize(Config.WIDTH, Config.HEIGHT);
 
         window.setVisible(true);
 
-        window.addGLEventListener(this);
-        window.addKeyListener(this);
+        Scene scene = new TestScene();
+        Sandbox sandbox = new Sandbox(scene);
 
-        animator = new Animator(window);
-        animator.start();
+        window.addGLEventListener(sandbox);
+        window.addKeyListener(sandbox);
+
+        FPSAnimator animator = new FPSAnimator(window, 60);
+        animator.setUpdateFPSFrames(60 * 5, System.out);
 
         window.addWindowListener(new WindowAdapter() {
             @Override
             public void windowDestroyed(WindowEvent e) {
                 animator.stop();
-                System.exit(1);
             }
         });
+
+        animator.start();
     }
+
+    private Sandbox(Scene scene) {
+        this.scene = scene;
+    }
+
+    long lastUpdate;
 
     @Override
     public void init(GLAutoDrawable drawable) {

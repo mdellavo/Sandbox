@@ -27,7 +27,7 @@ import org.quuux.opengl.util.ResourceUtil;
 public class ParticleEmitter implements Entity {
 
     private static final int NUM_PARATICLES = 1000;
-    private static final int TOTAL_PARTICLES = NUM_PARATICLES * 15;
+    private static final int TOTAL_PARTICLES = NUM_PARATICLES * 10;
     private static final int PARTICLE_SIZE = 64;
     private static final int PARTICLE_LIFESPAN = 75;
 

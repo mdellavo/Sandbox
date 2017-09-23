@@ -8,6 +8,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector3d;
 import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.lib.Texture;
+import org.quuux.opengl.lib.VAO;
+import org.quuux.opengl.lib.VBO;
 import org.quuux.opengl.scenes.Scene;
 import org.quuux.opengl.util.Log;
 import org.quuux.opengl.util.ResourceUtil;
@@ -32,8 +34,8 @@ public class Quad implements Entity {
     Matrix4f mvp = new Matrix4f();
     FloatBuffer mvpBuffer = GLBuffers.newDirectFloatBuffer(16);
 
-    int vbo;
-    int vao;
+    VBO vbo;
+    VAO vao;
 
     FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(vertices);
     Texture texture;
@@ -46,22 +48,14 @@ public class Quad implements Entity {
         shader.addShader(gl, GL4.GL_VERTEX_SHADER, ResourceUtil.getStringResource("shaders/quad.vert.glsl"));
         shader.addShader(gl, GL4.GL_FRAGMENT_SHADER, ResourceUtil.getStringResource("shaders/quad.frag.glsl"));
         shader.link(gl);
-        gl.glUseProgram(shader.program);
+        shader.bind(gl);
 
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         gl.glUniform1i(shader.getUniformLocation(gl, "texture"), 0);
 
-        IntBuffer tmp = GLBuffers.newDirectIntBuffer(1);
+        vao = new VAO(gl);
+        vbo = new VBO(gl);
 
-        gl.glGenVertexArrays(1, tmp);
-        this.vao = tmp.get(0);
-
-        gl.glBindVertexArray(this.vao);
-
-        gl.glGenBuffers(1, tmp);
-        this.vbo = tmp.get(0);
-
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vbo);
         gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, vertexBuffer, GL4.GL_STATIC_DRAW);
 
         gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 5 * Float.BYTES, 0);
@@ -70,9 +64,9 @@ public class Quad implements Entity {
         gl.glVertexAttribPointer(1, 2, GL.GL_FLOAT, false, 5 * Float.BYTES, 3 * Float.BYTES);
         gl.glEnableVertexAttribArray(1);
 
-        gl.glBindVertexArray(0);
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
-        gl.glUseProgram(0);
+        vao.clear(gl);
+        vbo.clear(gl);
+        shader.clear(gl);
     }
 
     @Override
@@ -87,10 +81,10 @@ public class Quad implements Entity {
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         texture.bind(gl);
 
-        gl.glUseProgram(shader.program);
+        shader.bind(gl);
 
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vbo);
-        gl.glBindVertexArray(this.vao);
+        vbo.bind(gl);
+        vao.bind(gl);
 
         Scene.getScene().getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
@@ -98,11 +92,10 @@ public class Quad implements Entity {
 
         gl.glDrawArrays(GL.GL_TRIANGLES, 0, 6);
 
-        gl.glBindVertexArray(0);
+        vao.clear(gl);
         texture.clear(gl);
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
-        gl.glUseProgram(0);
-
+        vbo.clear(gl);
+        shader.clear(gl);
     }
 
     @Override

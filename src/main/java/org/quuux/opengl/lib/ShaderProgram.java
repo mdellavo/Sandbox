@@ -22,6 +22,10 @@ public class ShaderProgram {
         program = gl.glCreateProgram();
     }
 
+    public void clear(GL4 gl) {
+        gl.glUseProgram(0);
+    }
+
     public String byteBufferToString(ByteBuffer buffer) {
         byte[] bytes = new byte[buffer.capacity()];
         buffer.get(bytes);
@@ -76,5 +80,9 @@ public class ShaderProgram {
 
         }
         return location;
+    }
+
+    public void bind(GL4 gl) {
+        gl.glUseProgram(program);
     }
 }

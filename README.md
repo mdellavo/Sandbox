@@ -3,5 +3,5 @@
 OpenGL experiments
 
 ```sh
-$ gradle run
+$ ./gradlew run
 ```

@@ -28,7 +28,7 @@ public class ParticleEmitter implements Entity {
 
     private static final int NUM_PARATICLES = 1000;
     private static final int TOTAL_PARTICLES = NUM_PARATICLES * 10;
-    private static final int PARTICLE_SIZE = 64;
+    private static final int PARTICLE_SIZE = 32;
     private static final int PARTICLE_LIFESPAN = 75;
 
     long ticks;
@@ -63,7 +63,7 @@ public class ParticleEmitter implements Entity {
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         texture = new Texture(gl);
         texture.bind(gl);
-        ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/particle.png");
+        ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/boid.png");
         gl.glPixelStorei(GL4.GL_UNPACK_ALIGNMENT, 4);
         gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, GL4.GL_SRGB_ALPHA, image.width, image.height, 0, GL4.GL_RGBA, GL4.GL_UNSIGNED_BYTE, image.buffer);
 
@@ -227,7 +227,7 @@ public class ParticleEmitter implements Entity {
             vertexBuffer.put(offset + 3, colorComponent(rgb, 16));
             vertexBuffer.put(offset + 4, colorComponent(rgb, 8));
             vertexBuffer.put(offset + 5, colorComponent(rgb, 0));
-            vertexBuffer.put(offset + 6, .75f * (1 - agePercentile));
+            vertexBuffer.put(offset + 6,  (1 - agePercentile));
 
             double distance = Scene.getScene().getCamera().center.distance(p.position);
             double size = (PARTICLE_SIZE/distance) * agePercentile;

@@ -62,8 +62,8 @@ public class ParticleEmitter implements Entity {
         texture = new Texture(gl);
         texture.bind(gl);
         ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/boid.png");
-        gl.glPixelStorei(GL4.GL_UNPACK_ALIGNMENT, 4);
-        gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, GL4.GL_SRGB_ALPHA, image.width, image.height, 0, GL4.GL_RGBA, GL4.GL_UNSIGNED_BYTE, image.buffer);
+
+        texture.attach(gl, GL4.GL_SRGB_ALPHA, image.width, image.height,  GL4.GL_RGBA, image.buffer);
 
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);

@@ -17,6 +17,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector3d;
 import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.lib.Texture;
+import org.quuux.opengl.lib.VAO;
+import org.quuux.opengl.lib.VBO;
 import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.scenes.Scene;
 import org.quuux.opengl.util.Log;
@@ -45,8 +47,8 @@ public class ParticleEmitter implements Entity {
 
     FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(8 * TOTAL_PARTICLES);
 
-    int vbo;
-    int vao;
+    VBO vbo;
+    VAO vao;
 
     Texture texture;
     ShaderProgram shader;
@@ -72,15 +74,8 @@ public class ParticleEmitter implements Entity {
 
         gl.glUniform1i(shader.getUniformLocation(gl, "particleTexture"), 0);
 
-        IntBuffer tmp = GLBuffers.newDirectIntBuffer(1);
-        gl.glGenVertexArrays(1, tmp);
-        vao = tmp.get(0);
-
-        gl.glBindVertexArray(vao);
-
-        gl.glGenBuffers(1, tmp);
-        vbo = tmp.get(0);
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vbo);
+        vao = new VAO(gl);
+        vbo = new VBO(gl);
 
         gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 8 * Float.BYTES, 0);
         gl.glEnableVertexAttribArray(0);
@@ -91,9 +86,10 @@ public class ParticleEmitter implements Entity {
         gl.glVertexAttribPointer(2, 1, GL.GL_FLOAT, false, 8 * Float.BYTES, 7 * Float.BYTES);
         gl.glEnableVertexAttribArray(2);
 
-        gl.glBindVertexArray(0);
+        vao.clear(gl);
         texture.clear(gl);
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
+        vbo.clear(gl);
+        shader.clear(gl);
     }
 
     private Particle allocateParticle() {
@@ -166,7 +162,7 @@ public class ParticleEmitter implements Entity {
     @Override
     public void dispose(GL4 gl) {
         IntBuffer vertexBufferId = GLBuffers.newDirectIntBuffer(1);
-        vertexBufferId.put(this.vbo);
+        vertexBufferId.put(this.vbo.vbo);
         gl.glDeleteBuffers(1, vertexBufferId);
     }
 
@@ -178,11 +174,9 @@ public class ParticleEmitter implements Entity {
 
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         texture.bind(gl);
-
-        gl.glUseProgram(shader.program);
-
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vbo);
-        gl.glBindVertexArray(vao);
+        shader.bind(gl);
+        vbo.bind(gl);
+        vao.bind(gl);
 
         Scene.getScene().getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
@@ -191,11 +185,10 @@ public class ParticleEmitter implements Entity {
         gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW);
         gl.glDrawArrays(GL.GL_POINTS, 0, particles.size());
 
-        gl.glBindVertexArray(0);
+        vao.clear(gl);
         texture.clear(gl);
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
-        gl.glUseProgram(0);
-
+        vbo.clear(gl);
+        shader.clear(gl);
     }
 
     private float colorComponent(int rgb, int shift) {

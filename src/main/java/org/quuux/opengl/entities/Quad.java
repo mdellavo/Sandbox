@@ -44,11 +44,7 @@ public class Quad implements Entity {
     public Quad(GL4 gl) {
         //Log.out("*** quad init");
 
-        shader = new ShaderProgram(gl);
-        shader.addShader(gl, GL4.GL_VERTEX_SHADER, ResourceUtil.getStringResource("shaders/quad.vert.glsl"));
-        shader.addShader(gl, GL4.GL_FRAGMENT_SHADER, ResourceUtil.getStringResource("shaders/quad.frag.glsl"));
-        shader.link(gl);
-        shader.bind(gl);
+        shader = ShaderProgram.build(gl, "shaders/quad.vert.glsl", "shaders/quad.frag.glsl");
 
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         gl.glUniform1i(shader.getUniformLocation(gl, "texture"), 0);

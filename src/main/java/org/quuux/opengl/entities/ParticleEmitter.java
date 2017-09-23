@@ -56,11 +56,7 @@ public class ParticleEmitter implements Entity {
     public ParticleEmitter(GL4 gl) {
         //Log.out("*** emitter init");
 
-        shader = new ShaderProgram(gl);
-        shader.addShader(gl, GL4.GL_VERTEX_SHADER, ResourceUtil.getStringResource("shaders/particle.vert.glsl"));
-        shader.addShader(gl, GL4.GL_FRAGMENT_SHADER, ResourceUtil.getStringResource("shaders/particle.frag.glsl"));
-        shader.link(gl);
-        gl.glUseProgram(shader.program);
+        shader = ShaderProgram.build(gl, "shaders/particle.vert.glsl", "shaders/particle.frag.glsl");
 
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         texture = new Texture(gl);

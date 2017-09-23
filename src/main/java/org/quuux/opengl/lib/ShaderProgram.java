@@ -2,6 +2,8 @@ package org.quuux.opengl.lib;
 
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.util.GLBuffers;
+import com.sun.prism.ps.Shader;
+import org.quuux.opengl.util.ResourceUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -84,5 +86,14 @@ public class ShaderProgram {
 
     public void bind(GL4 gl) {
         gl.glUseProgram(program);
+    }
+
+    public static ShaderProgram build(GL4 gl, String vertrexShaderPath, String fragmentShaderPath) {
+        ShaderProgram shader = new ShaderProgram(gl);
+        shader.addShader(gl, GL4.GL_VERTEX_SHADER, ResourceUtil.getStringResource(vertrexShaderPath));
+        shader.addShader(gl, GL4.GL_FRAGMENT_SHADER, ResourceUtil.getStringResource(fragmentShaderPath));
+        shader.link(gl);
+        gl.glUseProgram(shader.program);
+        return shader;
     }
 }

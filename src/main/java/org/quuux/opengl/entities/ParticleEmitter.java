@@ -68,7 +68,7 @@ public class ParticleEmitter implements Entity {
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
 
-        gl.glUniform1i(shader.getUniformLocation(gl, "particleTexture"), 0);
+        gl.glUniform1i(shader.getUniformLocation(gl, "texture"), 0);
 
         vao = new VAO(gl);
         vbo = new VBO(gl);

@@ -5,29 +5,22 @@ import com.jogamp.opengl.GL4;
 import java.util.LinkedList;
 import java.util.List;
 
-public class EntityGroup implements Entity {
-
-    public List<Entity> children = new LinkedList<>();
-
+public class EntityGroup extends LinkedList<Entity> implements Entity {
     @Override
     public void update(long t) {
-        for(Entity child : this.children)
-            child.update(t);
+        for(int i=0; i<size(); i++)
+            get(i).update(t);
     }
 
     @Override
     public void dispose(GL4 gl) {
-        for (Entity child : this.children)
-            child.dispose(gl);
+        for(int i=0; i<size(); i++)
+            get(i).dispose(gl);
     }
 
     @Override
     public void draw(GL4 gl) {
-        for(Entity child : this.children)
-            child.draw(gl);
-    }
-
-    public void addChild(Entity child) {
-        children.add(child);
+        for(int i=0; i<size(); i++)
+            get(i).draw(gl);
     }
 }

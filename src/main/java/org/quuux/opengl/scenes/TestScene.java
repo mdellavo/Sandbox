@@ -37,13 +37,12 @@ public class TestScene extends Scene {
 
         Texture texture = new Texture(gl);
         texture.bind(gl);
-        gl.glTexImage2D(GL4.GL_TEXTURE_2D, 0, GL4.GL_RGBA16F, Config.WIDTH, Config.HEIGHT, 0, GL4.GL_RGBA, GL4.GL_UNSIGNED_BYTE, null);
-
+        texture.attach(gl, GL4.GL_RGBA16F, Config.WIDTH, Config.HEIGHT, GL4.GL_RGBA, null);
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_LINEAR);
         gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_LINEAR);
         texture.clear(gl);
-        frameBuffer.attach(gl, texture);
 
+        frameBuffer.attach(gl, texture);
         frameBuffer.clear(gl);
 
         pe = new ParticleEmitter(gl);
@@ -52,7 +51,6 @@ public class TestScene extends Scene {
         quad.setTexture(texture);
 
         camera.setEye(0, 5, 5);
-
     }
 
     @Override
@@ -66,7 +64,6 @@ public class TestScene extends Scene {
         camera.setEye(eyeX, 5, eyeZ);
 
         pe.update(t);
-
     }
 
     @Override

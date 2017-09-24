@@ -37,7 +37,7 @@ public class Scene extends EntityGroup {
 
     public void dispatchUpdate(long t) {
         this.update(t);
-    }
+    }d
 
     public void dispatchDraw(GL4 gl) {
         this.draw(gl);

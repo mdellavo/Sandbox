@@ -5,12 +5,7 @@ import org.quuux.opengl.entities.EntityGroup;
 import org.quuux.opengl.util.Log;
 
 public class Scene extends EntityGroup {
-    private static final long FREQUENCY = 100;
     private static Scene instance;
-
-    private long numUpdates, numDraws, totalUpdateTime, totalDrawTime;
-
-    public Camera camera = new Camera();
 
     public Scene() {
         setScene(this);
@@ -31,13 +26,9 @@ public class Scene extends EntityGroup {
         instance = scene;
     }
 
-    public Camera getCamera() {
-        return camera;
-    }
-
     public void dispatchUpdate(long t) {
         this.update(t);
-    }d
+    }
 
     public void dispatchDraw(GL4 gl) {
         this.draw(gl);

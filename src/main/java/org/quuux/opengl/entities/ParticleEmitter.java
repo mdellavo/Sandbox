@@ -174,7 +174,7 @@ public class ParticleEmitter implements Entity {
         vbo.bind(gl);
         vao.bind(gl);
 
-        Scene.getScene().getCamera().modelViewProjectionMatrix(model, mvp);
+        Camera.getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
         gl.glUniformMatrix4fv(shader.getUniformLocation(gl, "mvp"), 1, false, mvpBuffer);
 
@@ -218,7 +218,7 @@ public class ParticleEmitter implements Entity {
             vertexBuffer.put(offset + 5, colorComponent(rgb, 0));
             vertexBuffer.put(offset + 6,  (1 - agePercentile));
 
-            double distance = Scene.getScene().getCamera().center.distance(p.position);
+            double distance = Camera.getCamera().center.distance(p.position);
             double size = (PARTICLE_SIZE/distance) * agePercentile;
             if (size > PARTICLE_SIZE)
                 size = PARTICLE_SIZE;
@@ -260,7 +260,7 @@ public class ParticleEmitter implements Entity {
     Comparator<Particle> particleComparator = new Comparator<Particle>() {
         @Override
         public int compare(Particle o1, Particle o2) {
-            Camera camera = Scene.getScene().getCamera();
+            Camera camera = Camera.getCamera();
             double d1 = camera.eye.distance(o1.position);
             double d2 = camera.eye.distance(o2.position);
             return -Double.compare(d1, d2);

@@ -10,6 +10,7 @@ import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.lib.Texture;
 import org.quuux.opengl.lib.VAO;
 import org.quuux.opengl.lib.VBO;
+import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.scenes.Scene;
 import org.quuux.opengl.util.Log;
 import org.quuux.opengl.util.ResourceUtil;
@@ -82,7 +83,7 @@ public class Quad implements Entity {
         vbo.bind(gl);
         vao.bind(gl);
 
-        Scene.getScene().getCamera().modelViewProjectionMatrix(model, mvp);
+        Camera.getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
         gl.glUniformMatrix4fv(shader.getUniformLocation(gl, "mvp"), 1, false, mvpBuffer);
 

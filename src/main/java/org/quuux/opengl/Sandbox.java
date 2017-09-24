@@ -7,6 +7,7 @@ import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.FPSAnimator;
+import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.scenes.Scene;
 import org.quuux.opengl.scenes.TestScene;
 
@@ -87,7 +88,7 @@ class Sandbox implements KeyListener, GLEventListener {
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         GL4 gl = drawable.getGL().getGL4();
         gl.glViewport(0, 0, width, height);
-        Scene.getScene().getCamera().setProjection(45, (double)width/(double)height, .1, 1000.);
+        Camera.getCamera().setProjection(45, (double)width/(double)height, .1, 1000.);
     }
 
     @Override

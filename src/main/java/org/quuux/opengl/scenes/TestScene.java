@@ -50,7 +50,7 @@ public class TestScene extends Scene {
         quad = new Quad(gl);
         quad.setTexture(texture);
 
-        camera.setEye(0, 5, 5);
+        Camera.getCamera().setEye(0, 5, 5);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class TestScene extends Scene {
         double angle = (totalElapsed % 5000) / 5000. * 360.;
         double eyeX = 5 * Math.cos(Math.toRadians(angle));
         double eyeZ = 5 * Math.sin(Math.toRadians(angle));
-        camera.setEye(eyeX, 5, eyeZ);
+        Camera.getCamera().setEye(eyeX, 5, eyeZ);
 
         pe.update(t);
     }

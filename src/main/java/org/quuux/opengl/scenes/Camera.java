@@ -7,8 +7,13 @@ import org.joml.Vector3d;
 
 public class Camera {
 
+    static Camera instance;
+
     public double fov, aspectRatio, zNear, zFar;
     public Vector3d eye = new Vector3d(), center = new Vector3d(), up = new Vector3d(0, 1, 0);
+
+    protected Camera() {
+    }
 
     public Matrix4d projectionMatrix = new Matrix4d(),
             viewMatrix = new Matrix4d(),
@@ -47,5 +52,11 @@ public class Camera {
 
     public void modelViewProjectionMatrix(Matrix4d model, Matrix4f dest) {
         dest.set(scratch.set(projectionMatrix).mul(viewMatrix).mul(model));
+    }
+
+    public static Camera getCamera() {
+        if (instance == null)
+            instance = new Camera();
+        return instance;
     }
 }

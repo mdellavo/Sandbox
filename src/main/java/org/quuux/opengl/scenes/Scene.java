@@ -1,8 +1,7 @@
 package org.quuux.opengl.scenes;
 
-import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GL;
 import org.quuux.opengl.entities.EntityGroup;
-import org.quuux.opengl.util.Log;
 
 public class Scene extends EntityGroup {
     private static Scene instance;
@@ -11,7 +10,7 @@ public class Scene extends EntityGroup {
         setScene(this);
     }
 
-    public void setup(GL4 gl) { }
+    public void setup(GL gl) { }
 
     public static Scene getScene() {
         return instance;
@@ -30,7 +29,7 @@ public class Scene extends EntityGroup {
         this.update(t);
     }
 
-    public void dispatchDraw(GL4 gl) {
+    public void dispatchDraw(GL gl) {
         this.draw(gl);
     }
 }

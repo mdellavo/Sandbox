@@ -5,18 +5,13 @@ import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.util.GLBuffers;
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;
-import org.joml.Vector3d;
 import org.quuux.opengl.lib.ShaderProgram;
-import org.quuux.opengl.lib.Texture;
+import org.quuux.opengl.lib.Texture2D;
 import org.quuux.opengl.lib.VAO;
 import org.quuux.opengl.lib.VBO;
 import org.quuux.opengl.scenes.Camera;
-import org.quuux.opengl.scenes.Scene;
-import org.quuux.opengl.util.Log;
-import org.quuux.opengl.util.ResourceUtil;
 
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 
 public class Quad implements Entity {
 
@@ -39,7 +34,7 @@ public class Quad implements Entity {
     VAO vao;
 
     FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(vertices);
-    Texture texture;
+    Texture2D texture;
     ShaderProgram shader;
 
     public Quad(GL4 gl) {
@@ -67,25 +62,28 @@ public class Quad implements Entity {
     }
 
     @Override
-    public void dispose(GL4 gl) {
+    public void dispose(GL gl) {
 
     }
 
     @Override
-    public void draw(GL4 gl) {
+    public void draw(GL gl) {
         //Log.out("*** quad draw");
+
+        GL4 gl4 = gl.getGL4();
 
         gl.glActiveTexture(GL4.GL_TEXTURE0);
         texture.bind(gl);
 
-        shader.bind(gl);
+        shader.use(gl);
 
         vbo.bind(gl);
         vao.bind(gl);
 
         Camera.getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
-        gl.glUniformMatrix4fv(shader.getUniformLocation(gl, "mvp"), 1, false, mvpBuffer);
+
+        gl4.glUniformMatrix4fv(shader.getUniformLocation(gl, "mvp"), 1, false, mvpBuffer);
 
         gl.glDrawArrays(GL.GL_TRIANGLES, 0, 6);
 
@@ -104,7 +102,7 @@ public class Quad implements Entity {
         return model;
     }
 
-    public void setTexture(Texture texture) {
+    public void setTexture(Texture2D texture) {
         this.texture = texture;
     }
 

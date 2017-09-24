@@ -1,25 +1,26 @@
 package org.quuux.opengl.lib;
 
-import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.util.GLBuffers;
+import org.quuux.opengl.renderer.Bindable;
 
 import java.nio.IntBuffer;
 
-public class VBO {
+public class VBO implements Bindable {
     public final int vbo;
 
-    public VBO(GL4 gl) {
+    public VBO(GL gl) {
         IntBuffer tmp = GLBuffers.newDirectIntBuffer(1);
         gl.glGenBuffers(1, tmp);
         this.vbo = tmp.get(0);
         bind(gl);
     }
 
-    public void bind(GL4 gl) {
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, this.vbo);
+    public void bind(GL gl) {
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, this.vbo);
     }
 
-    public void clear(GL4 gl) {
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
+    public void clear(GL gl) {
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
     }
 }

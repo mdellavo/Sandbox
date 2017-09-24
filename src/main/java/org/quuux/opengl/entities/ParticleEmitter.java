@@ -9,19 +9,17 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL4;
 
+import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.util.GLBuffers;
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
 import org.quuux.opengl.lib.ShaderProgram;
-import org.quuux.opengl.lib.Texture;
+import org.quuux.opengl.lib.Texture2D;
 import org.quuux.opengl.lib.VAO;
 import org.quuux.opengl.lib.VBO;
 import org.quuux.opengl.scenes.Camera;
-import org.quuux.opengl.scenes.Scene;
-import org.quuux.opengl.util.Log;
 import org.quuux.opengl.util.RandomUtil;
 import org.quuux.opengl.util.ResourceUtil;
 
@@ -50,42 +48,41 @@ public class ParticleEmitter implements Entity {
     VBO vbo;
     VAO vao;
 
-    Texture texture;
+    Texture2D texture;
     ShaderProgram shader;
 
-    public ParticleEmitter(GL4 gl) {
+    public ParticleEmitter(GL gl) {
         //Log.out("*** emitter init");
 
-        shader = ShaderProgram.build(gl, "shaders/particle.vert.glsl", "shaders/particle.frag.glsl");
+        GL4 gl4 = gl.getGL4();
+        shader = ShaderProgram.build(gl4, "shaders/particle.vert.glsl", "shaders/particle.frag.glsl");
 
-        gl.glActiveTexture(GL4.GL_TEXTURE0);
-        texture = new Texture(gl);
-        texture.bind(gl);
+        gl4.glActiveTexture(GL.GL_TEXTURE0);
+        texture = new Texture2D(gl4);
+        texture.bind(gl4);
         ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/boid.png");
 
-        texture.attach(gl, GL4.GL_SRGB_ALPHA, image.width, image.height,  GL4.GL_RGBA, image.buffer);
+        texture.attach(gl4, GL4.GL_SRGB_ALPHA, image.width, image.height,  GL4.GL_RGBA, image.buffer);
+        texture.setFilterParameters(gl4, GL.GL_LINEAR, GL.GL_LINEAR);
 
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
-        gl.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
+        gl4.glUniform1i(shader.getUniformLocation(gl4, "texture"), 0);
 
-        gl.glUniform1i(shader.getUniformLocation(gl, "texture"), 0);
+        vao = new VAO(gl4);
+        vbo = new VBO(gl4);
 
-        vao = new VAO(gl);
-        vbo = new VBO(gl);
+        gl4.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 8 * Float.BYTES, 0);
+        gl4.glEnableVertexAttribArray(0);
 
-        gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 8 * Float.BYTES, 0);
-        gl.glEnableVertexAttribArray(0);
+        gl4.glVertexAttribPointer(1, 4, GL.GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);
+        gl4.glEnableVertexAttribArray(1);
 
-        gl.glVertexAttribPointer(1, 4, GL.GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);
-        gl.glEnableVertexAttribArray(1);
+        gl4.glVertexAttribPointer(2, 1, GL.GL_FLOAT, false, 8 * Float.BYTES, 7 * Float.BYTES);
+        gl4.glEnableVertexAttribArray(2);
 
-        gl.glVertexAttribPointer(2, 1, GL.GL_FLOAT, false, 8 * Float.BYTES, 7 * Float.BYTES);
-        gl.glEnableVertexAttribArray(2);
-
-        vao.clear(gl);
-        texture.clear(gl);
-        vbo.clear(gl);
-        shader.clear(gl);
+        vao.clear(gl4);
+        texture.clear(gl4);
+        vbo.clear(gl4);
+        shader.clear(gl4);
     }
 
     private Particle allocateParticle() {
@@ -156,29 +153,29 @@ public class ParticleEmitter implements Entity {
     }
 
     @Override
-    public void dispose(GL4 gl) {
+    public void dispose(GL gl) {
         IntBuffer vertexBufferId = GLBuffers.newDirectIntBuffer(1);
         vertexBufferId.put(this.vbo.vbo);
         gl.glDeleteBuffers(1, vertexBufferId);
     }
 
     @Override
-    public void draw(GL4 gl) {
+    public void draw(GL gl) {
         //Log.out("*** emitter draw");
 
         updateVertices(vertexBuffer);
 
-        gl.glActiveTexture(GL4.GL_TEXTURE0);
+        gl.glActiveTexture(GL.GL_TEXTURE0);
         texture.bind(gl);
-        shader.bind(gl);
+        shader.use(gl);
         vbo.bind(gl);
         vao.bind(gl);
 
         Camera.getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
-        gl.glUniformMatrix4fv(shader.getUniformLocation(gl, "mvp"), 1, false, mvpBuffer);
+        gl.getGL4().glUniformMatrix4fv(shader.getUniformLocation(gl, "mvp"), 1, false, mvpBuffer);
 
-        gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW);
+        gl.glBufferData(GL.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW);
         gl.glDrawArrays(GL.GL_POINTS, 0, particles.size());
 
         vao.clear(gl);

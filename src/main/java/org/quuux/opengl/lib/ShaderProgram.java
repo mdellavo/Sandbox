@@ -1,11 +1,11 @@
 package org.quuux.opengl.lib;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.util.GLBuffers;
-import com.sun.prism.ps.Shader;
+import org.quuux.opengl.renderer.Bindable;
 import org.quuux.opengl.util.ResourceUtil;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -13,19 +13,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ShaderProgram {
+public class ShaderProgram implements Bindable {
 
     public int program = 0;
     List<Integer> shaders = new ArrayList<>();
 
     Map<String, Integer> uniformCache = new HashMap<>();
 
-    public ShaderProgram(GL4 gl) {
-        program = gl.glCreateProgram();
+    public ShaderProgram(GL gl) {
+        program = gl.getGL4().glCreateProgram();
     }
 
-    public void clear(GL4 gl) {
-        gl.glUseProgram(0);
+    public void clear(GL gl) {
+        gl.getGL4().glUseProgram(0);
     }
 
     public String byteBufferToString(ByteBuffer buffer) {
@@ -35,16 +35,19 @@ public class ShaderProgram {
         return msg;
     }
 
-    public int compileShader(GL4 gl, int shaderType, String shaderSource) {
-        int shader = gl.glCreateShader(shaderType);
-        gl.glShaderSource(shader, 1, new String[] {shaderSource}, null);
-        gl.glCompileShader(shader);
+    public int compileShader(GL gl, int shaderType, String shaderSource) {
+
+        GL4 gl4 = gl.getGL4();
+
+        int shader = gl4.glCreateShader(shaderType);
+        gl4.glShaderSource(shader, 1, new String[] {shaderSource}, null);
+        gl4.glCompileShader(shader);
 
         IntBuffer success = GLBuffers.newDirectIntBuffer(1);
-        gl.glGetShaderiv(shader, GL4.GL_COMPILE_STATUS, success);
+        gl4.glGetShaderiv(shader, GL4.GL_COMPILE_STATUS, success);
         if (success.get(0) == 0) {
             ByteBuffer buffer = GLBuffers.newDirectByteBuffer(1024);
-            gl.glGetShaderInfoLog(shader, buffer.capacity(), null, buffer);
+            gl4.glGetShaderInfoLog(shader, buffer.capacity(), null, buffer);
             System.out.println("Error compiling shader: " + byteBufferToString(buffer));
             return -1;
         }
@@ -52,21 +55,22 @@ public class ShaderProgram {
         return shader;
     }
 
-    public int addShader(GL4 gl, int shaderType, String shaderSource) {
+    public int addShader(GL gl, int shaderType, String shaderSource) {
         int shader = compileShader(gl, shaderType, shaderSource);
         shaders.add(shader);
-        gl.glAttachShader(program, shader);
+        gl.getGL4().glAttachShader(program, shader);
         return shader;
     }
 
-    public int link(GL4 gl) {
-        gl.glLinkProgram(program);
+    public int link(GL gl) {
+        GL4 gl4 = gl.getGL4();
+        gl4.glLinkProgram(program);
 
         IntBuffer success = GLBuffers.newDirectIntBuffer(1);
-        gl.glGetProgramiv(program, GL4.GL_LINK_STATUS, success);
+        gl4.glGetProgramiv(program, GL4.GL_LINK_STATUS, success);
         if (success.get(0) == 0) {
             ByteBuffer buffer = GLBuffers.newDirectByteBuffer(1024);
-            gl.glGetProgramInfoLog(program, buffer.capacity(), null, buffer);
+            gl4.glGetProgramInfoLog(program, buffer.capacity(), null, buffer);
 
             System.out.println("Error linking shader: " + byteBufferToString(buffer));
             return -1;
@@ -74,26 +78,30 @@ public class ShaderProgram {
         return program;
     }
 
-    public int getUniformLocation(GL4 gl, String name) {
+    public int getUniformLocation(GL gl, String name) {
         Integer location = uniformCache.get(name);
         if (location == null) {
-            location = gl.glGetUniformLocation(program, name);
+            location = gl.getGL4().glGetUniformLocation(program, name);
             uniformCache.put(name, location);
 
         }
         return location;
     }
 
-    public void bind(GL4 gl) {
-        gl.glUseProgram(program);
+    public void use(GL gl) {
+        gl.getGL4().glUseProgram(program);
     }
 
-    public static ShaderProgram build(GL4 gl, String vertrexShaderPath, String fragmentShaderPath) {
+    public void bind(GL gl) {
+        use(gl);
+    }
+
+    public static ShaderProgram build(GL gl, String vertrexShaderPath, String fragmentShaderPath) {
         ShaderProgram shader = new ShaderProgram(gl);
         shader.addShader(gl, GL4.GL_VERTEX_SHADER, ResourceUtil.getStringResource(vertrexShaderPath));
         shader.addShader(gl, GL4.GL_FRAGMENT_SHADER, ResourceUtil.getStringResource(fragmentShaderPath));
         shader.link(gl);
-        gl.glUseProgram(shader.program);
+        shader.use(gl);
         return shader;
     }
 }

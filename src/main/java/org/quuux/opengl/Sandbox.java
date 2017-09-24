@@ -56,7 +56,7 @@ class Sandbox implements KeyListener, GLEventListener {
 
     @Override
     public void init(GLAutoDrawable drawable) {
-        GL4 gl = drawable.getGL().getGL4();
+        GL gl = drawable.getGL();
 
         System.out.println(String.format("OpenGL Version: %s", gl.glGetString(GL.GL_VERSION)));
 
@@ -67,13 +67,13 @@ class Sandbox implements KeyListener, GLEventListener {
 
     @Override
     public void dispose(GLAutoDrawable drawable) {
-        GL4 gl = drawable.getGL().getGL4();
+        GL gl = drawable.getGL();
         Scene.getScene().dispose(gl);
     }
 
     @Override
     public void display(GLAutoDrawable drawable) {
-        GL4 gl = drawable.getGL().getGL4();
+        GL gl = drawable.getGL();
 
         long now = System.currentTimeMillis();
         long elapsed = now - lastUpdate;

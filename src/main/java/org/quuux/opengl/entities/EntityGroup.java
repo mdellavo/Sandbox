@@ -1,9 +1,8 @@
 package org.quuux.opengl.entities;
 
-import com.jogamp.opengl.GL4;
+import com.jogamp.opengl.GL;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class EntityGroup extends LinkedList<Entity> implements Entity {
     @Override
@@ -13,13 +12,13 @@ public class EntityGroup extends LinkedList<Entity> implements Entity {
     }
 
     @Override
-    public void dispose(GL4 gl) {
+    public void dispose(GL gl) {
         for(int i=0; i<size(); i++)
             get(i).dispose(gl);
     }
 
     @Override
-    public void draw(GL4 gl) {
+    public void draw(GL gl) {
         for(int i=0; i<size(); i++)
             get(i).draw(gl);
     }

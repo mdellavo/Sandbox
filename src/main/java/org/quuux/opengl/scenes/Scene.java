@@ -2,6 +2,7 @@ package org.quuux.opengl.scenes;
 
 import com.jogamp.opengl.GL;
 import org.quuux.opengl.entities.EntityGroup;
+import org.quuux.opengl.renderer.Command;
 
 public class Scene extends EntityGroup {
     private static Scene instance;
@@ -29,7 +30,7 @@ public class Scene extends EntityGroup {
         this.update(t);
     }
 
-    public void dispatchDraw(GL gl) {
-        this.draw(gl);
+    public Command dispatchDraw() {
+        return this.draw();
     }
 }

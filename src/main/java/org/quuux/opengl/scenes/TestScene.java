@@ -7,6 +7,10 @@ import org.quuux.opengl.entities.ParticleEmitter;
 import org.quuux.opengl.entities.Quad;
 import org.quuux.opengl.lib.FrameBuffer;
 import org.quuux.opengl.lib.Texture2D;
+import org.quuux.opengl.renderer.Command;
+import org.quuux.opengl.renderer.CommandList;
+import org.quuux.opengl.renderer.commands.Clear;
+import org.quuux.opengl.renderer.states.Bind;
 
 
 public class TestScene extends Scene {
@@ -67,17 +71,19 @@ public class TestScene extends Scene {
     }
 
     @Override
-    public void draw(GL gl) {
-        //Log.out("*** draw scene");
+    public Command draw() {
+        CommandList rv = new CommandList();
 
         // pass 1 - render particles
-        frameBuffer.bind(gl);
-        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-        pe.draw(gl);
-        frameBuffer.clear(gl);
+        Bind fbCommands = new Bind(frameBuffer);
+        fbCommands.add(new Clear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT));
+        fbCommands.add(pe.draw());
+        rv.add(fbCommands);
 
         // render texture
-        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-        quad.draw(gl);
+        rv.add(new Clear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT));
+        rv.add(quad.draw());
+
+        return rv;
     }
 }

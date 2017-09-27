@@ -7,6 +7,7 @@ import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.FPSAnimator;
+import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.scenes.Scene;
 import org.quuux.opengl.scenes.TestScene;
@@ -81,7 +82,8 @@ class Sandbox implements KeyListener, GLEventListener {
 
         Scene.getScene().dispatchUpdate(elapsed);
 
-        Scene.getScene().dispatchDraw(gl);
+        Command displayList = Scene.getScene().dispatchDraw();
+        displayList.run(gl);
     }
 
     @Override

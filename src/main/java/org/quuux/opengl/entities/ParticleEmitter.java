@@ -19,6 +19,14 @@ import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.lib.Texture2D;
 import org.quuux.opengl.lib.VAO;
 import org.quuux.opengl.lib.VBO;
+import org.quuux.opengl.renderer.BatchState;
+import org.quuux.opengl.renderer.Command;
+import org.quuux.opengl.renderer.commands.BufferData;
+import org.quuux.opengl.renderer.commands.DrawArrays;
+import org.quuux.opengl.renderer.states.ActivateTexture;
+import org.quuux.opengl.renderer.states.BindVertex;
+import org.quuux.opengl.renderer.states.SetUniformMatrix;
+import org.quuux.opengl.renderer.states.UseProgram;
 import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.util.RandomUtil;
 import org.quuux.opengl.util.ResourceUtil;
@@ -160,28 +168,18 @@ public class ParticleEmitter implements Entity {
     }
 
     @Override
-    public void draw(GL gl) {
-        //Log.out("*** emitter draw");
-
+    public Command draw() {
         updateVertices(vertexBuffer);
-
-        gl.glActiveTexture(GL.GL_TEXTURE0);
-        texture.bind(gl);
-        shader.use(gl);
-        vbo.bind(gl);
-        vao.bind(gl);
+        BatchState rv = new BatchState(new ActivateTexture(GL.GL_TEXTURE0, texture), new UseProgram(shader), new BindVertex(vbo, vao));
 
         Camera.getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
-        gl.getGL4().glUniformMatrix4fv(shader.getUniformLocation(gl, "mvp"), 1, false, mvpBuffer);
 
-        gl.glBufferData(GL.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW);
-        gl.glDrawArrays(GL.GL_POINTS, 0, particles.size());
+        rv.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
+        rv.add(new BufferData(GL.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW));
+        rv.add(new DrawArrays(GL.GL_POINTS, 0, particles.size()));
 
-        vao.clear(gl);
-        texture.clear(gl);
-        vbo.clear(gl);
-        shader.clear(gl);
+        return rv;
     }
 
     private float colorComponent(int rgb, int shift) {

@@ -9,6 +9,13 @@ import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.lib.Texture2D;
 import org.quuux.opengl.lib.VAO;
 import org.quuux.opengl.lib.VBO;
+import org.quuux.opengl.renderer.BatchState;
+import org.quuux.opengl.renderer.Command;
+import org.quuux.opengl.renderer.commands.DrawArrays;
+import org.quuux.opengl.renderer.states.ActivateTexture;
+import org.quuux.opengl.renderer.states.BindVertex;
+import org.quuux.opengl.renderer.states.SetUniformMatrix;
+import org.quuux.opengl.renderer.states.UseProgram;
 import org.quuux.opengl.scenes.Camera;
 
 import java.nio.FloatBuffer;
@@ -67,30 +74,15 @@ public class Quad implements Entity {
     }
 
     @Override
-    public void draw(GL gl) {
-        //Log.out("*** quad draw");
-
-        GL4 gl4 = gl.getGL4();
-
-        gl.glActiveTexture(GL4.GL_TEXTURE0);
-        texture.bind(gl);
-
-        shader.use(gl);
-
-        vbo.bind(gl);
-        vao.bind(gl);
+    public Command draw() {
+        BatchState rv = new BatchState(new ActivateTexture(GL.GL_TEXTURE0, texture), new UseProgram(shader), new BindVertex(vbo, vao));
 
         Camera.getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
 
-        gl4.glUniformMatrix4fv(shader.getUniformLocation(gl, "mvp"), 1, false, mvpBuffer);
-
-        gl.glDrawArrays(GL.GL_TRIANGLES, 0, 6);
-
-        vao.clear(gl);
-        texture.clear(gl);
-        vbo.clear(gl);
-        shader.clear(gl);
+        rv.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
+        rv.add(new DrawArrays(GL.GL_TRIANGLES, 0, 6));
+        return rv;
     }
 
     @Override

@@ -11,14 +11,13 @@ public class Bind extends State {
         this.binding = binding;
     }
 
-
     @Override
     public void clearState(GL gl) {
-        binding.bind(gl);
+        binding.clear(gl);
     }
 
     @Override
     public void setState(GL gl) {
-        binding.clear(gl);
+        binding.bind(gl);
     }
 }

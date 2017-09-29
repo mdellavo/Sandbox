@@ -25,7 +25,7 @@ import org.quuux.opengl.renderer.commands.BufferData;
 import org.quuux.opengl.renderer.commands.DrawArrays;
 import org.quuux.opengl.renderer.states.ActivateTexture;
 import org.quuux.opengl.renderer.states.BindVertex;
-import org.quuux.opengl.renderer.states.SetUniformMatrix;
+import org.quuux.opengl.renderer.commands.SetUniformMatrix;
 import org.quuux.opengl.renderer.states.UseProgram;
 import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.util.RandomUtil;

@@ -1,12 +1,12 @@
-package org.quuux.opengl.renderer.states;
+package org.quuux.opengl.renderer.commands;
 
 import com.jogamp.opengl.GL;
 import org.quuux.opengl.lib.ShaderProgram;
-import org.quuux.opengl.renderer.State;
+import org.quuux.opengl.renderer.Command;
 
 import java.nio.FloatBuffer;
 
-public class SetUniformMatrix extends State {
+public class SetUniformMatrix implements Command {
 
     private final ShaderProgram shader;
     private final String attribute;
@@ -23,12 +23,7 @@ public class SetUniformMatrix extends State {
     }
 
     @Override
-    public void clearState(GL gl) {
-
-    }
-
-    @Override
-    public void setState(GL gl) {
+    public void run(GL gl) {
         gl.getGL4().glUniformMatrix4fv(shader.getUniformLocation(gl, attribute), count, transpose, buffer);
     }
 }

@@ -14,7 +14,7 @@ import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.commands.DrawArrays;
 import org.quuux.opengl.renderer.states.ActivateTexture;
 import org.quuux.opengl.renderer.states.BindVertex;
-import org.quuux.opengl.renderer.states.SetUniformMatrix;
+import org.quuux.opengl.renderer.commands.SetUniformMatrix;
 import org.quuux.opengl.renderer.states.UseProgram;
 import org.quuux.opengl.scenes.Camera;
 
@@ -43,6 +43,8 @@ public class Quad implements Entity {
     FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(vertices);
     Texture2D texture;
     ShaderProgram shader;
+
+    Command displayList;
 
     public Quad(GL4 gl) {
         //Log.out("*** quad init");
@@ -73,16 +75,24 @@ public class Quad implements Entity {
 
     }
 
-    @Override
-    public Command draw() {
+    public Command buildDisplayList() {
         BatchState rv = new BatchState(new ActivateTexture(GL.GL_TEXTURE0, texture), new UseProgram(shader), new BindVertex(vbo, vao));
-
-        Camera.getCamera().modelViewProjectionMatrix(model, mvp);
-        mvp.get(mvpBuffer);
 
         rv.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
         rv.add(new DrawArrays(GL.GL_TRIANGLES, 0, 6));
         return rv;
+    }
+
+    @Override
+    public Command draw() {
+        Camera.getCamera().modelViewProjectionMatrix(model, mvp);
+        mvp.get(mvpBuffer);
+
+        if (displayList == null) {
+            displayList = buildDisplayList();
+        }
+
+        return displayList;
     }
 
     @Override

@@ -77,7 +77,6 @@ public class Quad implements Entity {
 
     public Command buildDisplayList() {
         BatchState rv = new BatchState(new ActivateTexture(GL.GL_TEXTURE0, texture), new UseProgram(shader), new BindVertex(vbo, vao));
-
         rv.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
         rv.add(new DrawArrays(GL.GL_TRIANGLES, 0, 6));
         return rv;

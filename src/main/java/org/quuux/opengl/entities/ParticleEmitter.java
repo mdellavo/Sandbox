@@ -44,7 +44,6 @@ public class ParticleEmitter implements Entity {
     Matrix4d model = new Matrix4d().identity();
     Matrix4f mvp = new Matrix4f();
     FloatBuffer mvpBuffer = GLBuffers.newDirectFloatBuffer(16);
-    FloatBuffer cameraBuffer = GLBuffers.newDirectFloatBuffer(3);
 
     Vector3d position = new Vector3d();
 
@@ -59,6 +58,8 @@ public class ParticleEmitter implements Entity {
     Texture2D texture;
     ShaderProgram shader;
 
+    Command displayList;
+
     public ParticleEmitter(GL gl) {
         //Log.out("*** emitter init");
 
@@ -68,7 +69,7 @@ public class ParticleEmitter implements Entity {
         gl4.glActiveTexture(GL.GL_TEXTURE0);
         texture = new Texture2D(gl4);
         texture.bind(gl4);
-        ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/boid.png");
+        ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/particle.png");
 
         texture.attach(gl4, GL4.GL_SRGB_ALPHA, image.width, image.height,  GL4.GL_RGBA, image.buffer);
         texture.setFilterParameters(gl4, GL.GL_LINEAR, GL.GL_LINEAR);
@@ -170,16 +171,18 @@ public class ParticleEmitter implements Entity {
     @Override
     public Command draw() {
         updateVertices(vertexBuffer);
-        BatchState rv = new BatchState(new ActivateTexture(GL.GL_TEXTURE0, texture), new UseProgram(shader), new BindVertex(vbo, vao));
-
         Camera.getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
 
-        rv.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
-        rv.add(new BufferData(GL.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW));
-        rv.add(new DrawArrays(GL.GL_POINTS, 0, particles.size()));
+        if (displayList == null) {
+            BatchState rv = new BatchState(new ActivateTexture(GL.GL_TEXTURE0, texture), new UseProgram(shader), new BindVertex(vbo, vao));
+            rv.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
+            rv.add(new BufferData(GL.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW));
+            rv.add(new DrawParticles());
+            displayList = rv;
+        }
 
-        return rv;
+        return displayList;
     }
 
     private float colorComponent(int rgb, int shift) {
@@ -261,4 +264,16 @@ public class ParticleEmitter implements Entity {
             return -Double.compare(d1, d2);
         }
     };
+
+    class DrawParticles extends DrawArrays {
+
+        public DrawParticles() {
+            super(0, 0, 0);
+        }
+
+        @Override
+        public void run(GL gl) {
+            gl.glDrawArrays(GL.GL_POINTS, 0, particles.size());
+        }
+    }
 }

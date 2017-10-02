@@ -7,7 +7,7 @@ uniform sampler2D texture;
 
 void main()
 {
- const float gamma = 1.8;
+    const float gamma = 1.8;
     vec3 hdrColor = texture(texture, TexCoords).rgb;
 
     // reinhard tone mapping

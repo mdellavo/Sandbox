@@ -1,4 +1,4 @@
-package org.quuux.opengl;
+package org.quuux.driver;
 
 import com.jogamp.opengl.GLProfile;
 

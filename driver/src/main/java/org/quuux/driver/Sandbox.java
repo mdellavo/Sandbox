@@ -1,4 +1,4 @@
-package org.quuux.opengl;
+package org.quuux.driver;
 
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.KeyListener;
@@ -11,7 +11,7 @@ import com.jogamp.opengl.util.FPSAnimator;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.scenes.Scene;
-import org.quuux.opengl.scenes.TestScene;
+import org.quuux.scenes.TestScene;
 
 class Sandbox implements KeyListener, GLEventListener {
 
@@ -31,7 +31,7 @@ class Sandbox implements KeyListener, GLEventListener {
 
         window.setVisible(true);
 
-        Scene scene = new TestScene();
+        Scene scene = new TestScene(Config.WIDTH, Config.HEIGHT);
         Sandbox sandbox = new Sandbox(scene);
 
         window.addGLEventListener(sandbox);

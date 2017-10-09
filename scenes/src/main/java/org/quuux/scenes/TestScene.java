@@ -1,9 +1,8 @@
-package org.quuux.opengl.scenes;
+package org.quuux.scenes;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL4;
 
-import org.quuux.opengl.Config;
 import org.quuux.opengl.entities.ParticleEmitter;
 import org.quuux.opengl.entities.Quad;
 import org.quuux.opengl.lib.FrameBuffer;
@@ -12,15 +11,24 @@ import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.CommandList;
 import org.quuux.opengl.renderer.commands.Clear;
 import org.quuux.opengl.renderer.states.Bind;
+import org.quuux.opengl.scenes.Camera;
+import org.quuux.opengl.scenes.Scene;
 
 
 public class TestScene extends Scene {
 
+    private final int width;
+    private final int height;
     long ticks, totalElapsed;
 
     FrameBuffer frameBuffer;
     ParticleEmitter pe;
     Quad quad;
+
+    public TestScene(int width, int height) {
+        this.width = width;
+        this.height = height;
+    }
 
     @Override
     public void setup(GL gl) {
@@ -39,11 +47,11 @@ public class TestScene extends Scene {
         gl4.glEnable(GL4.GL_MULTISAMPLE);
         gl4.glEnable(GL4.GL_PROGRAM_POINT_SIZE);
 
-        frameBuffer = new FrameBuffer(gl4, Config.WIDTH, Config.HEIGHT);
+        frameBuffer = new FrameBuffer(gl4, width, height);
 
         Texture2D texture = new Texture2D(gl4);
         texture.bind(gl4);
-        texture.attach(gl4, GL4.GL_RGBA16F, Config.WIDTH, Config.HEIGHT, GL4.GL_RGBA, null);
+        texture.attach(gl4, GL4.GL_RGBA16F, width, height, GL4.GL_RGBA, null);
         texture.setFilterParameters(gl4, GL.GL_LINEAR, GL.GL_LINEAR);
         texture.clear(gl4);
 

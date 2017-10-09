@@ -1,13 +1,26 @@
 package org.quuux.sandbox;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class SandboxActivity extends AppCompatActivity {
+
+import jogamp.newt.driver.android.NewtBaseActivity;
+
+import com.jogamp.newt.opengl.GLWindow;
+import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLProfile;
+
+public class SandboxActivity extends NewtBaseActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sandbox);
+
+        final GLCapabilities caps =
+                new GLCapabilities(GLProfile.get(GLProfile.GLES2));
+        final GLWindow glWindow = GLWindow.create(caps);
+        glWindow.setFullscreen(true);
+
+        this.setContentView(this.getWindow(), glWindow);
+
     }
 }

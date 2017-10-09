@@ -1,39 +1,27 @@
-group 'org.quuux'
-version '0.1'
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
 
-apply plugin: 'java'
-apply plugin: 'application'
-
-sourceCompatibility = 1.8
-
-defaultTasks 'jar run'
-
-mainClassName = "org.quuux.opengl.Sandbox"
-
-// "-Djogl.debug.TraceGL"
-applicationDefaultJvmArgs = ["-Djogl.debug.DebugGL"]
-
-jar {
-    from {
-        (configurations.runtime).collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
+buildscript {
+    
+    repositories {
+        google()
+        jcenter()
     }
-    manifest {
-        attributes 'Main-Class': 'org.quuux.opengl.Sandbox'
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.0-beta7'
+        
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
     }
 }
 
-repositories {
-    mavenCentral()
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
 }
 
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-
-    compile group: 'org.l33tlabs.twl', name: 'pngdecoder', version: '1.0'
-    compile "org.jogamp.gluegen:gluegen-rt-main:+"
-    compile "org.jogamp.jogl:jogl-all-main:+"
-    compile "org.joml:joml:+"
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
-

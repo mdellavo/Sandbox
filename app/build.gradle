@@ -10,6 +10,12 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        defaultConfig {
+            multiDexEnabled true
+        }
+    }
+    dexOptions {
+        jumboMode = true
     }
     buildTypes {
         release {
@@ -17,16 +23,26 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:26.1.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation('com.android.support.test.espresso:espresso-core:3.0.1', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'org.jogamp.jogl:jogl-all-android:+'
-    compile project(':scenes')
+    compile 'com.android.support:appcompat-v7:26.1.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+
+    compile files('libs/gluegen-rt-android.jar')
+    compile files('libs/gluegen-rt-natives-android-armv6.jar')
+    compile files('libs/jogl-all-android.jar')
+    compile files('libs/jogl-all-android-natives-android-armv6.jar')
+
+    compile(project(':scenes')) {
+        exclude group: 'org.jogamp.gluegen', module: 'gluegen-rt'
+        exclude group: 'org.jogamp.jogl', module: 'jogl-all'
+    }
 }
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"

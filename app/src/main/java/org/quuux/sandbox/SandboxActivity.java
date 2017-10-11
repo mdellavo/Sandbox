@@ -2,7 +2,6 @@ package org.quuux.sandbox;
 
 import android.os.Bundle;
 
-
 import jogamp.newt.driver.android.NewtBaseActivity;
 
 import com.jogamp.newt.opengl.GLWindow;

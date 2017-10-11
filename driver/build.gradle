@@ -4,8 +4,6 @@ version '0.1'
 apply plugin: 'java'
 apply plugin: 'application'
 
-sourceCompatibility = 1.8
-
 defaultTasks 'jar run'
 
 mainClassName = "org.quuux.driver.Sandbox"
@@ -34,7 +32,6 @@ dependencies {
 
     compile project(":scenes")
 
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
 sourceCompatibility = "1.7"

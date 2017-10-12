@@ -10,12 +10,6 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        defaultConfig {
-            multiDexEnabled true
-        }
-    }
-    dexOptions {
-        jumboMode = true
     }
     buildTypes {
         release {
@@ -34,9 +28,7 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
 
     compile files('libs/gluegen-rt-android.jar')
-    compile files('libs/gluegen-rt-natives-android-armv6.jar')
     compile files('libs/jogl-all-android.jar')
-    compile files('libs/jogl-all-android-natives-android-armv6.jar')
 
     compile(project(':scenes')) {
         exclude group: 'org.jogamp.gluegen', module: 'gluegen-rt'

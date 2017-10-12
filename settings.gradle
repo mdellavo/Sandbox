@@ -1,1 +1,1 @@
-include ':app', ':lib', ':driver', ':scenes'
+include ':app', ':lib', ':viewer', ':scenes'

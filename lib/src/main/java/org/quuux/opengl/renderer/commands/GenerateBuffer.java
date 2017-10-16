@@ -1,14 +1,15 @@
 package org.quuux.opengl.renderer.commands;
 
+import org.quuux.opengl.lib.VBO;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
-public class Clear implements Command {
+public class GenerateBuffer implements Command {
 
-    private final int mask;
+    private final VBO vbo;
 
-    public Clear(int mask) {
-        this.mask = mask;
+    public GenerateBuffer(VBO vbo) {
+        this.vbo = vbo;
     }
 
     @Override
@@ -16,7 +17,7 @@ public class Clear implements Command {
         renderer.run(this);
     }
 
-    public int getMask() {
-        return mask;
+    public VBO getVbo() {
+        return vbo;
     }
 }

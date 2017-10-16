@@ -1,23 +1,41 @@
 package org.quuux.opengl.renderer.commands;
 
-import com.jogamp.opengl.GL;
-
 import org.quuux.opengl.renderer.Command;
+import org.quuux.opengl.renderer.Renderer;
 
 public class DrawArrays implements Command {
 
-    private final int mode;
+    public enum Mode {
+        Triangles,
+        Points,
+    }
+
+    private final Mode mode;
     private final int first;
     private final int count;
 
-    public DrawArrays(int mode, int first, int count) {
+    public DrawArrays(Mode mode, int first, int count) {
         this.mode = mode;
         this.first = first;
         this.count = count;
     }
 
     @Override
-    public void run(GL gl) {
-        gl.glDrawArrays(mode, first, count);
+    public void run(final Renderer renderer) {
+        renderer.run(this);
     }
+
+
+    public Mode getMode() {
+        return mode;
+    }
+
+    public int getFirst() {
+        return first;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
 }

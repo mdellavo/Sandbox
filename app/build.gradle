@@ -26,14 +26,7 @@ android {
 dependencies {
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-
-    compile files('libs/gluegen-rt-android.jar')
-    compile files('libs/jogl-all-android.jar')
-
-    compile(project(':scenes')) {
-        exclude group: 'org.jogamp.gluegen', module: 'gluegen-rt'
-        exclude group: 'org.jogamp.jogl', module: 'jogl-all'
-    }
+    compile project(':scenes')
 }
 
 sourceCompatibility = "1.7"

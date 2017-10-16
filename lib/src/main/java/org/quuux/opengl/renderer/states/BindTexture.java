@@ -1,14 +1,15 @@
 package org.quuux.opengl.renderer.states;
 
-import org.quuux.opengl.lib.ShaderProgram;
+
+import org.quuux.opengl.lib.Texture2D;
 import org.quuux.opengl.renderer.Renderer;
 
-public class UseProgram extends State {
+public class BindTexture extends State {
 
-    private final ShaderProgram program;
+    private final Texture2D texture;
 
-    public UseProgram(ShaderProgram program) {
-        this.program = program;
+    public BindTexture(Texture2D texture) {
+        this.texture = texture;
     }
 
     @Override
@@ -21,7 +22,7 @@ public class UseProgram extends State {
         renderer.clear(this);
     }
 
-    public ShaderProgram getProgram() {
-        return program;
+    public Texture2D getTexture() {
+        return texture;
     }
 }

@@ -1,30 +1,26 @@
 package org.quuux.opengl.renderer.states;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL4;
+import org.quuux.opengl.renderer.Renderer;
 
-import org.quuux.opengl.lib.Texture2D;
+public class ActivateTexture extends State {
 
-public class ActivateTexture extends Bind {
+    private final int textureUnit;
 
-    int textureUnit;
-    public ActivateTexture(int textureUnit, Texture2D texture) {
-        super(texture);
+    public ActivateTexture(int textureUnit) {
         this.textureUnit = textureUnit;
     }
 
-    public ActivateTexture(Texture2D texture) {
-        this(GL4.GL_TEXTURE0, texture);
+    @Override
+    void set(final Renderer renderer) {
+        renderer.set(this);
     }
 
     @Override
-    public void clearState(GL gl) {
-        super.clearState(gl);
+    void clear(final Renderer renderer) {
+        renderer.clear(this);
     }
 
-    @Override
-    public void setState(GL gl) {
-        super.setState(gl);
-        gl.glActiveTexture(textureUnit);
+    public int getTextureUnit() {
+        return textureUnit;
     }
 }

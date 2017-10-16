@@ -1,29 +1,36 @@
 package org.quuux.opengl.entities;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL4;
-import com.jogamp.opengl.util.GLBuffers;
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;
 import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.lib.Texture2D;
 import org.quuux.opengl.lib.VAO;
 import org.quuux.opengl.lib.VBO;
-import org.quuux.opengl.renderer.BatchState;
 import org.quuux.opengl.renderer.Command;
+import org.quuux.opengl.renderer.CommandList;
+import org.quuux.opengl.renderer.commands.BufferData;
 import org.quuux.opengl.renderer.commands.DrawArrays;
-import org.quuux.opengl.renderer.states.ActivateTexture;
-import org.quuux.opengl.renderer.states.BindVertex;
+import org.quuux.opengl.renderer.commands.EnableVertexAttribArray;
+import org.quuux.opengl.renderer.commands.GenerateArray;
+import org.quuux.opengl.renderer.commands.GenerateBuffer;
+import org.quuux.opengl.renderer.commands.SetUniform;
 import org.quuux.opengl.renderer.commands.SetUniformMatrix;
+import org.quuux.opengl.renderer.commands.VertexAttribPointer;
+import org.quuux.opengl.renderer.states.ActivateTexture;
+import org.quuux.opengl.renderer.states.BatchState;
+import org.quuux.opengl.renderer.states.BindArray;
+import org.quuux.opengl.renderer.states.BindBuffer;
+import org.quuux.opengl.renderer.states.BindTexture;
 import org.quuux.opengl.renderer.states.UseProgram;
 import org.quuux.opengl.scenes.Camera;
+import org.quuux.opengl.util.GLUtil;
 
 import java.nio.FloatBuffer;
 
 public class Quad implements Entity {
 
     float vertices[] = {
-            // verticies         // texture coords
+            // verticies       // texture coords
              1,  1, 0,  1, 1,  // top right
              1, -1, 0,  1, 0,  // bottom right
             -1,  1, 0,  0, 1,  // top left
@@ -35,50 +42,47 @@ public class Quad implements Entity {
 
     Matrix4d model = new Matrix4d().identity();
     Matrix4f mvp = new Matrix4f();
-    FloatBuffer mvpBuffer = GLBuffers.newDirectFloatBuffer(16);
+    FloatBuffer mvpBuffer = GLUtil.floatBuffer(16);
 
-    VBO vbo;
-    VAO vao;
+    VBO vbo = new VBO();
+    VAO vao = new VAO();
 
-    FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(vertices);
-    Texture2D texture;
-    ShaderProgram shader;
+    FloatBuffer vertexBuffer = GLUtil.floatBuffer(vertices);
+
+    Texture2D texture = new Texture2D();
+    ShaderProgram shader = new ShaderProgram();
 
     Command displayList;
 
-    public Quad(GL4 gl) {
-        //Log.out("*** quad init");
+    @Override
+    public Command initialize() {
+        CommandList rv = new CommandList();
 
-        shader = ShaderProgram.build(gl, "shaders/quad.vert.glsl", "shaders/quad.frag.glsl");
+        rv.add(ShaderProgram.build(shader, "shaders/quad.vert.glsl", "shaders/quad.frag.glsl"));
+        rv.add(new GenerateArray(vao));
+        rv.add(new GenerateBuffer(vbo));
 
-        gl.glActiveTexture(GL4.GL_TEXTURE0);
-        gl.glUniform1i(shader.getUniformLocation(gl, "texture"), 0);
+        BatchState ctx = new BatchState(new UseProgram(shader), new BindArray(vao), new BindBuffer(vbo), new BindTexture(texture), new ActivateTexture(0));
+        rv.add(ctx);
 
-        vao = new VAO(gl);
-        vbo = new VBO(gl);
-
-        gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertices.length * Float.BYTES, vertexBuffer, GL4.GL_STATIC_DRAW);
-
-        gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 5 * Float.BYTES, 0);
-        gl.glEnableVertexAttribArray(0);
-
-        gl.glVertexAttribPointer(1, 2, GL.GL_FLOAT, false, 5 * Float.BYTES, 3 * Float.BYTES);
-        gl.glEnableVertexAttribArray(1);
-
-        vao.clear(gl);
-        vbo.clear(gl);
-        shader.clear(gl);
+        ctx.add(new SetUniform(shader, "texture", 0));
+        ctx.add(new BufferData(BufferData.Target.ArrayBuffer, vertices.length * 4, vertexBuffer, BufferData.Usage.StaticDraw));
+        ctx.add(new VertexAttribPointer(0, 3, VertexAttribPointer.Type.Float, false, 5 * 4, 0));
+        ctx.add(new EnableVertexAttribArray(0));
+        ctx.add(new VertexAttribPointer(1, 2, VertexAttribPointer.Type.Float, false, 5 * 4, 3 * 4));
+        ctx.add(new EnableVertexAttribArray(1));
+        return rv;
     }
 
     @Override
-    public void dispose(GL gl) {
-
+    public Command dispose() {
+        return null;
     }
 
     public Command buildDisplayList() {
-        BatchState rv = new BatchState(new ActivateTexture(GL.GL_TEXTURE0, texture), new UseProgram(shader), new BindVertex(vbo, vao));
+        BatchState rv = new BatchState(new BindTexture(texture), new ActivateTexture(0), new UseProgram(shader), new BindBuffer(vbo), new BindArray(vao));
         rv.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
-        rv.add(new DrawArrays(GL.GL_TRIANGLES, 0, 6));
+        rv.add(new DrawArrays(DrawArrays.Mode.Triangles, 0, 6));
         return rv;
     }
 

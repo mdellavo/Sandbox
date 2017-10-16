@@ -2,16 +2,11 @@ package org.quuux.opengl.entities;
 
 import java.awt.*;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.jogamp.opengl.GL;
-
-import com.jogamp.opengl.GL4;
-import com.jogamp.opengl.util.GLBuffers;
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
@@ -19,15 +14,12 @@ import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.lib.Texture2D;
 import org.quuux.opengl.lib.VAO;
 import org.quuux.opengl.lib.VBO;
-import org.quuux.opengl.renderer.BatchState;
 import org.quuux.opengl.renderer.Command;
-import org.quuux.opengl.renderer.commands.BufferData;
-import org.quuux.opengl.renderer.commands.DrawArrays;
-import org.quuux.opengl.renderer.commands.SetUniformMatrix;
-import org.quuux.opengl.renderer.states.ActivateTexture;
-import org.quuux.opengl.renderer.states.BindVertex;
-import org.quuux.opengl.renderer.states.UseProgram;
+import org.quuux.opengl.renderer.CommandList;
+import org.quuux.opengl.renderer.commands.*;
+import org.quuux.opengl.renderer.states.*;
 import org.quuux.opengl.scenes.Camera;
+import org.quuux.opengl.util.GLUtil;
 import org.quuux.opengl.util.RandomUtil;
 import org.quuux.opengl.util.ResourceUtil;
 
@@ -43,56 +35,22 @@ public class ParticleEmitter implements Entity {
 
     Matrix4d model = new Matrix4d().identity();
     Matrix4f mvp = new Matrix4f();
-    FloatBuffer mvpBuffer = GLBuffers.newDirectFloatBuffer(16);
+    FloatBuffer mvpBuffer = GLUtil.floatBuffer(16);
 
     Vector3d position = new Vector3d();
 
     List<Particle> particles = new ArrayList<>();
     List<Particle> pool = new ArrayList<>();
 
-    FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(8 * TOTAL_PARTICLES);
+    FloatBuffer vertexBuffer = GLUtil.floatBuffer(8 * TOTAL_PARTICLES);
 
-    VBO vbo;
-    VAO vao;
+    VBO vbo = new VBO();
+    VAO vao = new VAO();
 
-    Texture2D texture;
-    ShaderProgram shader;
+    Texture2D texture = new Texture2D();
+    ShaderProgram shader = new ShaderProgram();
 
     Command displayList;
-
-    public ParticleEmitter(GL gl) {
-        //Log.out("*** emitter init");
-
-        GL4 gl4 = gl.getGL4();
-        shader = ShaderProgram.build(gl4, "shaders/particle.vert.glsl", "shaders/particle.frag.glsl");
-
-        gl4.glActiveTexture(GL.GL_TEXTURE0);
-        texture = new Texture2D(gl4);
-        texture.bind(gl4);
-        ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/particle1.png");
-
-        texture.attach(gl4, GL4.GL_SRGB_ALPHA, image.width, image.height,  GL4.GL_RGBA, image.buffer);
-        texture.setFilterParameters(gl4, GL.GL_LINEAR, GL.GL_LINEAR);
-
-        gl4.glUniform1i(shader.getUniformLocation(gl4, "texture"), 0);
-
-        vao = new VAO(gl4);
-        vbo = new VBO(gl4);
-
-        gl4.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 8 * Float.BYTES, 0);
-        gl4.glEnableVertexAttribArray(0);
-
-        gl4.glVertexAttribPointer(1, 4, GL.GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);
-        gl4.glEnableVertexAttribArray(1);
-
-        gl4.glVertexAttribPointer(2, 1, GL.GL_FLOAT, false, 8 * Float.BYTES, 7 * Float.BYTES);
-        gl4.glEnableVertexAttribArray(2);
-
-        vao.clear(gl4);
-        texture.clear(gl4);
-        vbo.clear(gl4);
-        shader.clear(gl4);
-    }
 
     private Particle allocateParticle() {
         if (particles.size() >= TOTAL_PARTICLES)
@@ -162,10 +120,34 @@ public class ParticleEmitter implements Entity {
     }
 
     @Override
-    public void dispose(GL gl) {
-        IntBuffer vertexBufferId = GLBuffers.newDirectIntBuffer(1);
-        vertexBufferId.put(this.vbo.vbo);
-        gl.glDeleteBuffers(1, vertexBufferId);
+    public Command dispose() {
+        return null;
+    }
+
+    @Override
+    public Command initialize() {
+        CommandList rv = new CommandList();
+
+        rv.add(ShaderProgram.build(shader, "shaders/particle.vert.glsl", "shaders/particle.frag.glsl"));
+
+        BatchState ctx = new BatchState(new UseProgram(shader), new BindBuffer(vbo), new BindArray(vao), new BindTexture(texture), new ActivateTexture(0));
+        rv.add(ctx);
+
+        ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/particle1.png");
+        ctx.add(new LoadTexture2D(texture, LoadTexture2D.Format.SRGB_ALPHA, image.width, image.height,  LoadTexture2D.Format.RGBA, image.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
+
+        ctx.add(new SetUniform(shader, "texture", SetUniform.Type.INT, 0));
+
+        ctx.add(new VertexAttribPointer(0, 3, VertexAttribPointer.Type.Float, false, 8 * 4, 0));
+        ctx.add(new EnableVertexAttribArray(0));
+
+        ctx.add(new VertexAttribPointer(1, 4, VertexAttribPointer.Type.Float, false, 8 * 4, 3 * 4));
+        ctx.add(new EnableVertexAttribArray(1));
+
+        ctx.add(new VertexAttribPointer(2, 1, VertexAttribPointer.Type.Float, false, 8 * 4, 7 * 4));
+        ctx.add(new EnableVertexAttribArray(2));
+
+        return rv;
     }
 
     @Override
@@ -175,9 +157,9 @@ public class ParticleEmitter implements Entity {
         mvp.get(mvpBuffer);
 
         if (displayList == null) {
-            BatchState rv = new BatchState(new ActivateTexture(GL.GL_TEXTURE0, texture), new UseProgram(shader), new BindVertex(vbo, vao));
+            BatchState rv = new BatchState(new UseProgram(shader), new BindArray(vao), new BindBuffer(vbo), new BindTexture(texture), new ActivateTexture(0));
             rv.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
-            rv.add(new BufferData(GL.GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, GL4.GL_STREAM_DRAW));
+            rv.add(new BufferData(BufferData.Target.ArrayBuffer, vertexBuffer.capacity() * 4, vertexBuffer, BufferData.Usage.StreamDraw));
             rv.add(new DrawParticles());
             displayList = rv;
         }
@@ -268,12 +250,12 @@ public class ParticleEmitter implements Entity {
     class DrawParticles extends DrawArrays {
 
         public DrawParticles() {
-            super(0, 0, 0);
+            super(Mode.Points, 0, particles.size());
         }
 
         @Override
-        public void run(GL gl) {
-            gl.glDrawArrays(GL.GL_POINTS, 0, particles.size());
+        public int getCount() {
+            return particles.size();
         }
     }
 }

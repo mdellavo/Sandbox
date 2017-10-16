@@ -1,7 +1,5 @@
 package org.quuux.opengl.scenes;
 
-import com.jogamp.opengl.GL;
-
 import org.quuux.opengl.entities.EntityGroup;
 import org.quuux.opengl.renderer.Command;
 
@@ -12,7 +10,7 @@ public class Scene extends EntityGroup {
         setScene(this);
     }
 
-    public void setup(GL gl) { }
+    public void setup() { }
 
     public static Scene getScene() {
         return instance;

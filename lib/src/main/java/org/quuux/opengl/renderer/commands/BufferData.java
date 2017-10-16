@@ -1,16 +1,24 @@
 package org.quuux.opengl.renderer.commands;
 
-import com.jogamp.opengl.GL;
-
 import org.quuux.opengl.renderer.Command;
+import org.quuux.opengl.renderer.Renderer;
 
 import java.nio.Buffer;
 
 public class BufferData implements Command {
-    int target, size, usage;
-    Buffer data;
 
-    public BufferData(int target, int size, Buffer data, int usage) {
+    public enum Usage {
+        StaticDraw,
+        DynamicDraw,
+        StreamDraw,
+    }
+
+    private Target target;
+    private int size;
+    private Usage usage;
+    private Buffer data;
+
+    public BufferData(Target target, int size, Buffer data, Usage usage) {
         this.target = target;
         this.size = size;
         this.data = data;
@@ -18,7 +26,28 @@ public class BufferData implements Command {
     }
 
     @Override
-    public void run(GL gl) {
-        gl.glBufferData(target, size, data, usage);
+    public void run(final Renderer renderer) {
+        renderer.run(this);
+    }
+
+    public Target getTarget() {
+        return target;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public Usage getUsage() {
+        return usage;
+    }
+
+    public Buffer getData() {
+        return data;
+    }
+
+    public enum Target {
+        ArrayBuffer,
+        ElementArrayBuffer,
     }
 }

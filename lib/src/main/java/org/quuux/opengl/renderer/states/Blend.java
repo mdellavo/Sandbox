@@ -1,21 +1,31 @@
 package org.quuux.opengl.renderer.states;
 
-import com.jogamp.opengl.GL;
+import org.quuux.opengl.renderer.Renderer;
 
-public class Blend extends Enable {
+public class Blend extends State {
     private final int sfactor;
     private final int dfactor;
 
     public Blend(int sfactor, int dfactor) {
-        super(GL.GL_BLEND);
         this.sfactor = sfactor;
         this.dfactor = dfactor;
     }
 
     @Override
-    public void setState(GL gl) {
-        super.setState(gl);
-        gl.glBlendFunc(sfactor, dfactor);
+    void set(final Renderer renderer) {
+        renderer.set(this);
     }
 
+    @Override
+    void clear(final Renderer renderer) {
+        renderer.clear(this);
+    }
+
+    public int getSfactor() {
+        return sfactor;
+    }
+
+    public int getDfactor() {
+        return dfactor;
+    }
 }

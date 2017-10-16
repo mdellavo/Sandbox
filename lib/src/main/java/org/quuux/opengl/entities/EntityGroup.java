@@ -1,6 +1,5 @@
 package org.quuux.opengl.entities;
 
-import com.jogamp.opengl.GL;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.CommandList;
 
@@ -14,11 +13,22 @@ public class EntityGroup extends LinkedList<Entity> implements Entity {
     }
 
     @Override
-    public void dispose(GL gl) {
+    public Command initialize() {
+        CommandList commands = new CommandList();
         for(int i=0; i<size(); i++)
-            get(i).dispose(gl);
+            commands.add(get(i).initialize());
+        return commands;
     }
 
+    @Override
+    public Command dispose() {
+        CommandList commands = new CommandList();
+        for(int i=0; i<size(); i++)
+            commands.add(get(i).dispose());
+        return commands;
+    }
+
+    // FIXME very inefficient
     @Override
     public Command draw() {
         CommandList commands = new CommandList();

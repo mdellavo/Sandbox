@@ -1,14 +1,13 @@
 package org.quuux.opengl.renderer.states;
 
-import org.quuux.opengl.lib.ShaderProgram;
+import org.quuux.opengl.lib.VBO;
 import org.quuux.opengl.renderer.Renderer;
 
-public class UseProgram extends State {
+public class BindBuffer extends State {
+    private final VBO vbo;
 
-    private final ShaderProgram program;
-
-    public UseProgram(ShaderProgram program) {
-        this.program = program;
+    public BindBuffer(VBO vbo) {
+        this.vbo = vbo;
     }
 
     @Override
@@ -21,7 +20,7 @@ public class UseProgram extends State {
         renderer.clear(this);
     }
 
-    public ShaderProgram getProgram() {
-        return program;
+    public VBO getVBO() {
+        return vbo;
     }
 }

@@ -1,19 +1,26 @@
 package org.quuux.opengl.renderer.states;
 
-import com.jogamp.opengl.GL;
+import org.quuux.opengl.renderer.Renderer;
 
-public class Depth extends Enable {
+public class Depth extends State {
 
     private final int depthFunc;
 
     public Depth(int depthFunc) {
-        super(GL.GL_DEPTH_TEST);
         this.depthFunc = depthFunc;
     }
 
     @Override
-    public void setState(GL gl) {
-        super.setState(gl);
-        gl.glDepthFunc(depthFunc);
+    void set(final Renderer renderer) {
+        renderer.set(this);
+    }
+
+    @Override
+    void clear(final Renderer renderer) {
+        renderer.clear(this);
+    }
+
+    public int getDepthFunc() {
+        return depthFunc;
     }
 }

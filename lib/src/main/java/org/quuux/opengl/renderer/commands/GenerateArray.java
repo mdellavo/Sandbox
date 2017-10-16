@@ -1,14 +1,15 @@
 package org.quuux.opengl.renderer.commands;
 
+import org.quuux.opengl.lib.VAO;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
-public class Clear implements Command {
+public class GenerateArray implements Command {
 
-    private final int mask;
+    private final VAO vao;
 
-    public Clear(int mask) {
-        this.mask = mask;
+    public GenerateArray(VAO vao) {
+        this.vao = vao;
     }
 
     @Override
@@ -16,7 +17,7 @@ public class Clear implements Command {
         renderer.run(this);
     }
 
-    public int getMask() {
-        return mask;
+    public VAO getVao() {
+        return vao;
     }
 }

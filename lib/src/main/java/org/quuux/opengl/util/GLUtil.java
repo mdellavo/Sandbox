@@ -1,44 +1,32 @@
 package org.quuux.opengl.util;
 
-import com.jogamp.opengl.GL;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 public class GLUtil {
-
-    public static String getErrorMessage(GL gl) {
-        int code = gl.glGetError();
-        String rv = null;
-        switch(code) {
-            case GL.GL_NO_ERROR:
-                break;
-
-            case GL.GL_INVALID_ENUM:
-                rv = "Invalid Enum";
-                break;
-
-            case GL.GL_INVALID_VALUE:
-                rv = "Invalid Value";
-                break;
-
-            case GL.GL_INVALID_OPERATION:
-                rv = "Invalid Operation";
-                break;
-
-            case GL.GL_INVALID_FRAMEBUFFER_OPERATION:
-                rv = "Invalid Framebuffer Operation";
-                break;
-
-            default:
-                rv = "Unknown Error";
-                break;
-        }
-        return rv;
+    public static ByteBuffer byteBuffer(int size) {
+        ByteBuffer byte_buf = ByteBuffer.allocateDirect(size);
+        byte_buf.order(ByteOrder.nativeOrder());
+        return byte_buf;
     }
 
-    public static boolean checkError(GL gl){
-        String error = getErrorMessage(gl);
-        if (error != null) {
-            System.out.println("Error: " + error);
-        }
-        return error != null;
+    public static IntBuffer intBuffer(int size) {
+        ByteBuffer byte_buf = ByteBuffer.allocateDirect(size * 4);
+        byte_buf.order(ByteOrder.nativeOrder());
+        return byte_buf.asIntBuffer();
+    }
+
+    public static FloatBuffer floatBuffer(int size) {
+        ByteBuffer byte_buf = ByteBuffer.allocateDirect(size * 4);
+        byte_buf.order(ByteOrder.nativeOrder());
+        return byte_buf.asFloatBuffer();
+    }
+
+    public static FloatBuffer floatBuffer(final float[] vertices) {
+        FloatBuffer buffer = floatBuffer(vertices.length);
+        buffer.put(vertices);
+        return buffer;
     }
 }

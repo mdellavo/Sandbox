@@ -1,9 +1,8 @@
 package org.quuux.opengl.renderer.commands;
 
-import com.jogamp.opengl.GL;
-
 import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.renderer.Command;
+import org.quuux.opengl.renderer.Renderer;
 
 import java.nio.FloatBuffer;
 
@@ -24,7 +23,27 @@ public class SetUniformMatrix implements Command {
     }
 
     @Override
-    public void run(GL gl) {
-        gl.getGL4().glUniformMatrix4fv(shader.getUniformLocation(gl, attribute), count, transpose, buffer);
+    public void run(final Renderer renderer) {
+        renderer.run(this);
+    }
+
+    public ShaderProgram getShader() {
+        return shader;
+    }
+
+    public String getAttribute() {
+        return attribute;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public boolean isTranspose() {
+        return transpose;
+    }
+
+    public FloatBuffer getBuffer() {
+        return buffer;
     }
 }

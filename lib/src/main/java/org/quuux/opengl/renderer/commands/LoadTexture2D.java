@@ -11,6 +11,7 @@ public class LoadTexture2D implements Command {
     public enum Format {
         RGBA,
         SRGB_ALPHA,
+        RGBA16F,
     }
 
     public enum Filter {

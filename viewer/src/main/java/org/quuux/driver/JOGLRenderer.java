@@ -6,30 +6,8 @@ import com.jogamp.opengl.util.GLBuffers;
 
 import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.renderer.Renderer;
-import org.quuux.opengl.renderer.commands.AttachFramebuffer;
-import org.quuux.opengl.renderer.commands.BufferData;
-import org.quuux.opengl.renderer.commands.Clear;
-import org.quuux.opengl.renderer.commands.CompileShader;
-import org.quuux.opengl.renderer.commands.CreateProgram;
-import org.quuux.opengl.renderer.commands.DrawArrays;
-import org.quuux.opengl.renderer.commands.EnableVertexAttribArray;
-import org.quuux.opengl.renderer.commands.GenerateArray;
-import org.quuux.opengl.renderer.commands.GenerateBuffer;
-import org.quuux.opengl.renderer.commands.GenerateFramebuffer;
-import org.quuux.opengl.renderer.commands.GenerateTexture2D;
-import org.quuux.opengl.renderer.commands.LinkProgram;
-import org.quuux.opengl.renderer.commands.LoadTexture2D;
-import org.quuux.opengl.renderer.commands.SetUniform;
-import org.quuux.opengl.renderer.commands.SetUniformMatrix;
-import org.quuux.opengl.renderer.commands.VertexAttribPointer;
-import org.quuux.opengl.renderer.states.ActivateTexture;
-import org.quuux.opengl.renderer.states.BindArray;
-import org.quuux.opengl.renderer.states.BindFramebuffer;
-import org.quuux.opengl.renderer.states.BindBuffer;
-import org.quuux.opengl.renderer.states.BindTexture;
-import org.quuux.opengl.renderer.states.Blend;
-import org.quuux.opengl.renderer.states.Depth;
-import org.quuux.opengl.renderer.states.UseProgram;
+import org.quuux.opengl.renderer.commands.*;
+import org.quuux.opengl.renderer.states.*;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -113,6 +91,21 @@ public class JOGLRenderer implements Renderer {
         return rv;
     }
 
+    private int getCapability(Enable.Capability capability) {
+        final int rv;
+        if (capability == Enable.Capability.DEPTH_TEST)
+            rv = GL.GL_DEPTH_TEST;
+        else if (capability == Enable.Capability.BLEND)
+            rv = GL.GL_BLEND;
+        else if (capability == Enable.Capability.MULTISAMPLE)
+            rv = GL.GL_MULTISAMPLE;
+        else if (capability == Enable.Capability.POINT_SIZE)
+            rv = GL.GL_POINT_SIZE;
+        else
+            throw new UnsupportedException("Unknown capability: " + capability.toString());
+        return rv;
+    }
+
     @Override
     public void run(final BufferData command) {
         gl.glBufferData(getTarget(command.getTarget()), command.getSize(), command.getData(), getUsage(command.getUsage()));
@@ -150,6 +143,21 @@ public class JOGLRenderer implements Renderer {
     }
 
     @Override
+    public void run(ClearColor command) {
+        gl.glClearColor(command.getR(), command.getG(), command.getB(), command.getA());
+    }
+
+    @Override
+    public void run(BlendFunc command) {
+        gl.glBlendFunc(command.getSfactor(), command.getDfactor());
+    }
+
+    @Override
+    public void run(DepthFunc command) {
+        gl.glDepthFunc(command.getDepthFunc());
+    }
+
+    @Override
     public void set(final ActivateTexture command) {
         gl.glActiveTexture(command.getTextureUnit());
     }
@@ -167,28 +175,6 @@ public class JOGLRenderer implements Renderer {
     @Override
     public void clear(final BindBuffer command) {
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
-    }
-
-    @Override
-    public void set(final Blend command) {
-        gl.glEnable(GL.GL_BLEND);
-        gl.glBlendFunc(command.getSfactor(), command.getDfactor());
-    }
-
-    @Override
-    public void clear(final Blend command) {
-        gl.glDisable(GL.GL_BLEND);
-    }
-
-    @Override
-    public void set(final Depth command) {
-        gl.glEnable(GL.GL_DEPTH_TEST);
-        gl.glDepthFunc(command.getDepthFunc());
-    }
-
-    @Override
-    public void clear(final Depth command) {
-        gl.glDisable(GL.GL_DEPTH_TEST);
     }
 
     @Override
@@ -229,6 +215,16 @@ public class JOGLRenderer implements Renderer {
     @Override
     public void clear(final BindFramebuffer command) {
         gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0);
+    }
+
+    @Override
+    public void set(Enable command) {
+        gl.glEnable(getCapability(command.getCapability()));
+    }
+
+    @Override
+    public void clear(Enable command) {
+        gl.glDisable(getCapability(command.getCapability()));
     }
 
     @Override

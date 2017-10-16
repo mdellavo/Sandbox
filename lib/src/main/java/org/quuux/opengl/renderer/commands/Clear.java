@@ -3,12 +3,20 @@ package org.quuux.opengl.renderer.commands;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
+import java.util.EnumSet;
+
 public class Clear implements Command {
 
-    private final int mask;
+    public enum Mode {
+        COLOR_BUFFER,
+        DEPTH_BUFFER,
+    }
 
-    public Clear(int mask) {
-        this.mask = mask;
+    private final EnumSet<Mode> mask = EnumSet.noneOf(Mode.class);
+
+    public Clear(Mode... modes) {
+        for (int i=0; i<modes.length; i++)
+            mask.add(modes[i]);
     }
 
     @Override
@@ -16,7 +24,7 @@ public class Clear implements Command {
         renderer.run(this);
     }
 
-    public int getMask() {
+    public EnumSet<Mode> getMask() {
         return mask;
     }
 }

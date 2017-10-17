@@ -11,11 +11,16 @@ import org.quuux.opengl.renderer.states.*;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.EnumSet;
 
 
 public class JOGLRenderer implements Renderer {
 
     GL gl;
+
+    public void setGL(GL gl) {
+        this.gl = gl;
+    }
 
     private int getTarget(BufferData.Target target) {
         final int rv;
@@ -106,6 +111,41 @@ public class JOGLRenderer implements Renderer {
         return rv;
     }
 
+    private int getMask(Clear.Mode[] modes) {
+        int rv = 0;
+        for (int i=0; i<modes.length; i++) {
+            Clear.Mode mode = modes[i];
+            if (mode == Clear.Mode.COLOR_BUFFER)
+                rv |= GL.GL_COLOR_BUFFER_BIT;
+            else if (mode == Clear.Mode.DEPTH_BUFFER)
+                rv |= GL.GL_DEPTH_BUFFER_BIT;
+            else
+                throw new UnsupportedException("Unknown mode: " + mode.toString());
+        }
+
+        return rv;
+    }
+
+    private int getFactor(BlendFunc.Factor factor) {
+        final int rv;
+        if (factor == BlendFunc.Factor.SRC_ALPHA)
+            rv = GL.GL_SRC_ALPHA;
+        else if (factor == BlendFunc.Factor.ONE_MINUS_SRC_ALPHA)
+            rv = GL.GL_ONE_MINUS_SRC_ALPHA;
+        else
+            throw new UnsupportedException("Unknown factor: " + factor.toString());
+        return rv;
+    }
+
+    private int getDepthFunc(DepthFunc.Function depthFunc) {
+        final int rv;
+        if (depthFunc == DepthFunc.Function.LESS)
+            rv = GL.GL_LESS;
+        else
+            throw new UnsupportedException("Unknown depth function: " + depthFunc.toString());
+        return rv;
+    }
+
     @Override
     public void run(final BufferData command) {
         gl.glBufferData(getTarget(command.getTarget()), command.getSize(), command.getData(), getUsage(command.getUsage()));
@@ -113,7 +153,7 @@ public class JOGLRenderer implements Renderer {
 
     @Override
     public void run(final Clear command) {
-        gl.glClear(command.getMask());
+        gl.glClear(getMask(command.getModes()));
     }
 
     @Override
@@ -149,12 +189,12 @@ public class JOGLRenderer implements Renderer {
 
     @Override
     public void run(BlendFunc command) {
-        gl.glBlendFunc(command.getSfactor(), command.getDfactor());
+        gl.glBlendFunc(getFactor(command.getSfactor()), getFactor(command.getDfactor()));
     }
 
     @Override
     public void run(DepthFunc command) {
-        gl.glDepthFunc(command.getDepthFunc());
+        gl.glDepthFunc(getDepthFunc(command.getDepthFunc()));
     }
 
     @Override

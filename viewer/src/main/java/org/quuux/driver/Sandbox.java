@@ -16,6 +16,8 @@ import org.quuux.scenes.TestScene;
 class Sandbox implements KeyListener, GLEventListener {
 
     Scene scene;
+    JOGLRenderer renderer = new DebugRenderer();
+    long lastUpdate;
 
     public static void main(String[] args) {
 
@@ -54,28 +56,27 @@ class Sandbox implements KeyListener, GLEventListener {
         this.scene = scene;
     }
 
-    long lastUpdate;
-
     @Override
     public void init(GLAutoDrawable drawable) {
         GL gl = drawable.getGL();
 
         System.out.println(String.format("OpenGL Version: %s", gl.glGetString(GL.GL_VERSION)));
 
-        Scene.getScene().setup(gl);
+        Scene.getScene().setup();
 
         lastUpdate = System.currentTimeMillis();
     }
 
     @Override
     public void dispose(GLAutoDrawable drawable) {
-        GL gl = drawable.getGL();
-        Scene.getScene().dispose(gl);
+        renderer.setGL(drawable.getGL());
+        Command command = Scene.getScene().dispose();
+        command.run(renderer);
     }
 
     @Override
     public void display(GLAutoDrawable drawable) {
-        GL gl = drawable.getGL();
+        renderer.setGL(drawable.getGL());
 
         long now = System.currentTimeMillis();
         long elapsed = now - lastUpdate;
@@ -84,7 +85,7 @@ class Sandbox implements KeyListener, GLEventListener {
         Scene.getScene().dispatchUpdate(elapsed);
 
         Command displayList = Scene.getScene().dispatchDraw();
-        displayList.run(gl);
+        displayList.run(renderer);
     }
 
     @Override

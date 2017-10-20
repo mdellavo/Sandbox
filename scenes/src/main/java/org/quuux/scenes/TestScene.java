@@ -34,9 +34,10 @@ public class TestScene extends Scene {
         return new BatchState(
                 new Enable(Enable.Capability.BLEND),
                 new Enable(Enable.Capability.DEPTH_TEST),
-                new Enable(Enable.Capability.MULTISAMPLE),
-                new Enable(Enable.Capability.POINT_SIZE),
+                //new Enable(Enable.Capability.MULTISAMPLE),
+                //new Enable(Enable.Capability.POINT_SIZE),
                 new BindTexture(texture),
+                new ActivateTexture(0),
                 new BindFramebuffer(frameBuffer)
         );
     }
@@ -51,13 +52,14 @@ public class TestScene extends Scene {
         rv.add(new ClearColor(0, 0, 0, 1));
         rv.add(new GenerateTexture2D(texture));
         rv.add(new GenerateFramebuffer(frameBuffer));
+        rv.add(new LoadTexture2D(texture, LoadTexture2D.Format.RGBA16F, width, height, LoadTexture2D.Format.RGBA, null, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
+        rv.add(new AttachFramebuffer(frameBuffer, texture));
+
         State ctx = newSceneContext();
         rv.add(ctx);
 
         ctx.add(new BlendFunc(BlendFunc.Factor.SRC_ALPHA, BlendFunc.Factor.ONE_MINUS_SRC_ALPHA));
         ctx.add(new DepthFunc(DepthFunc.Function.LESS));
-        ctx.add(new LoadTexture2D(texture, LoadTexture2D.Format.RGBA16F, width, height, LoadTexture2D.Format.RGBA, null, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
-        ctx.add(new AttachFramebuffer(frameBuffer, texture));
         return rv;
     }
 

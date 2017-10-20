@@ -10,15 +10,15 @@ public class DebugRenderer extends JOGLRenderer {
     }
 
     private void log(Command command) {
-        log(command.toString());
+        log(command.getClass().getSimpleName());
     }
 
     private void logSet(Command command) {
-        log(">>> Set %s", command.toString());
+        log(">>> %s", command.getClass().getSimpleName());
     }
 
     private void logClear(Command command) {
-        log("<<< Clear %s", command.toString());
+        log("<<< %s", command.getClass().getSimpleName());
     }
 
     @Override

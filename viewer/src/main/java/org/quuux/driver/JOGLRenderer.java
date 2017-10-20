@@ -11,7 +11,6 @@ import org.quuux.opengl.renderer.states.*;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.EnumSet;
 
 
 public class JOGLRenderer implements Renderer {
@@ -80,6 +79,8 @@ public class JOGLRenderer implements Renderer {
             rv = GL.GL_RGBA;
         else if (format == LoadTexture2D.Format.SRGB_ALPHA)
             rv = GL.GL_SRGB_ALPHA;
+        else if (format == LoadTexture2D.Format.RGBA16F)
+            rv = GL.GL_RGBA16F;
         else
             throw new UnsupportedException("Unknown format: " + format.toString());
         return rv;
@@ -146,6 +147,15 @@ public class JOGLRenderer implements Renderer {
         return rv;
     }
 
+    private int getTextureUnit(int value) {
+        final int rv;
+        if (value == 0)
+            rv = GL.GL_TEXTURE0;
+        else
+            throw new UnsupportedException("Uknown texture unit: " + value);
+        return rv;
+    }
+
     @Override
     public void run(final BufferData command) {
         gl.glBufferData(getTarget(command.getTarget()), command.getSize(), command.getData(), getUsage(command.getUsage()));
@@ -199,12 +209,11 @@ public class JOGLRenderer implements Renderer {
 
     @Override
     public void set(final ActivateTexture command) {
-        gl.glActiveTexture(command.getTextureUnit());
+        gl.glActiveTexture(getTextureUnit(command.getTextureUnit()));
     }
 
     @Override
     public void clear(final ActivateTexture command) {
-        gl.glActiveTexture(0);
     }
 
     @Override
@@ -313,14 +322,13 @@ public class JOGLRenderer implements Renderer {
         command.getFramebuffer().rbo = buffer.get(0);
         gl4.glBindRenderbuffer(GL4.GL_RENDERBUFFER, command.getFramebuffer().rbo);
         gl4.glRenderbufferStorage(GL4.GL_RENDERBUFFER, GL4.GL_DEPTH24_STENCIL8, command.getFramebuffer().width, command.getFramebuffer().height);
-        gl4.glBindRenderbuffer(GL4.GL_RENDERBUFFER, 0);
 
         gl4.glFramebufferRenderbuffer(GL4.GL_FRAMEBUFFER, GL4.GL_DEPTH_STENCIL_ATTACHMENT, GL4.GL_RENDERBUFFER, command.getFramebuffer().rbo);
     }
 
     @Override
     public void run(final AttachFramebuffer command) {
-        gl.glFramebufferTexture2D(GL4.GL_FRAMEBUFFER, GL4.GL_COLOR_ATTACHMENT0, GL4.GL_TEXTURE_2D, command.getTexture().texture, 0);
+        gl.getGL4().glFramebufferTexture2D(GL4.GL_FRAMEBUFFER, GL4.GL_COLOR_ATTACHMENT0, GL4.GL_TEXTURE_2D, command.getTexture().texture, 0);
     }
 
     @Override

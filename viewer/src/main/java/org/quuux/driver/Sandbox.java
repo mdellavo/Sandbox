@@ -59,10 +59,13 @@ class Sandbox implements KeyListener, GLEventListener {
     @Override
     public void init(GLAutoDrawable drawable) {
         GL gl = drawable.getGL();
+        renderer.setGL(gl);
 
         System.out.println(String.format("OpenGL Version: %s", gl.glGetString(GL.GL_VERSION)));
 
         Scene.getScene().setup();
+        Command command = Scene.getScene().initialize();
+        command.run(renderer);
 
         lastUpdate = System.currentTimeMillis();
     }

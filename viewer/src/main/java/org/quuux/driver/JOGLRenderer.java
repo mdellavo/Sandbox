@@ -68,6 +68,8 @@ public class JOGLRenderer implements Renderer {
         final int rv;
         if (mode == DrawArrays.Mode.Triangles)
             rv = GL.GL_TRIANGLES;
+        else if(mode == DrawArrays.Mode.Points)
+            rv = GL.GL_POINTS;
         else
             throw new UnsupportedException("Unknown mode: " + mode.toString());
         return rv;
@@ -152,7 +154,18 @@ public class JOGLRenderer implements Renderer {
         if (value == 0)
             rv = GL.GL_TEXTURE0;
         else
-            throw new UnsupportedException("Uknown texture unit: " + value);
+            throw new UnsupportedException("Unknown texture unit: " + value);
+        return rv;
+    }
+
+    private int getShaderType(CompileShader.ShaderType type) {
+        final int rv;
+        if (type == CompileShader.ShaderType.FRAGMENT)
+            rv = GL4.GL_FRAGMENT_SHADER;
+        else if (type == CompileShader.ShaderType.VERTEX)
+            rv = GL4.GL_VERTEX_SHADER;
+        else
+            throw new UnsupportedException("Unknown shader type: " + type);
         return rv;
     }
 
@@ -348,7 +361,7 @@ public class JOGLRenderer implements Renderer {
 
         GL4 gl4 = gl.getGL4();
 
-        int shader = gl4.glCreateShader(command.getShaderType());
+        int shader = gl4.glCreateShader(getShaderType(command.getShaderType()));
         gl4.glShaderSource(shader, 1, new String[] {command.getShaderSource()}, null);
         gl4.glCompileShader(shader);
 

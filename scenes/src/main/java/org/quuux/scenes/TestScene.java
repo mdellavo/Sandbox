@@ -47,19 +47,22 @@ public class TestScene extends Scene {
         quad.setTexture(texture);
         Camera.getCamera().setEye(0, 5, 5);
 
-
         CommandList rv = new CommandList();
         rv.add(new ClearColor(0, 0, 0, 1));
         rv.add(new GenerateTexture2D(texture));
         rv.add(new GenerateFramebuffer(frameBuffer));
         rv.add(new LoadTexture2D(texture, LoadTexture2D.Format.RGBA16F, width, height, LoadTexture2D.Format.RGBA, null, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
-        rv.add(new AttachFramebuffer(frameBuffer, texture));
 
-        State ctx = newSceneContext();
+        State ctx = new BatchState(new BindTexture(texture), new Enable(Enable.Capability.BLEND), new Enable(Enable.Capability.DEPTH_TEST));
         rv.add(ctx);
 
         ctx.add(new BlendFunc(BlendFunc.Factor.SRC_ALPHA, BlendFunc.Factor.ONE_MINUS_SRC_ALPHA));
         ctx.add(new DepthFunc(DepthFunc.Function.LESS));
+        ctx.add(new AttachFramebuffer(frameBuffer, texture));
+
+        rv.add(pe.initialize());
+        rv.add(quad.initialize());
+
         return rv;
     }
 

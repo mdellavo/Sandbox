@@ -9,7 +9,7 @@ defaultTasks 'jar run'
 mainClassName = "org.quuux.driver.Sandbox"
 
 // "-Djogl.debug.TraceGL"
-applicationDefaultJvmArgs = ["-Djogl.debug.DebugGL"]
+applicationDefaultJvmArgs = ["-Djogl.debug.DebugGL", "-Djogl.debug.TraceGL"]
 
 jar {
     from {

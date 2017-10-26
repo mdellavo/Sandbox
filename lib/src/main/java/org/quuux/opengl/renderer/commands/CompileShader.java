@@ -7,11 +7,16 @@ import org.quuux.opengl.renderer.Renderer;
 
 public class CompileShader implements Command {
 
+    public enum ShaderType {
+        VERTEX,
+        FRAGMENT
+    }
+
     private final ShaderProgram program;
-    private final int shaderType;
+    private final ShaderType shaderType;
     private final String shaderSource;
 
-    public CompileShader(ShaderProgram program, int shaderType, String shaderSource) {
+    public CompileShader(ShaderProgram program, ShaderType shaderType, String shaderSource) {
         this.program = program;
         this.shaderType = shaderType;
         this.shaderSource = shaderSource;
@@ -26,7 +31,7 @@ public class CompileShader implements Command {
         return program;
     }
 
-    public int getShaderType() {
+    public ShaderType getShaderType() {
         return shaderType;
     }
 

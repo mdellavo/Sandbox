@@ -2,7 +2,6 @@ package org.quuux.opengl.lib;
 
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.CommandList;
-import org.quuux.opengl.renderer.Renderer;
 import org.quuux.opengl.renderer.commands.CompileShader;
 import org.quuux.opengl.renderer.commands.CreateProgram;
 import org.quuux.opengl.renderer.commands.LinkProgram;
@@ -28,8 +27,8 @@ public class ShaderProgram {
 
         CommandList rv = new CommandList();
         rv.add(new CreateProgram(program));
-        rv.add(new CompileShader(program, 0, vertexShader));
-        rv.add(new CompileShader(program, 0, fragmentShader));
+        rv.add(new CompileShader(program, CompileShader.ShaderType.VERTEX, vertexShader));
+        rv.add(new CompileShader(program, CompileShader.ShaderType.FRAGMENT, fragmentShader));
         rv.add(new LinkProgram(program));
 
         return rv;

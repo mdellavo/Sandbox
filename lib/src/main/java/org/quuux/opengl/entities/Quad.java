@@ -24,6 +24,7 @@ import org.quuux.opengl.renderer.states.BindTexture;
 import org.quuux.opengl.renderer.states.UseProgram;
 import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.util.GLUtil;
+import org.quuux.opengl.util.ResourceUtil;
 
 import java.nio.FloatBuffer;
 
@@ -58,11 +59,11 @@ public class Quad implements Entity {
     public Command initialize() {
         CommandList rv = new CommandList();
 
-        rv.add(ShaderProgram.build(shader, "shaders/quad.vert.glsl", "shaders/quad.frag.glsl"));
+        rv.add(ShaderProgram.build(shader, ResourceUtil.getStringResource("shaders/quad.vert.glsl"), ResourceUtil.getStringResource("shaders/quad.frag.glsl")));
         rv.add(new GenerateArray(vao));
         rv.add(new GenerateBuffer(vbo));
 
-        BatchState ctx = new BatchState(new UseProgram(shader), new BindArray(vao), new BindBuffer(vbo), new BindTexture(texture), new ActivateTexture(0));
+        BatchState ctx = new BatchState(new UseProgram(shader), new BindArray(vao), new BindBuffer(vbo));
         rv.add(ctx);
 
         ctx.add(new SetUniform(shader, "texture", 0));

@@ -127,8 +127,11 @@ public class ParticleEmitter implements Entity {
     @Override
     public Command initialize() {
         CommandList rv = new CommandList();
+        rv.add(new GenerateArray(vao));
+        rv.add(new GenerateBuffer(vbo));
+        rv.add(new GenerateTexture2D(texture));
 
-        rv.add(ShaderProgram.build(shader, "shaders/particle.vert.glsl", "shaders/particle.frag.glsl"));
+        rv.add(ShaderProgram.build(shader, ResourceUtil.getStringResource("shaders/particle.vert.glsl"), ResourceUtil.getStringResource("shaders/particle.frag.glsl")));
 
         BatchState ctx = new BatchState(new UseProgram(shader), new BindBuffer(vbo), new BindArray(vao), new BindTexture(texture), new ActivateTexture(0));
         rv.add(ctx);

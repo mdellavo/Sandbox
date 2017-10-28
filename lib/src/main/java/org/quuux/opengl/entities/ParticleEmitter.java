@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;
@@ -25,6 +27,7 @@ import org.quuux.opengl.util.ResourceUtil;
 
 
 public class ParticleEmitter implements Entity {
+    private static final Logger LOGGER = Logger.getLogger( ParticleEmitter.class.getName() );
 
     private static final int NUM_PARATICLES = 1000;
     private static final int TOTAL_PARTICLES = NUM_PARATICLES * 10;
@@ -117,6 +120,11 @@ public class ParticleEmitter implements Entity {
         }
 
         ticks++;
+
+        Camera.getCamera().modelViewProjectionMatrix(model, mvp);
+        mvp.get(mvpBuffer);
+
+        updateVertices(vertexBuffer);
     }
 
     @Override
@@ -155,9 +163,6 @@ public class ParticleEmitter implements Entity {
 
     @Override
     public Command draw() {
-        updateVertices(vertexBuffer);
-        Camera.getCamera().modelViewProjectionMatrix(model, mvp);
-        mvp.get(mvpBuffer);
 
         if (displayList == null) {
             BatchState rv = new BatchState(new UseProgram(shader), new BindBuffer(vbo),  new BindArray(vao), new BindTexture(texture), new ActivateTexture(0));

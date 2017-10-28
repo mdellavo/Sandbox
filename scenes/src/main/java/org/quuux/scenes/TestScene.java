@@ -17,8 +17,6 @@ import java.util.logging.Logger;
 public class TestScene extends Scene {
     private static final Logger LOGGER = Logger.getLogger( TestScene.class.getName() );
 
-    private final int width;
-    private final int height;
     long ticks, totalElapsed;
 
     FrameBuffer frameBuffer;
@@ -26,10 +24,10 @@ public class TestScene extends Scene {
     Quad quad = new Quad();
     Texture2D texture = new Texture2D();
 
-    public TestScene(int width, int height) {
-        this.width = width;
-        this.height = height;
+    Command initializeCommand;
+    Command drawCommand;
 
+    public TestScene(int width, int height) {
         frameBuffer = new FrameBuffer(width, height);
     }
 
@@ -38,20 +36,23 @@ public class TestScene extends Scene {
         quad.setTexture(texture);
         Camera.getCamera().setEye(0, 5, 5);
 
-        CommandList rv = new CommandList();
-        rv.add(new ClearColor(0, 0, 0, 1));
-        //rv.add(new GenerateFramebuffer(frameBuffer, texture));
+        if (initializeCommand == null) {
+            CommandList rv = new CommandList();
+            rv.add(new ClearColor(0, 0, 0, 1));
+            //rv.add(new GenerateFramebuffer(frameBuffer, texture));
 
-        State ctx = new BatchState(new Enable(Enable.Capability.BLEND), new Enable(Enable.Capability.DEPTH_TEST));
-        rv.add(ctx);
+            State ctx = new BatchState(new Enable(Enable.Capability.BLEND), new Enable(Enable.Capability.DEPTH_TEST));
+            rv.add(ctx);
 
-        ctx.add(new BlendFunc(BlendFunc.Factor.SRC_ALPHA, BlendFunc.Factor.ONE_MINUS_SRC_ALPHA));
-        ctx.add(new DepthFunc(DepthFunc.Function.LESS));
+            ctx.add(new BlendFunc(BlendFunc.Factor.SRC_ALPHA, BlendFunc.Factor.ONE_MINUS_SRC_ALPHA));
+            ctx.add(new DepthFunc(DepthFunc.Function.LESS));
 
-        rv.add(pe.initialize());
-        //rv.add(quad.initialize());
+            rv.add(pe.initialize());
+            //rv.add(quad.initialize());
+            initializeCommand = rv;
+        }
 
-        return rv;
+        return initializeCommand;
     }
 
     @Override
@@ -69,25 +70,28 @@ public class TestScene extends Scene {
 
     @Override
     public Command draw() {
-        CommandList rv = new CommandList();
+        if (drawCommand == null) {
+            CommandList rv = new CommandList();
 
-        BatchState ctx = new BatchState(
-                new Enable(Enable.Capability.BLEND),
-                new Enable(Enable.Capability.DEPTH_TEST)
-                //new Enable(Enable.Capability.MULTISAMPLE),
-                //new Enable(Enable.Capability.POINT_SIZE),
-                //new BindTexture(texture),
-                //new ActivateTexture(0),
-                //new BindFramebuffer(frameBuffer)
-        );
-        ctx.add(new Clear(Clear.Mode.COLOR_BUFFER, Clear.Mode.DEPTH_BUFFER));
-        ctx.add(pe.draw());
-        rv.add(ctx);
+            BatchState ctx = new BatchState(
+                    new Enable(Enable.Capability.BLEND),
+                    new Enable(Enable.Capability.DEPTH_TEST),
+                    new Enable(Enable.Capability.MULTISAMPLE),
+                    new Enable(Enable.Capability.POINT_SIZE)
+                    //new BindTexture(texture),
+                    //new ActivateTexture(0),
+                    //new BindFramebuffer(frameBuffer)
+            );
+            ctx.add(new Clear(Clear.Mode.COLOR_BUFFER, Clear.Mode.DEPTH_BUFFER));
+            ctx.add(pe.draw());
+            rv.add(ctx);
 
-        // render texture
-        //rv.add(new Clear(Clear.Mode.COLOR_BUFFER, Clear.Mode.DEPTH_BUFFER));
-        //rv.add(quad.draw());
+            // render texture
+            //rv.add(new Clear(Clear.Mode.COLOR_BUFFER, Clear.Mode.DEPTH_BUFFER));
+            //rv.add(quad.draw());
+            drawCommand = rv;
+        }
 
-        return rv;
+        return drawCommand;
     }
 }

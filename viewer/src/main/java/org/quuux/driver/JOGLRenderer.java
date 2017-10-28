@@ -116,7 +116,7 @@ public class JOGLRenderer implements Renderer {
         else if (capability == Enable.Capability.MULTISAMPLE)
             rv = GL.GL_MULTISAMPLE;
         else if (capability == Enable.Capability.POINT_SIZE)
-            rv = GL.GL_POINT_SIZE;
+            rv = GL4.GL_PROGRAM_POINT_SIZE;
         else
             throw new UnsupportedException("Unknown capability: " + capability.toString());
         return rv;

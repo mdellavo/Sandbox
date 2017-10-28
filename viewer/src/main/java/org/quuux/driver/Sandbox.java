@@ -16,7 +16,7 @@ import org.quuux.scenes.TestScene;
 class Sandbox implements KeyListener, GLEventListener {
 
     Scene scene;
-    JOGLRenderer renderer = new DebugRenderer();
+    JOGLRenderer renderer = new JOGLRenderer();
     long lastUpdate;
 
     public static void main(String[] args) {

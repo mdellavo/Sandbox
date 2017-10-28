@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 public class LoadTexture2D implements Command {
 
     public enum Format {
+        RGB,
         RGBA,
         SRGB_ALPHA,
         RGBA16F,

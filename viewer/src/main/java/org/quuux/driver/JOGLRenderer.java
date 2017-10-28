@@ -4,7 +4,9 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.util.GLBuffers;
 
+import org.quuux.opengl.lib.FrameBuffer;
 import org.quuux.opengl.lib.ShaderProgram;
+import org.quuux.opengl.lib.Texture2D;
 import org.quuux.opengl.renderer.Renderer;
 import org.quuux.opengl.renderer.commands.*;
 import org.quuux.opengl.renderer.states.*;
@@ -15,10 +17,14 @@ import java.nio.IntBuffer;
 
 public class JOGLRenderer implements Renderer {
 
-    GL gl;
+    GL _gl;
 
     public void setGL(GL gl) {
-        this.gl = gl;
+        this._gl = gl;
+    }
+
+    public GL4 getGL() {
+        return _gl.getGL4();
     }
 
     private int getTarget(BufferData.Target target) {
@@ -48,7 +54,7 @@ public class JOGLRenderer implements Renderer {
     private int getUniformLocation(ShaderProgram shader, String name) {
         Integer location = shader.getUniformLocation(name);
         if (location == null) {
-            location = gl.getGL4().glGetUniformLocation(shader.program, name);
+            location = getGL().glGetUniformLocation(shader.program, name);
             shader.setUniformLocation(name, location);
         }
 
@@ -79,6 +85,8 @@ public class JOGLRenderer implements Renderer {
         final int rv;
         if (format == LoadTexture2D.Format.RGBA)
             rv = GL.GL_RGBA;
+        else if (format == LoadTexture2D.Format.RGB)
+            rv = GL.GL_RGB;
         else if (format == LoadTexture2D.Format.SRGB_ALPHA)
             rv = GL.GL_SRGB_ALPHA;
         else if (format == LoadTexture2D.Format.RGBA16F)
@@ -171,58 +179,58 @@ public class JOGLRenderer implements Renderer {
 
     @Override
     public void run(final BufferData command) {
-        gl.glBufferData(getTarget(command.getTarget()), command.getSize(), command.getData(), getUsage(command.getUsage()));
+        getGL().glBufferData(getTarget(command.getTarget()), command.getSize(), command.getData(), getUsage(command.getUsage()));
     }
 
     @Override
     public void run(final Clear command) {
-        gl.glClear(getMask(command.getModes()));
+        getGL().glClear(getMask(command.getModes()));
     }
 
     @Override
     public void run(final DrawArrays command) {
-        gl.glDrawArrays(getMode(command.getMode()), command.getFirst(), command.getCount());
+        getGL().glDrawArrays(getMode(command.getMode()), command.getFirst(), command.getCount());
     }
 
     @Override
     public void run(final SetUniformMatrix command) {
-        gl.getGL4().glUniformMatrix4fv(getUniformLocation(command.getShader(), command.getAttribute()), command.getCount(), command.isTranspose(), command.getBuffer());
+        getGL().glUniformMatrix4fv(getUniformLocation(command.getShader(), command.getAttribute()), command.getCount(), command.isTranspose(), command.getBuffer());
     }
 
     @Override
     public void run(final SetUniform command) {
         if (command.getType() == SetUniform.Type.INT)
-            gl.getGL4().glUniform1i(getUniformLocation(command.getProgram(), command.getAttribute()), 0);
+            getGL().glUniform1i(getUniformLocation(command.getProgram(), command.getAttribute()), 0);
     }
 
     @Override
     public void run(final VertexAttribPointer command) {
-        gl.getGL4().glVertexAttribPointer(command.getIndex(), command.getSize(), getType(command.getType()), command.isNormalized(), command.getStride(), command.getPointer());
+        getGL().glVertexAttribPointer(command.getIndex(), command.getSize(), getType(command.getType()), command.isNormalized(), command.getStride(), command.getPointer());
     }
 
     @Override
     public void run(final EnableVertexAttribArray command) {
-        gl.getGL4().glEnableVertexAttribArray(command.getIndex());
+        getGL().glEnableVertexAttribArray(command.getIndex());
     }
 
     @Override
     public void run(ClearColor command) {
-        gl.glClearColor(command.getR(), command.getG(), command.getB(), command.getA());
+        getGL().glClearColor(command.getR(), command.getG(), command.getB(), command.getA());
     }
 
     @Override
     public void run(BlendFunc command) {
-        gl.glBlendFunc(getFactor(command.getSfactor()), getFactor(command.getDfactor()));
+        getGL().glBlendFunc(getFactor(command.getSfactor()), getFactor(command.getDfactor()));
     }
 
     @Override
     public void run(DepthFunc command) {
-        gl.glDepthFunc(getDepthFunc(command.getDepthFunc()));
+        getGL().glDepthFunc(getDepthFunc(command.getDepthFunc()));
     }
 
     @Override
     public void set(final ActivateTexture command) {
-        gl.glActiveTexture(getTextureUnit(command.getTextureUnit()));
+        getGL().glActiveTexture(getTextureUnit(command.getTextureUnit()));
     }
 
     @Override
@@ -231,89 +239,91 @@ public class JOGLRenderer implements Renderer {
 
     @Override
     public void set(final BindBuffer command) {
-        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, command.getVBO().vbo);
+        getGL().glBindBuffer(GL.GL_ARRAY_BUFFER, command.getVBO().vbo);
     }
 
     @Override
     public void clear(final BindBuffer command) {
-        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+        getGL().glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
     }
 
     @Override
     public void set(final UseProgram command) {
-        gl.getGL4().glUseProgram(command.getProgram().program);
+        getGL().glUseProgram(command.getProgram().program);
     }
 
     @Override
     public void clear(final UseProgram command) {
-        gl.getGL4().glUseProgram(0);
+        getGL().glUseProgram(0);
     }
 
     @Override
     public void set(final BindTexture command) {
-        gl.glBindTexture(GL.GL_TEXTURE_2D, command.getTexture().texture);
+        getGL().glBindTexture(GL.GL_TEXTURE_2D, command.getTexture().texture);
     }
 
     @Override
     public void clear(final BindTexture command) {
-        gl.glBindTexture(GL.GL_TEXTURE_2D, 0);
+        getGL().glBindTexture(GL.GL_TEXTURE_2D, 0);
     }
 
     @Override
     public void set(final BindArray command) {
-        gl.getGL4().glBindVertexArray(command.getVAO().vao);
+        getGL().glBindVertexArray(command.getVAO().vao);
     }
 
     @Override
     public void clear(final BindArray command) {
-        gl.getGL4().glBindVertexArray(0);
+        getGL().glBindVertexArray(0);
     }
 
     @Override
     public void set(final BindFramebuffer command) {
-        gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0);
+        GL gl = getGL();
+        gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, command.getFramebuffer().fbo);
     }
 
     @Override
     public void clear(final BindFramebuffer command) {
-        gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0);
+        getGL().glBindFramebuffer(GL.GL_FRAMEBUFFER, 0);
     }
 
     @Override
     public void set(Enable command) {
-        gl.glEnable(getCapability(command.getCapability()));
+        getGL().glEnable(getCapability(command.getCapability()));
     }
 
     @Override
     public void clear(Enable command) {
-        gl.glDisable(getCapability(command.getCapability()));
+        getGL().glDisable(getCapability(command.getCapability()));
     }
 
     @Override
     public void run(final GenerateBuffer command) {
         IntBuffer tmp = GLBuffers.newDirectIntBuffer(1);
-        gl.glGenBuffers(1, tmp);
+        getGL().glGenBuffers(1, tmp);
         command.getVbo().vbo = tmp.get(0);
     }
 
     @Override
     public void run(final GenerateArray command) {
         IntBuffer tmp = GLBuffers.newDirectIntBuffer(1);
-        gl.getGL4().glGenVertexArrays(1, tmp);
+        getGL().glGenVertexArrays(1, tmp);
         command.getVao().vao = tmp.get(0);
     }
 
     @Override
     public void run(final GenerateTexture2D command) {
         IntBuffer buffer = GLBuffers.newDirectIntBuffer(1);
-        gl.glGenTextures(1, buffer);
+        getGL().glGenTextures(1, buffer);
         command.getTexture().texture = buffer.get(0);
     }
 
     @Override
     public void run(final LoadTexture2D command) {
+        GL gl = getGL();
         if (command.getBuffer() != null)
-            gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 4);
+            getGL().glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 4);
 
         gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, getFormat(command.getInternalFormat()), command.getWidth(), command.getHeight(), 0, getFormat(command.getFormat()), GL.GL_UNSIGNED_BYTE, command.getBuffer());
 
@@ -324,29 +334,39 @@ public class JOGLRenderer implements Renderer {
     @Override
     public void run(final GenerateFramebuffer command) {
 
+        FrameBuffer framebuffer = command.getFramebuffer();
+        Texture2D texture = command.getTexture();
+
         IntBuffer buffer = GLBuffers.newDirectIntBuffer(1);
 
-        GL4 gl4 = gl.getGL4();
+        GL4 gl4 = getGL();
+
         gl4.glGenFramebuffers(1, buffer);
-        command.getFramebuffer().fbo = buffer.get(0);
-        gl4.glBindFramebuffer(GL4.GL_FRAMEBUFFER, command.getFramebuffer().fbo);
+        framebuffer.fbo = buffer.get(0);
+        gl4.glBindFramebuffer(GL4.GL_FRAMEBUFFER, framebuffer.fbo);
+
+        gl4.glGenTextures(1, buffer);
+        texture.texture = buffer.get(0);
+
+        gl4.glBindTexture(GL.GL_TEXTURE_2D, texture.texture);
+        gl4.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGB, framebuffer.width, framebuffer.height, 0, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, null);
+        gl4.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+        gl4.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
+        gl4.glBindTexture(GL.GL_TEXTURE_2D, 0);
+
+        gl4.glFramebufferTexture2D(GL4.GL_FRAMEBUFFER, GL4.GL_COLOR_ATTACHMENT0, GL4.GL_TEXTURE_2D, texture.texture, 0);
 
         gl4.glGenRenderbuffers(1, buffer);
-        command.getFramebuffer().rbo = buffer.get(0);
-        gl4.glBindRenderbuffer(GL4.GL_RENDERBUFFER, command.getFramebuffer().rbo);
-        gl4.glRenderbufferStorage(GL4.GL_RENDERBUFFER, GL4.GL_DEPTH24_STENCIL8, command.getFramebuffer().width, command.getFramebuffer().height);
+        framebuffer.rbo = buffer.get(0);
+        gl4.glBindRenderbuffer(GL4.GL_RENDERBUFFER, framebuffer.rbo);
+        gl4.glRenderbufferStorage(GL4.GL_RENDERBUFFER, GL4.GL_DEPTH24_STENCIL8, framebuffer.width, framebuffer.height);
 
-        gl4.glFramebufferRenderbuffer(GL4.GL_FRAMEBUFFER, GL4.GL_DEPTH_STENCIL_ATTACHMENT, GL4.GL_RENDERBUFFER, command.getFramebuffer().rbo);
-    }
-
-    @Override
-    public void run(final AttachFramebuffer command) {
-        gl.getGL4().glFramebufferTexture2D(GL4.GL_FRAMEBUFFER, GL4.GL_COLOR_ATTACHMENT0, GL4.GL_TEXTURE_2D, command.getTexture().texture, 0);
+        gl4.glFramebufferRenderbuffer(GL4.GL_FRAMEBUFFER, GL4.GL_DEPTH_STENCIL_ATTACHMENT, GL4.GL_RENDERBUFFER, framebuffer.rbo);
     }
 
     @Override
     public void run(final CreateProgram command) {
-        command.getProgram().program = gl.getGL4().glCreateProgram();
+        command.getProgram().program = getGL().getGL4().glCreateProgram();
     }
 
     public String byteBufferToString(ByteBuffer buffer) {
@@ -359,7 +379,7 @@ public class JOGLRenderer implements Renderer {
     @Override
     public void run(final CompileShader command) {
 
-        GL4 gl4 = gl.getGL4();
+        GL4 gl4 = getGL();
 
         int shader = gl4.glCreateShader(getShaderType(command.getShaderType()));
         gl4.glShaderSource(shader, 1, new String[] {command.getShaderSource()}, null);
@@ -378,7 +398,7 @@ public class JOGLRenderer implements Renderer {
 
     @Override
     public void run(final LinkProgram command) {
-        GL4 gl4 = gl.getGL4();
+        GL4 gl4 = getGL();
         gl4.glLinkProgram(command.getProgram().program);
 
         IntBuffer success = GLBuffers.newDirectIntBuffer(1);

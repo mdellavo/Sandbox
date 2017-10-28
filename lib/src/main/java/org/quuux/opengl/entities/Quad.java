@@ -63,7 +63,7 @@ public class Quad implements Entity {
         rv.add(new GenerateArray(vao));
         rv.add(new GenerateBuffer(vbo));
 
-        BatchState ctx = new BatchState(new UseProgram(shader), new BindArray(vao), new BindBuffer(vbo));
+        BatchState ctx = new BatchState(new UseProgram(shader), new BindBuffer(vbo), new BindArray(vao));
         rv.add(ctx);
 
         ctx.add(new SetUniform(shader, "texture", 0));

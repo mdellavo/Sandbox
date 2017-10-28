@@ -17,7 +17,6 @@ public interface Renderer {
     }
 
     // Commands
-    void run(AttachFramebuffer command);
     void run(BufferData command);
     void run(Clear command);
     void run(CompileShader command);

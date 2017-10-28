@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class ShaderProgram {
 
-    public int program = 0;
+    public int program = -1;
 
     Map<String, Integer> uniformCache = new HashMap<>();
 

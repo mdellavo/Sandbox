@@ -160,7 +160,7 @@ public class ParticleEmitter implements Entity {
         mvp.get(mvpBuffer);
 
         if (displayList == null) {
-            BatchState rv = new BatchState(new UseProgram(shader), new BindArray(vao), new BindBuffer(vbo), new BindTexture(texture), new ActivateTexture(0));
+            BatchState rv = new BatchState(new UseProgram(shader), new BindBuffer(vbo),  new BindArray(vao), new BindTexture(texture), new ActivateTexture(0));
             rv.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
             rv.add(new BufferData(BufferData.Target.ArrayBuffer, vertexBuffer.capacity() * 4, vertexBuffer, BufferData.Usage.StreamDraw));
             rv.add(new DrawParticles());

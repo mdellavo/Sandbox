@@ -22,12 +22,6 @@ public class DebugRenderer extends JOGLRenderer {
     }
 
     @Override
-    public void run(AttachFramebuffer command) {
-        log(command);
-        super.run(command);
-    }
-
-    @Override
     public void run(BufferData command) {
         log(command);
         super.run(command);

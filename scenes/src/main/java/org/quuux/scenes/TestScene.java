@@ -11,8 +11,11 @@ import org.quuux.opengl.renderer.states.*;
 import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.scenes.Scene;
 
+import java.util.logging.Logger;
+
 
 public class TestScene extends Scene {
+    private static final Logger LOGGER = Logger.getLogger( TestScene.class.getName() );
 
     private final int width;
     private final int height;
@@ -30,18 +33,6 @@ public class TestScene extends Scene {
         frameBuffer = new FrameBuffer(width, height);
     }
 
-    private State newSceneContext() {
-        return new BatchState(
-                new Enable(Enable.Capability.BLEND),
-                new Enable(Enable.Capability.DEPTH_TEST),
-                //new Enable(Enable.Capability.MULTISAMPLE),
-                //new Enable(Enable.Capability.POINT_SIZE),
-                new BindTexture(texture),
-                new ActivateTexture(0),
-                new BindFramebuffer(frameBuffer)
-        );
-    }
-
     @Override
     public Command initialize() {
         quad.setTexture(texture);
@@ -49,19 +40,16 @@ public class TestScene extends Scene {
 
         CommandList rv = new CommandList();
         rv.add(new ClearColor(0, 0, 0, 1));
-        rv.add(new GenerateTexture2D(texture));
-        rv.add(new GenerateFramebuffer(frameBuffer));
-        rv.add(new LoadTexture2D(texture, LoadTexture2D.Format.RGBA16F, width, height, LoadTexture2D.Format.RGBA, null, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
+        //rv.add(new GenerateFramebuffer(frameBuffer, texture));
 
-        State ctx = new BatchState(new BindTexture(texture), new Enable(Enable.Capability.BLEND), new Enable(Enable.Capability.DEPTH_TEST));
+        State ctx = new BatchState(new Enable(Enable.Capability.BLEND), new Enable(Enable.Capability.DEPTH_TEST));
         rv.add(ctx);
 
         ctx.add(new BlendFunc(BlendFunc.Factor.SRC_ALPHA, BlendFunc.Factor.ONE_MINUS_SRC_ALPHA));
         ctx.add(new DepthFunc(DepthFunc.Function.LESS));
-        ctx.add(new AttachFramebuffer(frameBuffer, texture));
 
         rv.add(pe.initialize());
-        rv.add(quad.initialize());
+        //rv.add(quad.initialize());
 
         return rv;
     }
@@ -83,15 +71,22 @@ public class TestScene extends Scene {
     public Command draw() {
         CommandList rv = new CommandList();
 
-        // pass 1 - render particles
-        BindFramebuffer fbCommands = new BindFramebuffer(frameBuffer);
-        fbCommands.add(new Clear(Clear.Mode.COLOR_BUFFER, Clear.Mode.DEPTH_BUFFER));
-        fbCommands.add(pe.draw());
-        rv.add(fbCommands);
+        BatchState ctx = new BatchState(
+                new Enable(Enable.Capability.BLEND),
+                new Enable(Enable.Capability.DEPTH_TEST)
+                //new Enable(Enable.Capability.MULTISAMPLE),
+                //new Enable(Enable.Capability.POINT_SIZE),
+                //new BindTexture(texture),
+                //new ActivateTexture(0),
+                //new BindFramebuffer(frameBuffer)
+        );
+        ctx.add(new Clear(Clear.Mode.COLOR_BUFFER, Clear.Mode.DEPTH_BUFFER));
+        ctx.add(pe.draw());
+        rv.add(ctx);
 
         // render texture
-        rv.add(new Clear(Clear.Mode.COLOR_BUFFER, Clear.Mode.DEPTH_BUFFER));
-        rv.add(quad.draw());
+        //rv.add(new Clear(Clear.Mode.COLOR_BUFFER, Clear.Mode.DEPTH_BUFFER));
+        //rv.add(quad.draw());
 
         return rv;
     }

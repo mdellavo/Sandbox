@@ -2,7 +2,6 @@ package org.quuux.driver;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL4;
-import com.jogamp.opengl.util.GLBuffers;
 
 import org.quuux.opengl.lib.FrameBuffer;
 import org.quuux.opengl.lib.ShaderProgram;
@@ -10,6 +9,7 @@ import org.quuux.opengl.lib.Texture2D;
 import org.quuux.opengl.renderer.Renderer;
 import org.quuux.opengl.renderer.commands.*;
 import org.quuux.opengl.renderer.states.*;
+import org.quuux.opengl.util.GLUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -34,7 +34,7 @@ public class JOGLRenderer implements Renderer {
         else if (target == BufferData.Target.ElementArrayBuffer)
             rv = GL.GL_ELEMENT_ARRAY_BUFFER;
         else
-            throw new UnsupportedException("Unknown target: " + target.toString());
+            throw new UnsupportedException("Unknown target: " + target);
         return rv;
     }
 
@@ -47,7 +47,7 @@ public class JOGLRenderer implements Renderer {
         else if (usage == BufferData.Usage.StreamDraw)
             rv = GL4.GL_STREAM_DRAW;
         else
-            throw new UnsupportedException("Unknown usage: " + usage.toString());
+            throw new UnsupportedException("Unknown usage: " + usage);
         return rv;
     }
 
@@ -66,7 +66,7 @@ public class JOGLRenderer implements Renderer {
         if (type == VertexAttribPointer.Type.Float)
             rv = GL.GL_FLOAT;
         else
-            throw new UnsupportedException("Unknown type: " + type.toString());
+            throw new UnsupportedException("Unknown type: " + type);
         return rv;
     }
 
@@ -77,7 +77,7 @@ public class JOGLRenderer implements Renderer {
         else if(mode == DrawArrays.Mode.Points)
             rv = GL.GL_POINTS;
         else
-            throw new UnsupportedException("Unknown mode: " + mode.toString());
+            throw new UnsupportedException("Unknown mode: " + mode);
         return rv;
     }
 
@@ -92,7 +92,7 @@ public class JOGLRenderer implements Renderer {
         else if (format == LoadTexture2D.Format.RGBA16F)
             rv = GL.GL_RGBA16F;
         else
-            throw new UnsupportedException("Unknown format: " + format.toString());
+            throw new UnsupportedException("Unknown format: " + format);
         return rv;
     }
 
@@ -103,7 +103,7 @@ public class JOGLRenderer implements Renderer {
         else if (filter == LoadTexture2D.Filter.NEAREST)
             rv = GL.GL_NEAREST;
         else
-            throw new UnsupportedException("Unknown filter: " + filter.toString());
+            throw new UnsupportedException("Unknown filter: " + filter);
         return rv;
     }
 
@@ -118,22 +118,26 @@ public class JOGLRenderer implements Renderer {
         else if (capability == Enable.Capability.POINT_SIZE)
             rv = GL4.GL_PROGRAM_POINT_SIZE;
         else
-            throw new UnsupportedException("Unknown capability: " + capability.toString());
+            throw new UnsupportedException("Unknown capability: " + capability);
         return rv;
     }
 
     private int getMask(Clear.Mode[] modes) {
         int rv = 0;
         for (int i=0; i<modes.length; i++) {
-            Clear.Mode mode = modes[i];
-            if (mode == Clear.Mode.COLOR_BUFFER)
-                rv |= GL.GL_COLOR_BUFFER_BIT;
-            else if (mode == Clear.Mode.DEPTH_BUFFER)
-                rv |= GL.GL_DEPTH_BUFFER_BIT;
-            else
-                throw new UnsupportedException("Unknown mode: " + mode.toString());
+            rv |= getMaskValue(modes[i]);
         }
+        return rv;
+    }
 
+    private int getMaskValue(Clear.Mode mode) {
+        final int rv;
+        if (mode == Clear.Mode.COLOR_BUFFER)
+            rv = GL.GL_COLOR_BUFFER_BIT;
+        else if (mode == Clear.Mode.DEPTH_BUFFER)
+            rv = GL.GL_DEPTH_BUFFER_BIT;
+        else
+            throw new UnsupportedException("Unknown mode: " + mode);
         return rv;
     }
 
@@ -144,7 +148,7 @@ public class JOGLRenderer implements Renderer {
         else if (factor == BlendFunc.Factor.ONE_MINUS_SRC_ALPHA)
             rv = GL.GL_ONE_MINUS_SRC_ALPHA;
         else
-            throw new UnsupportedException("Unknown factor: " + factor.toString());
+            throw new UnsupportedException("Unknown factor: " + factor);
         return rv;
     }
 
@@ -153,7 +157,7 @@ public class JOGLRenderer implements Renderer {
         if (depthFunc == DepthFunc.Function.LESS)
             rv = GL.GL_LESS;
         else
-            throw new UnsupportedException("Unknown depth function: " + depthFunc.toString());
+            throw new UnsupportedException("Unknown depth function: " + depthFunc);
         return rv;
     }
 
@@ -175,6 +179,13 @@ public class JOGLRenderer implements Renderer {
         else
             throw new UnsupportedException("Unknown shader type: " + type);
         return rv;
+    }
+
+    public String byteBufferToString(ByteBuffer buffer) {
+        byte[] bytes = new byte[buffer.capacity()];
+        buffer.get(bytes);
+        String msg = new String(bytes);
+        return msg;
     }
 
     @Override
@@ -300,23 +311,23 @@ public class JOGLRenderer implements Renderer {
 
     @Override
     public void run(final GenerateBuffer command) {
-        IntBuffer tmp = GLBuffers.newDirectIntBuffer(1);
+        IntBuffer tmp = GLUtil.intBuffer(1);
         getGL().glGenBuffers(1, tmp);
-        command.getVbo().vbo = tmp.get(0);
+        command.getVbo().vbo = tmp.get();
     }
 
     @Override
     public void run(final GenerateArray command) {
-        IntBuffer tmp = GLBuffers.newDirectIntBuffer(1);
+        IntBuffer tmp = GLUtil.intBuffer(1);
         getGL().glGenVertexArrays(1, tmp);
-        command.getVao().vao = tmp.get(0);
+        command.getVao().vao = tmp.get();
     }
 
     @Override
     public void run(final GenerateTexture2D command) {
-        IntBuffer buffer = GLBuffers.newDirectIntBuffer(1);
+        IntBuffer buffer = GLUtil.intBuffer(1);
         getGL().glGenTextures(1, buffer);
-        command.getTexture().texture = buffer.get(0);
+        command.getTexture().texture = buffer.get();
     }
 
     @Override
@@ -337,17 +348,16 @@ public class JOGLRenderer implements Renderer {
         FrameBuffer framebuffer = command.getFramebuffer();
         Texture2D texture = command.getTexture();
 
-        IntBuffer buffer = GLBuffers.newDirectIntBuffer(1);
+        IntBuffer buffer = GLUtil.intBuffer(1);
 
         GL4 gl4 = getGL();
 
         gl4.glGenFramebuffers(1, buffer);
-        framebuffer.fbo = buffer.get(0);
+        framebuffer.fbo = buffer.get();
         gl4.glBindFramebuffer(GL4.GL_FRAMEBUFFER, framebuffer.fbo);
 
         gl4.glGenTextures(1, buffer);
-        texture.texture = buffer.get(0);
-
+        texture.texture = buffer.get();
         gl4.glBindTexture(GL.GL_TEXTURE_2D, texture.texture);
         gl4.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGB, framebuffer.width, framebuffer.height, 0, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, null);
         gl4.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
@@ -357,23 +367,19 @@ public class JOGLRenderer implements Renderer {
         gl4.glFramebufferTexture2D(GL4.GL_FRAMEBUFFER, GL4.GL_COLOR_ATTACHMENT0, GL4.GL_TEXTURE_2D, texture.texture, 0);
 
         gl4.glGenRenderbuffers(1, buffer);
-        framebuffer.rbo = buffer.get(0);
+        framebuffer.rbo = buffer.get();
         gl4.glBindRenderbuffer(GL4.GL_RENDERBUFFER, framebuffer.rbo);
         gl4.glRenderbufferStorage(GL4.GL_RENDERBUFFER, GL4.GL_DEPTH24_STENCIL8, framebuffer.width, framebuffer.height);
+        gl4.glBindRenderbuffer(GL4.GL_RENDERBUFFER, 0);
 
         gl4.glFramebufferRenderbuffer(GL4.GL_FRAMEBUFFER, GL4.GL_DEPTH_STENCIL_ATTACHMENT, GL4.GL_RENDERBUFFER, framebuffer.rbo);
+
+        gl4.glBindFramebuffer(GL4.GL_FRAMEBUFFER, 0);
     }
 
     @Override
     public void run(final CreateProgram command) {
         command.getProgram().program = getGL().getGL4().glCreateProgram();
-    }
-
-    public String byteBufferToString(ByteBuffer buffer) {
-        byte[] bytes = new byte[buffer.capacity()];
-        buffer.get(bytes);
-        String msg = new String(bytes);
-        return msg;
     }
 
     @Override
@@ -385,13 +391,12 @@ public class JOGLRenderer implements Renderer {
         gl4.glShaderSource(shader, 1, new String[] {command.getShaderSource()}, null);
         gl4.glCompileShader(shader);
 
-        IntBuffer success = GLBuffers.newDirectIntBuffer(1);
+        IntBuffer success = GLUtil.intBuffer(1);
         gl4.glGetShaderiv(shader, GL4.GL_COMPILE_STATUS, success);
-        if (success.get(0) == 0) {
-            ByteBuffer buffer = GLBuffers.newDirectByteBuffer(1024);
+        if (success.get() == 0) {
+            ByteBuffer buffer = GLUtil.byteBuffer(1024);
             gl4.glGetShaderInfoLog(shader, buffer.capacity(), null, buffer);
-            System.out.println("Error compiling shader: " + byteBufferToString(buffer));
-            return;
+            throw new RendererException("Error compiling shader: " + byteBufferToString(buffer));
         }
         gl4.glAttachShader(command.getProgram().program, shader);
     }
@@ -401,12 +406,12 @@ public class JOGLRenderer implements Renderer {
         GL4 gl4 = getGL();
         gl4.glLinkProgram(command.getProgram().program);
 
-        IntBuffer success = GLBuffers.newDirectIntBuffer(1);
+        IntBuffer success = GLUtil.intBuffer(1);
         gl4.glGetProgramiv(command.getProgram().program, GL4.GL_LINK_STATUS, success);
-        if (success.get(0) == 0) {
-            ByteBuffer buffer = GLBuffers.newDirectByteBuffer(1024);
+        if (success.get() == 0) {
+            ByteBuffer buffer = GLUtil.byteBuffer(1024);
             gl4.glGetProgramInfoLog(command.getProgram().program, buffer.capacity(), null, buffer);
-            System.out.println("Error linking shader: " + byteBufferToString(buffer));
+            throw new RendererException("Error linking shader: " + byteBufferToString(buffer));
         }
     }
 }

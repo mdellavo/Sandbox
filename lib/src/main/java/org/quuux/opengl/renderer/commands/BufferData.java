@@ -13,6 +13,11 @@ public class BufferData implements Command {
         StreamDraw,
     }
 
+    public enum Target {
+        ArrayBuffer,
+        ElementArrayBuffer,
+    }
+
     private Target target;
     private int size;
     private Usage usage;
@@ -46,8 +51,4 @@ public class BufferData implements Command {
         return data;
     }
 
-    public enum Target {
-        ArrayBuffer,
-        ElementArrayBuffer,
-    }
 }

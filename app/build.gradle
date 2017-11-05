@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    buildToolsVersion '27.0.0'
     defaultConfig {
         applicationId "org.quuux.sandbox"
         minSdkVersion 14
@@ -21,13 +21,22 @@ android {
     lintOptions {
         abortOnError false
     }
+    compileOptions {
+    }
+}
+
+repositories {
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
 }
 
 dependencies {
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile project(':scenes')
+    compile(project(':scenes')) {
+        exclude group: 'org.joml'
+    }
+    compile 'org.joml:joml-android:1.9.3-SNAPSHOT'
 }
 
-sourceCompatibility = "1.7"
-targetCompatibility = "1.7"

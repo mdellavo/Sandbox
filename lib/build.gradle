@@ -4,11 +4,8 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = "1.7"
-targetCompatibility = "1.7"
-
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile group: 'org.l33tlabs.twl', name: 'pngdecoder', version: '1.0'
-    compile "org.joml:joml:+"
+    testCompile 'junit:junit:4.12'
+    compile 'org.l33tlabs.twl:pngdecoder:1.0'
+    compile 'org.joml:joml:1.9.6'
 }

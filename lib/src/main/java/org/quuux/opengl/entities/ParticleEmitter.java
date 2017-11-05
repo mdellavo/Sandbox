@@ -163,7 +163,6 @@ public class ParticleEmitter implements Entity {
 
     @Override
     public Command draw() {
-
         if (displayList == null) {
             BatchState rv = new BatchState(new UseProgram(shader), new BindBuffer(vbo),  new BindArray(vao), new BindTexture(texture), new ActivateTexture(0));
             rv.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));

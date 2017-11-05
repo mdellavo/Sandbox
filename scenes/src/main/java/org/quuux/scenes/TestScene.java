@@ -40,7 +40,6 @@ public class TestScene extends Scene {
             CommandList rv = new CommandList();
             rv.add(new ClearColor(0, 0, 0, 1));
             //rv.add(new GenerateFramebuffer(frameBuffer, texture));
-
             State ctx = new BatchState(new Enable(Enable.Capability.BLEND), new Enable(Enable.Capability.DEPTH_TEST));
             rv.add(ctx);
 
@@ -78,8 +77,6 @@ public class TestScene extends Scene {
                     new Enable(Enable.Capability.DEPTH_TEST),
                     new Enable(Enable.Capability.MULTISAMPLE),
                     new Enable(Enable.Capability.POINT_SIZE)
-                    //new BindTexture(texture),
-                    //new ActivateTexture(0),
                     //new BindFramebuffer(frameBuffer)
             );
             ctx.add(new Clear(Clear.Mode.COLOR_BUFFER, Clear.Mode.DEPTH_BUFFER));
@@ -87,8 +84,14 @@ public class TestScene extends Scene {
             rv.add(ctx);
 
             // render texture
-            //rv.add(new Clear(Clear.Mode.COLOR_BUFFER, Clear.Mode.DEPTH_BUFFER));
-            //rv.add(quad.draw());
+            ctx = new BatchState(
+                    new Enable(Enable.Capability.BLEND),
+                    new Enable(Enable.Capability.MULTISAMPLE)
+            );
+            ctx.add(new Clear(Clear.Mode.COLOR_BUFFER));
+            ctx.add(quad.draw());
+            //rv.add(ctx);
+
             drawCommand = rv;
         }
 

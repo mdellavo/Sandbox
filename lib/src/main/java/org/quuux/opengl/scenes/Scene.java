@@ -10,8 +10,6 @@ public class Scene extends EntityGroup {
         setScene(this);
     }
 
-    public void setup() { }
-
     public static Scene getScene() {
         return instance;
     }

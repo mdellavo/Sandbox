@@ -36,5 +36,3 @@ dependencies {
     compile "org.jogamp.jogl:jogl-all-main:+"
 }
 
-sourceCompatibility = "1.7"
-targetCompatibility = "1.7"

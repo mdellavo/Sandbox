@@ -3,6 +3,3 @@ apply plugin: 'java-library'
 dependencies {
     compile project(":lib")
 }
-
-sourceCompatibility = "1.7"
-targetCompatibility = "1.7"

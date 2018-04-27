@@ -388,7 +388,7 @@ public class JOGLRenderer implements Renderer {
         GL4 gl4 = getGL();
 
         int shader = gl4.glCreateShader(getShaderType(command.getShaderType()));
-        gl4.glShaderSource(shader, 1, new String[] {command.getShaderSource()}, null);
+        gl4.glShaderSource(shader, 1, new String[] {command.getShaderSource("330")}, null);
         gl4.glCompileShader(shader);
 
         IntBuffer success = GLUtil.intBuffer(1);

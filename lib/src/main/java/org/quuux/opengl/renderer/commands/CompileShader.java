@@ -35,7 +35,7 @@ public class CompileShader implements Command {
         return shaderType;
     }
 
-    public String getShaderSource() {
-        return shaderSource;
+    public String getShaderSource(String version) {
+        return "#version " + version + "\n" + shaderSource;
     }
 }

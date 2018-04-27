@@ -22,7 +22,7 @@ public class SandboxActivity extends Activity {
         SceneRenderer renderer = new SceneRenderer();
 
         GLSurfaceView view = new GLSurfaceView(this);
-        view.setEGLContextClientVersion(2);
+        view.setEGLContextClientVersion(3);
         view.setRenderer(renderer);
 
         setContentView(view);
@@ -38,17 +38,17 @@ public class SandboxActivity extends Activity {
         @Override
         public void onSurfaceCreated(final GL10 gl, final EGLConfig config) {
             System.out.println(String.format("OpenGL Version: %s", gl.glGetString(GL10.GL_VERSION)));
-
-            Command command = scene.initialize();
-            command.run(renderer);
-
-            lastUpdate = System.currentTimeMillis();
         }
 
         @Override
         public void onSurfaceChanged(final GL10 gl, final int width, final int height) {
             GLES20.glViewport(0, 0, width, height);
+
             scene = new TestScene(width, height);
+            Command command = scene.initialize();
+            command.run(renderer);
+
+            lastUpdate = System.currentTimeMillis();
         }
 
         @Override

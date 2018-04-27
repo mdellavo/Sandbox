@@ -201,7 +201,7 @@ class AndroidGL2Renderer implements Renderer {
     @Override
     public void run(final CompileShader command) {
         int shader = GLES20.glCreateShader(getShaderType(command.getShaderType()));
-        GLES20.glShaderSource(shader, command.getShaderSource());
+        GLES20.glShaderSource(shader, command.getShaderSource("330 core"));
         GLES20.glCompileShader(shader);
 
         IntBuffer success = GLUtil.intBuffer(1);

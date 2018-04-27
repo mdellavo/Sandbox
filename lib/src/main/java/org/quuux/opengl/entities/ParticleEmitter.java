@@ -145,7 +145,7 @@ public class ParticleEmitter implements Entity {
         rv.add(ctx);
 
         ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/particle1.png");
-        ctx.add(new LoadTexture2D(texture, LoadTexture2D.Format.SRGB_ALPHA, image.width, image.height,  LoadTexture2D.Format.RGBA, image.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
+        ctx.add(new LoadTexture2D(texture, LoadTexture2D.Format.RGBA, image.width, image.height,  LoadTexture2D.Format.RGBA, image.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
 
         ctx.add(new SetUniform(shader, "texture", SetUniform.Type.INT, 0));
 

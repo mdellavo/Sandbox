@@ -13,7 +13,7 @@ public class CommandList extends Command {
 
     @Override
     public void run(final Renderer renderer) {
-        System.out.println("run: " + Arrays.toString(commands.toArray()));
+        // System.out.println("run: " + Arrays.toString(commands.toArray()));
 
         for (int i=0; i<commands.size(); i++) {
             Command command = commands.get(i);

@@ -15,7 +15,7 @@ public class BatchState extends State {
 
     @Override
     void set(final Renderer renderer) {
-        System.out.println("set -> " + this);
+        // System.out.println("set -> " + this);
         for (int i=0; i<states.length; i++) {
             states[i].set(renderer);
         }
@@ -23,7 +23,7 @@ public class BatchState extends State {
 
     @Override
     void clear(final Renderer renderer) {
-        System.out.println("clear -> " + this);
+        // System.out.println("clear -> " + this);
         for (int i=0; i<states.length; i++) {
             states[i].clear(renderer);
         }

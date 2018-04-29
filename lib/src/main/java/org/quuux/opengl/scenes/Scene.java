@@ -15,10 +15,6 @@ public class Scene extends EntityGroup {
     }
 
     public static void setScene(Scene scene) {
-        if (instance != null) {
-            throw new RuntimeException("Scene is already set!");
-        }
-
         System.out.println("set scene " + scene.getClass().getSimpleName());
         instance = scene;
     }

@@ -16,6 +16,8 @@ public interface Renderer {
         }
     }
 
+    void checkError();
+
     // Commands
     void run(BufferData command);
     void run(Clear command);

@@ -4,7 +4,7 @@ import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
 
-public class VertexAttribPointer implements Command {
+public class VertexAttribPointer extends Command {
 
     public enum Type {
         Float,

@@ -1,7 +1,9 @@
 package org.quuux.sandbox;
 
 import android.annotation.TargetApi;
+import android.graphics.Bitmap;
 import android.opengl.GLES30;
+import android.opengl.GLUtils;
 import android.os.Build;
 
 import org.quuux.opengl.lib.ShaderProgram;
@@ -33,10 +35,11 @@ import org.quuux.opengl.renderer.states.Enable;
 import org.quuux.opengl.renderer.states.UseProgram;
 import org.quuux.opengl.util.GLUtil;
 
+import java.nio.Buffer;
 import java.nio.IntBuffer;
 
 
-class AndroidGL2Renderer implements Renderer {
+class AndroidGLRenderer implements Renderer {
 
     private int getTarget(final BufferData.Target target) {
         final int rv;
@@ -129,9 +132,12 @@ class AndroidGL2Renderer implements Renderer {
 
     private int getUniformLocation(ShaderProgram shader, String name) {
         Integer location = shader.getUniformLocation(name);
+        checkError();
         if (location == null) {
             location = GLES30.glGetUniformLocation(shader.program, name);
+            checkError();
             shader.setUniformLocation(name, location);
+            checkError();
         }
 
         return location;
@@ -189,36 +195,48 @@ class AndroidGL2Renderer implements Renderer {
     @Override
     public void run(final BufferData command) {
         GLES30.glBufferData(getTarget(command.getTarget()), command.getSize(), command.getData(), getUsage(command.getUsage()));
+        checkError();
     }
 
     @Override
     public void run(final Clear command) {
         GLES30.glClear(getMask(command.getModes()));
+        checkError();
     }
 
     @Override
     public void run(final CompileShader command) {
         int shader = GLES30.glCreateShader(getShaderType(command.getShaderType()));
+        checkError();
+
         GLES30.glShaderSource(shader, command.getShaderSource("300 es"));
+        checkError();
+
         GLES30.glCompileShader(shader);
+        checkError();
 
         IntBuffer success = GLUtil.intBuffer(1);
         GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, success);
+        checkError();
         if (success.get() == 0) {
             String info = GLES30.glGetShaderInfoLog(shader);
+            checkError();
             throw new RendererException("Error compiling shader: " + info);
         }
         GLES30.glAttachShader(command.getProgram().program, shader);
+        checkError();
     }
 
     @Override
     public void run(final CreateProgram command) {
         command.getProgram().program = GLES30.glCreateProgram();
+        checkError();
     }
 
     @Override
     public void run(final DrawArrays command) {
         GLES30.glDrawArrays(getMode(command.getMode()), command.getFirst(), command.getCount());
+        checkError();
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -226,6 +244,7 @@ class AndroidGL2Renderer implements Renderer {
     public void run(final GenerateArray command) {
         IntBuffer tmp = GLUtil.intBuffer(1);
         GLES30.glGenVertexArrays(1, tmp);
+        checkError();
         command.getVao().vao = tmp.get();
     }
 
@@ -233,6 +252,7 @@ class AndroidGL2Renderer implements Renderer {
     public void run(final GenerateBuffer command) {
         IntBuffer tmp = GLUtil.intBuffer(1);
         GLES30.glGenBuffers(1, tmp);
+        checkError();
         command.getVbo().vbo = tmp.get();
     }
 
@@ -241,73 +261,108 @@ class AndroidGL2Renderer implements Renderer {
 
     }
 
+    public void checkError() {
+        int error;
+        StringBuilder sb = new StringBuilder();
+        while ((error = GLES30.glGetError()) != GLES30.GL_NO_ERROR) {
+            sb.append(error);
+        }
+
+        String msg = sb.toString();
+        if (msg.length() > 0) {
+            throw new RuntimeException("glError: " + msg);
+        }
+    }
+
+    private Bitmap getBitmap(Buffer buffer, int width, int height) {
+        buffer.rewind();
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        bitmap.copyPixelsFromBuffer(buffer);
+        return bitmap;
+    }
+
     @Override
     public void run(final GenerateTexture2D command) {
         IntBuffer buffer = GLUtil.intBuffer(1);
         GLES30.glGenTextures(1, buffer);
+        checkError();
         command.getTexture().texture = buffer.get();
     }
 
     @Override
     public void run(final LinkProgram command) {
         GLES30.glLinkProgram(command.getProgram().program);
+        checkError();
         IntBuffer success = GLUtil.intBuffer(1);
         GLES30.glGetProgramiv(command.getProgram().program, GLES30.GL_LINK_STATUS, success);
+        checkError();
         if (success.get() == 0) {
             String info = GLES30.glGetProgramInfoLog(command.getProgram().program);
+            checkError();
             throw new RendererException("Error linking shader: " + info);
         }
     }
 
     @Override
     public void run(final LoadTexture2D command) {
-        if (command.getBuffer() != null)
-            GLES30.glPixelStorei(GLES30.GL_UNPACK_ALIGNMENT, 4);
-        GLES30.glTexImage2D(GLES30.GL_TEXTURE_2D, 0, getFormat(command.getInternalFormat()), command.getWidth(), command.getHeight(), 0, getFormat(command.getFormat()), GLES30.GL_UNSIGNED_BYTE, command.getBuffer());
         GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, getFilter(command.getMin()));
+        checkError();
         GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, getFilter(command.getMag()));
+        checkError();
+        Bitmap bitmap = getBitmap(command.getBuffer(), command.getWidth(), command.getHeight());
+        GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitmap, 0);
+        checkError();
+        bitmap.recycle();
     }
 
     @Override
     public void run(final SetUniformMatrix command) {
         GLES30.glUniformMatrix4fv(getUniformLocation(command.getShader(), command.getAttribute()), command.getCount(), command.isTranspose(), command.getBuffer());
+        checkError();
     }
 
     @Override
     public void run(final SetUniform command) {
-        if (command.getType() == SetUniform.Type.INT)
+        if (command.getType() == SetUniform.Type.INT) {
             GLES30.glUniform1i(getUniformLocation(command.getProgram(), command.getAttribute()), 0);
-
+            checkError();
+        }
     }
 
     @Override
     public void run(final VertexAttribPointer command) {
         GLES30.glVertexAttribPointer(command.getIndex(), command.getSize(), getType(command.getType()), command.isNormalized(), command.getStride(), command.getPointer());
+        checkError();
     }
 
     @Override
     public void run(final EnableVertexAttribArray command) {
         GLES30.glEnableVertexAttribArray(command.getIndex());
+        checkError();
     }
 
     @Override
     public void run(final ClearColor command) {
         GLES30.glClearColor(command.getR(), command.getG(), command.getB(), command.getA());
+        checkError();
     }
 
     @Override
     public void run(final BlendFunc command) {
         GLES30.glBlendFunc(getFactor(command.getSfactor()), getFactor(command.getDfactor()));
+        checkError();
     }
 
     @Override
     public void run(final DepthFunc command) {
         GLES30.glDepthFunc(getDepthFunc(command.getDepthFunc()));
+        checkError();
     }
 
     @Override
     public void set(final ActivateTexture command) {
         GLES30.glActiveTexture(getTextureUnit(command.getTextureUnit()));
+        checkError();
     }
 
     @Override
@@ -318,21 +373,25 @@ class AndroidGL2Renderer implements Renderer {
     @Override
     public void set(final BindBuffer command) {
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, command.getVBO().vbo);
+        checkError();
     }
 
     @Override
     public void clear(final BindBuffer command) {
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0);
+        checkError();
     }
 
     @Override
     public void set(final BindFramebuffer command) {
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, command.getFramebuffer().fbo);
+        checkError();
     }
 
     @Override
     public void clear(final BindFramebuffer command) {
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
+        checkError();
     }
 
     @Override
@@ -341,6 +400,7 @@ class AndroidGL2Renderer implements Renderer {
         if (cap == Enable.Capability.MULTISAMPLE || cap == Enable.Capability.POINT_SIZE)
             return;
         GLES30.glEnable(getCapability(cap));
+        checkError();
     }
 
     @Override
@@ -349,37 +409,44 @@ class AndroidGL2Renderer implements Renderer {
         if (cap == Enable.Capability.MULTISAMPLE || cap == Enable.Capability.POINT_SIZE)
             return;
         GLES30.glDisable(getCapability(cap));
+        checkError();
     }
 
     @Override
     public void set(final UseProgram command) {
         GLES30.glUseProgram(command.getProgram().program);
+        checkError();
     }
 
     @Override
     public void clear(final UseProgram command) {
         GLES30.glUseProgram(0);
+        checkError();
     }
 
     @Override
     public void set(final BindTexture command) {
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, command.getTexture().texture);
+        checkError();
     }
 
     @Override
     public void clear(final BindTexture command) {
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
+        checkError();
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     public void set(final BindArray command) {
         GLES30.glBindVertexArray(command.getVAO().vao);
+        checkError();
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     public void clear(final BindArray command) {
         GLES30.glBindVertexArray(0);
+        checkError();
     }
 }

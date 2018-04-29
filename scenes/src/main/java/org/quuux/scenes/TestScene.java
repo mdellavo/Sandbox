@@ -34,7 +34,7 @@ public class TestScene extends Scene {
     @Override
     public Command initialize() {
         quad.setTexture(texture);
-        Camera.getCamera().setEye(0, 5, 5);
+        Camera.getCamera().setEye(0, 100, 500);
 
         if (initializeCommand == null) {
             CommandList rv = new CommandList();

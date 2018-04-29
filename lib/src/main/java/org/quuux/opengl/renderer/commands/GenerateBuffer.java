@@ -4,7 +4,7 @@ import org.quuux.opengl.lib.VBO;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
-public class GenerateBuffer implements Command {
+public class GenerateBuffer extends Command {
 
     private final VBO vbo;
 

@@ -5,7 +5,7 @@ import org.quuux.opengl.lib.Texture2D;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
-public class GenerateTexture2D implements Command {
+public class GenerateTexture2D extends Command {
 
     private final Texture2D texture;
 

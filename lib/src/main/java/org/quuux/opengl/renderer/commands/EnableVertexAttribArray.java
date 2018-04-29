@@ -3,7 +3,7 @@ package org.quuux.opengl.renderer.commands;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
-public class EnableVertexAttribArray implements Command {
+public class EnableVertexAttribArray extends Command {
 
     private final int index;
 

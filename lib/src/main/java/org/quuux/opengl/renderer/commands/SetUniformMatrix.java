@@ -6,7 +6,7 @@ import org.quuux.opengl.renderer.Renderer;
 
 import java.nio.FloatBuffer;
 
-public class SetUniformMatrix implements Command {
+public class SetUniformMatrix extends Command {
 
     private final ShaderProgram shader;
     private final String attribute;

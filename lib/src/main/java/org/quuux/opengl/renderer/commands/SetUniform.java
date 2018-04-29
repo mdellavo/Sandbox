@@ -5,7 +5,7 @@ import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
 
-public class SetUniform implements Command {
+public class SetUniform extends Command {
 
     public enum Type {
         INT,

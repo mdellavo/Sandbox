@@ -5,7 +5,7 @@ import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
 
-public class LinkProgram implements Command {
+public class LinkProgram extends Command {
     private final ShaderProgram program;
 
     public LinkProgram(ShaderProgram program) {

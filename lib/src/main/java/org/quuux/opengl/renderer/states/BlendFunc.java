@@ -3,7 +3,7 @@ package org.quuux.opengl.renderer.states;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
-public class BlendFunc implements Command {
+public class BlendFunc extends Command {
 
     public enum Factor {
         SRC_ALPHA,

@@ -188,6 +188,9 @@ public class JOGLRenderer implements Renderer {
         return msg;
     }
 
+    public void checkError() {
+    }
+
     @Override
     public void run(final BufferData command) {
         getGL().glBufferData(getTarget(command.getTarget()), command.getSize(), command.getData(), getUsage(command.getUsage()));

@@ -3,7 +3,7 @@ package org.quuux.opengl.renderer.commands;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
-public class ClearColor implements Command {
+public class ClearColor extends Command {
 
     private final float r;
     private final float g;

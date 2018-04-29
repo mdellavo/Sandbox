@@ -3,7 +3,7 @@ package org.quuux.opengl.renderer.states;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
-public class DepthFunc implements Command {
+public class DepthFunc extends Command {
 
     public enum Function {
         LESS,

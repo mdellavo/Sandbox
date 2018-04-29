@@ -6,7 +6,7 @@ import org.quuux.opengl.renderer.Renderer;
 
 import java.nio.ByteBuffer;
 
-public class LoadTexture2D implements Command {
+public class LoadTexture2D extends Command {
 
     public enum Format {
         RGB,

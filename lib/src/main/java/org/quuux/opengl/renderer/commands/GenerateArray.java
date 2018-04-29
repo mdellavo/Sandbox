@@ -4,7 +4,7 @@ import org.quuux.opengl.lib.VAO;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
-public class GenerateArray implements Command {
+public class GenerateArray extends Command {
 
     private final VAO vao;
 

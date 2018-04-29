@@ -5,7 +5,7 @@ import org.quuux.opengl.renderer.Renderer;
 
 import java.nio.Buffer;
 
-public class BufferData implements Command {
+public class BufferData extends Command {
 
     public enum Usage {
         StaticDraw,

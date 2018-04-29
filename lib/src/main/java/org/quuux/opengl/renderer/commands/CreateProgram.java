@@ -4,7 +4,7 @@ import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
-public class CreateProgram implements Command {
+public class CreateProgram extends Command {
 
     private final ShaderProgram program;
 

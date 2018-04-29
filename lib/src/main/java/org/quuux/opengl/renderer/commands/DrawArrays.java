@@ -3,7 +3,7 @@ package org.quuux.opengl.renderer.commands;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
-public class DrawArrays implements Command {
+public class DrawArrays extends Command {
 
     public enum Mode {
         Triangles,

@@ -5,7 +5,7 @@ import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
 
-public class CompileShader implements Command {
+public class CompileShader extends Command {
 
     public enum ShaderType {
         VERTEX,

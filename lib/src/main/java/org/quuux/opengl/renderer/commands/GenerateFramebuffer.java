@@ -5,7 +5,7 @@ import org.quuux.opengl.lib.Texture2D;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
-public class GenerateFramebuffer implements Command {
+public class GenerateFramebuffer extends Command {
 
     private final FrameBuffer framebuffer;
     private final Texture2D texture;

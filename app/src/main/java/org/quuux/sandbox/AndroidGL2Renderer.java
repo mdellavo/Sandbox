@@ -1,9 +1,7 @@
 package org.quuux.sandbox;
 
 import android.annotation.TargetApi;
-import android.opengl.GLES20;
 import android.opengl.GLES30;
-import android.opengl.GLES32;
 import android.os.Build;
 
 import org.quuux.opengl.lib.ShaderProgram;
@@ -43,9 +41,9 @@ class AndroidGL2Renderer implements Renderer {
     private int getTarget(final BufferData.Target target) {
         final int rv;
         if (target == BufferData.Target.ArrayBuffer)
-            rv = GLES20.GL_ARRAY_BUFFER;
+            rv = GLES30.GL_ARRAY_BUFFER;
         else if (target == BufferData.Target.ElementArrayBuffer)
-            rv = GLES20.GL_ELEMENT_ARRAY_BUFFER;
+            rv = GLES30.GL_ELEMENT_ARRAY_BUFFER;
         else
             throw new UnsupportedException("Unknown target: " + target);
         return rv;
@@ -54,11 +52,11 @@ class AndroidGL2Renderer implements Renderer {
     private int getUsage(BufferData.Usage usage) {
         final int rv;
         if (usage == BufferData.Usage.StaticDraw)
-            rv = GLES20.GL_STATIC_DRAW;
+            rv = GLES30.GL_STATIC_DRAW;
         else if (usage == BufferData.Usage.DynamicDraw)
-            rv = GLES20.GL_DYNAMIC_DRAW;
+            rv = GLES30.GL_DYNAMIC_DRAW;
         else if (usage == BufferData.Usage.StreamDraw)
-            rv = GLES20.GL_STREAM_DRAW;
+            rv = GLES30.GL_STREAM_DRAW;
         else
             throw new UnsupportedException("Unknown usage: " + usage);
         return rv;
@@ -67,9 +65,9 @@ class AndroidGL2Renderer implements Renderer {
     private int getMaskValue(final Clear.Mode mode) {
         final int rv;
         if (mode == Clear.Mode.DEPTH_BUFFER)
-            rv = GLES20.GL_DEPTH_BUFFER_BIT;
+            rv = GLES30.GL_DEPTH_BUFFER_BIT;
         else if (mode == Clear.Mode.COLOR_BUFFER)
-            rv = GLES20.GL_COLOR_BUFFER_BIT;
+            rv = GLES30.GL_COLOR_BUFFER_BIT;
         else
             throw new UnsupportedException("Unknown mode: " + mode);
         return rv;
@@ -86,9 +84,9 @@ class AndroidGL2Renderer implements Renderer {
     private int getShaderType(final CompileShader.ShaderType type) {
         final int rv;
         if (type == CompileShader.ShaderType.FRAGMENT)
-            rv = GLES20.GL_FRAGMENT_SHADER;
+            rv = GLES30.GL_FRAGMENT_SHADER;
         else if (type == CompileShader.ShaderType.VERTEX)
-            rv = GLES20.GL_VERTEX_SHADER;
+            rv = GLES30.GL_VERTEX_SHADER;
         else
             throw new UnsupportedException("Unknown shader type: " + type);
         return rv;
@@ -97,9 +95,9 @@ class AndroidGL2Renderer implements Renderer {
     private int getMode(DrawArrays.Mode mode) {
         final int rv;
         if (mode == DrawArrays.Mode.Points)
-            rv = GLES20.GL_POINTS;
+            rv = GLES30.GL_POINTS;
         else if (mode == DrawArrays.Mode.Triangles)
-            rv = GLES20.GL_TRIANGLES;
+            rv = GLES30.GL_TRIANGLES;
         else
             throw new UnsupportedException("Unknown mode: " + mode);
         return rv;
@@ -108,9 +106,9 @@ class AndroidGL2Renderer implements Renderer {
     private int getFormat(LoadTexture2D.Format format) {
         final int rv;
         if (format == LoadTexture2D.Format.RGBA)
-            rv = GLES20.GL_RGBA;
+            rv = GLES30.GL_RGBA;
         else if (format == LoadTexture2D.Format.RGB)
-            rv = GLES20.GL_RGB;
+            rv = GLES30.GL_RGB;
         else if (format == LoadTexture2D.Format.RGBA16F)
             rv = GLES30.GL_RGBA16F;
         else
@@ -121,9 +119,9 @@ class AndroidGL2Renderer implements Renderer {
     private int getFilter(LoadTexture2D.Filter filter) {
         final int rv;
         if (filter == LoadTexture2D.Filter.LINEAR)
-            rv = GLES20.GL_LINEAR;
+            rv = GLES30.GL_LINEAR;
         else if (filter == LoadTexture2D.Filter.NEAREST)
-            rv = GLES20.GL_NEAREST;
+            rv = GLES30.GL_NEAREST;
         else
             throw new UnsupportedException("Unknown filter: " + filter.toString());
         return rv;
@@ -132,7 +130,7 @@ class AndroidGL2Renderer implements Renderer {
     private int getUniformLocation(ShaderProgram shader, String name) {
         Integer location = shader.getUniformLocation(name);
         if (location == null) {
-            location = GLES20.glGetUniformLocation(shader.program, name);
+            location = GLES30.glGetUniformLocation(shader.program, name);
             shader.setUniformLocation(name, location);
         }
 
@@ -142,7 +140,7 @@ class AndroidGL2Renderer implements Renderer {
     private int getType(VertexAttribPointer.Type type) {
         final int rv;
         if (type == VertexAttribPointer.Type.Float)
-            rv = GLES20.GL_FLOAT;
+            rv = GLES30.GL_FLOAT;
         else
             throw new UnsupportedException("Unknown type: " + type);
         return rv;
@@ -151,9 +149,9 @@ class AndroidGL2Renderer implements Renderer {
     private int getFactor(BlendFunc.Factor factor) {
         final int rv;
         if (factor == BlendFunc.Factor.SRC_ALPHA)
-            rv = GLES20.GL_SRC_ALPHA;
+            rv = GLES30.GL_SRC_ALPHA;
         else if (factor == BlendFunc.Factor.ONE_MINUS_SRC_ALPHA)
-            rv = GLES20.GL_ONE_MINUS_SRC_ALPHA;
+            rv = GLES30.GL_ONE_MINUS_SRC_ALPHA;
         else
             throw new UnsupportedException("Unknown factor: " + factor);
         return rv;
@@ -162,7 +160,7 @@ class AndroidGL2Renderer implements Renderer {
     private int getDepthFunc(DepthFunc.Function depthFunc) {
         final int rv;
         if (depthFunc == DepthFunc.Function.LESS)
-            rv = GLES20.GL_LESS;
+            rv = GLES30.GL_LESS;
         else
             throw new UnsupportedException("Unknown depth function: " + depthFunc);
         return rv;
@@ -171,7 +169,7 @@ class AndroidGL2Renderer implements Renderer {
     private int getTextureUnit(int value) {
         final int rv;
         if (value == 0)
-            rv = GLES20.GL_TEXTURE0;
+            rv = GLES30.GL_TEXTURE0;
         else
             throw new UnsupportedException("Unknown texture unit: " + value);
         return rv;
@@ -180,9 +178,9 @@ class AndroidGL2Renderer implements Renderer {
     private int getCapability(Enable.Capability capability) {
         final int rv;
         if (capability == Enable.Capability.DEPTH_TEST)
-            rv = GLES20.GL_DEPTH_TEST;
+            rv = GLES30.GL_DEPTH_TEST;
         else if (capability == Enable.Capability.BLEND)
-            rv = GLES20.GL_BLEND;
+            rv = GLES30.GL_BLEND;
         else
             throw new UnsupportedException("Unknown capability: " + capability);
         return rv;
@@ -190,37 +188,37 @@ class AndroidGL2Renderer implements Renderer {
 
     @Override
     public void run(final BufferData command) {
-        GLES20.glBufferData(getTarget(command.getTarget()), command.getSize(), command.getData(), getUsage(command.getUsage()));
+        GLES30.glBufferData(getTarget(command.getTarget()), command.getSize(), command.getData(), getUsage(command.getUsage()));
     }
 
     @Override
     public void run(final Clear command) {
-        GLES20.glClear(getMask(command.getModes()));
+        GLES30.glClear(getMask(command.getModes()));
     }
 
     @Override
     public void run(final CompileShader command) {
-        int shader = GLES20.glCreateShader(getShaderType(command.getShaderType()));
-        GLES20.glShaderSource(shader, command.getShaderSource("330 core"));
-        GLES20.glCompileShader(shader);
+        int shader = GLES30.glCreateShader(getShaderType(command.getShaderType()));
+        GLES30.glShaderSource(shader, command.getShaderSource("300 es"));
+        GLES30.glCompileShader(shader);
 
         IntBuffer success = GLUtil.intBuffer(1);
-        GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, success);
+        GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, success);
         if (success.get() == 0) {
-            String info = GLES20.glGetShaderInfoLog(shader);
+            String info = GLES30.glGetShaderInfoLog(shader);
             throw new RendererException("Error compiling shader: " + info);
         }
-        GLES20.glAttachShader(command.getProgram().program, shader);
+        GLES30.glAttachShader(command.getProgram().program, shader);
     }
 
     @Override
     public void run(final CreateProgram command) {
-        command.getProgram().program = GLES20.glCreateProgram();
+        command.getProgram().program = GLES30.glCreateProgram();
     }
 
     @Override
     public void run(final DrawArrays command) {
-        GLES20.glDrawArrays(getMode(command.getMode()), command.getFirst(), command.getCount());
+        GLES30.glDrawArrays(getMode(command.getMode()), command.getFirst(), command.getCount());
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -246,17 +244,17 @@ class AndroidGL2Renderer implements Renderer {
     @Override
     public void run(final GenerateTexture2D command) {
         IntBuffer buffer = GLUtil.intBuffer(1);
-        GLES20.glGenTextures(1, buffer);
+        GLES30.glGenTextures(1, buffer);
         command.getTexture().texture = buffer.get();
     }
 
     @Override
     public void run(final LinkProgram command) {
-        GLES20.glLinkProgram(command.getProgram().program);
+        GLES30.glLinkProgram(command.getProgram().program);
         IntBuffer success = GLUtil.intBuffer(1);
-        GLES20.glGetProgramiv(command.getProgram().program, GLES20.GL_LINK_STATUS, success);
+        GLES30.glGetProgramiv(command.getProgram().program, GLES30.GL_LINK_STATUS, success);
         if (success.get() == 0) {
-            String info = GLES20.glGetProgramInfoLog(command.getProgram().program);
+            String info = GLES30.glGetProgramInfoLog(command.getProgram().program);
             throw new RendererException("Error linking shader: " + info);
         }
     }
@@ -264,52 +262,52 @@ class AndroidGL2Renderer implements Renderer {
     @Override
     public void run(final LoadTexture2D command) {
         if (command.getBuffer() != null)
-            GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 4);
-        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, getFormat(command.getInternalFormat()), command.getWidth(), command.getHeight(), 0, getFormat(command.getFormat()), GLES20.GL_UNSIGNED_BYTE, command.getBuffer());
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, getFilter(command.getMin()));
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, getFilter(command.getMag()));
+            GLES30.glPixelStorei(GLES30.GL_UNPACK_ALIGNMENT, 4);
+        GLES30.glTexImage2D(GLES30.GL_TEXTURE_2D, 0, getFormat(command.getInternalFormat()), command.getWidth(), command.getHeight(), 0, getFormat(command.getFormat()), GLES30.GL_UNSIGNED_BYTE, command.getBuffer());
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, getFilter(command.getMin()));
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, getFilter(command.getMag()));
     }
 
     @Override
     public void run(final SetUniformMatrix command) {
-        GLES20.glUniformMatrix4fv(getUniformLocation(command.getShader(), command.getAttribute()), command.getCount(), command.isTranspose(), command.getBuffer());
+        GLES30.glUniformMatrix4fv(getUniformLocation(command.getShader(), command.getAttribute()), command.getCount(), command.isTranspose(), command.getBuffer());
     }
 
     @Override
     public void run(final SetUniform command) {
         if (command.getType() == SetUniform.Type.INT)
-            GLES20.glUniform1i(getUniformLocation(command.getProgram(), command.getAttribute()), 0);
+            GLES30.glUniform1i(getUniformLocation(command.getProgram(), command.getAttribute()), 0);
 
     }
 
     @Override
     public void run(final VertexAttribPointer command) {
-        GLES20.glVertexAttribPointer(command.getIndex(), command.getSize(), getType(command.getType()), command.isNormalized(), command.getStride(), command.getPointer());
+        GLES30.glVertexAttribPointer(command.getIndex(), command.getSize(), getType(command.getType()), command.isNormalized(), command.getStride(), command.getPointer());
     }
 
     @Override
     public void run(final EnableVertexAttribArray command) {
-        GLES20.glEnableVertexAttribArray(command.getIndex());
+        GLES30.glEnableVertexAttribArray(command.getIndex());
     }
 
     @Override
     public void run(final ClearColor command) {
-        GLES20.glClearColor(command.getR(), command.getG(), command.getB(), command.getA());
+        GLES30.glClearColor(command.getR(), command.getG(), command.getB(), command.getA());
     }
 
     @Override
     public void run(final BlendFunc command) {
-        GLES20.glBlendFunc(getFactor(command.getSfactor()), getFactor(command.getDfactor()));
+        GLES30.glBlendFunc(getFactor(command.getSfactor()), getFactor(command.getDfactor()));
     }
 
     @Override
     public void run(final DepthFunc command) {
-        GLES20.glDepthFunc(getDepthFunc(command.getDepthFunc()));
+        GLES30.glDepthFunc(getDepthFunc(command.getDepthFunc()));
     }
 
     @Override
     public void set(final ActivateTexture command) {
-        GLES20.glActiveTexture(getTextureUnit(command.getTextureUnit()));
+        GLES30.glActiveTexture(getTextureUnit(command.getTextureUnit()));
     }
 
     @Override
@@ -319,22 +317,22 @@ class AndroidGL2Renderer implements Renderer {
 
     @Override
     public void set(final BindBuffer command) {
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, command.getVBO().vbo);
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, command.getVBO().vbo);
     }
 
     @Override
     public void clear(final BindBuffer command) {
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0);
     }
 
     @Override
     public void set(final BindFramebuffer command) {
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, command.getFramebuffer().fbo);
+        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, command.getFramebuffer().fbo);
     }
 
     @Override
     public void clear(final BindFramebuffer command) {
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
     }
 
     @Override
@@ -342,7 +340,7 @@ class AndroidGL2Renderer implements Renderer {
         Enable.Capability cap = command.getCapability();
         if (cap == Enable.Capability.MULTISAMPLE || cap == Enable.Capability.POINT_SIZE)
             return;
-        GLES20.glEnable(getCapability(cap));
+        GLES30.glEnable(getCapability(cap));
     }
 
     @Override
@@ -350,27 +348,27 @@ class AndroidGL2Renderer implements Renderer {
         Enable.Capability cap = command.getCapability();
         if (cap == Enable.Capability.MULTISAMPLE || cap == Enable.Capability.POINT_SIZE)
             return;
-        GLES20.glDisable(getCapability(cap));
+        GLES30.glDisable(getCapability(cap));
     }
 
     @Override
     public void set(final UseProgram command) {
-        GLES20.glUseProgram(command.getProgram().program);
+        GLES30.glUseProgram(command.getProgram().program);
     }
 
     @Override
     public void clear(final UseProgram command) {
-        GLES20.glUseProgram(0);
+        GLES30.glUseProgram(0);
     }
 
     @Override
     public void set(final BindTexture command) {
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, command.getTexture().texture);
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, command.getTexture().texture);
     }
 
     @Override
     public void clear(final BindTexture command) {
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)

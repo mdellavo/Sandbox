@@ -1,6 +1,7 @@
 package org.quuux.sandbox;
 
 import android.app.Activity;
+import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -21,11 +22,19 @@ public class SandboxActivity extends Activity {
 
         SceneRenderer renderer = new SceneRenderer();
 
-        GLSurfaceView view = new GLSurfaceView(this);
-        view.setEGLContextClientVersion(3);
+        GLSurfaceView view = new GL3SurfaceView(this);
         view.setRenderer(renderer);
+        view.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        view.setDebugFlags(GLSurfaceView.DEBUG_CHECK_GL_ERROR | GLSurfaceView.DEBUG_LOG_GL_CALLS);
 
         setContentView(view);
+    }
+
+    class GL3SurfaceView extends GLSurfaceView {
+        public GL3SurfaceView(Context context) {
+            super(context);
+            setEGLContextClientVersion(3);
+        }
     }
 
     class SceneRenderer implements GLSurfaceView.Renderer {

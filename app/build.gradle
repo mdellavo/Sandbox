@@ -1,4 +1,9 @@
 apply plugin: 'com.android.application'
+apply plugin: 'idea'
+
+idea.module {
+    excludeDirs += file('build/')
+}
 
 android {
     compileSdkVersion 27
@@ -31,12 +36,9 @@ repositories {
     }
 }
 
-dependencies {
-    compile 'com.android.support:appcompat-v7:27.0.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile(project(':scenes')) {
-        exclude group: 'org.joml'
-    }
-    compile 'org.joml:joml-android:1.9.3-SNAPSHOT'
-}
 
+dependencies {
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation(project(':scenes'))
+}

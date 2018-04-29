@@ -5,7 +5,7 @@ repositories {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.12'
-    compile 'org.l33tlabs.twl:pngdecoder:1.0'
-    compile 'org.joml:joml:1.9.6'
+    testImplementation 'junit:junit:4.12'
+    implementation 'org.l33tlabs.twl:pngdecoder:1.0'
+    implementation 'org.joml:joml-jdk8:1.9.9'
 }

@@ -1,7 +1,6 @@
 package org.quuux.opengl.renderer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class CommandList extends Command {
 

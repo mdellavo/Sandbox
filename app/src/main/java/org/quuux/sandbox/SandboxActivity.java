@@ -6,6 +6,8 @@ import android.graphics.PixelFormat;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.Window;
+import android.view.WindowManager;
 
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.scenes.Camera;
@@ -22,10 +24,14 @@ public class SandboxActivity extends Activity {
     private static final String TAG = Log.buildTag(SandboxActivity.class);
 
     SceneRenderer renderer = new SceneRenderer();
+    private static final long INTERVAL = 5000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // remove title
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         GLSurfaceView view = new GL3SurfaceView(this);
         setContentView(view);
     }
@@ -47,7 +53,12 @@ public class SandboxActivity extends Activity {
         Scene scene;
         long lastUpdate;
 
+        long drawCount;
+        long totalDrawTime;
+
         AndroidGLRenderer renderer = new AndroidGLRenderer();
+
+        Command displayList;
 
         @Override
         public void onSurfaceCreated(final GL10 gl, final EGLConfig config) {
@@ -66,6 +77,10 @@ public class SandboxActivity extends Activity {
             command.run(renderer);
 
             lastUpdate = System.currentTimeMillis();
+
+            drawCount = totalDrawTime = 0;
+
+            displayList = scene.dispatchDraw();
         }
 
         @Override
@@ -73,12 +88,21 @@ public class SandboxActivity extends Activity {
 
             long now = System.currentTimeMillis();
             long elapsed = now - lastUpdate;
-            lastUpdate = now;
 
             scene.dispatchUpdate(elapsed);
-            Command displayList = scene.dispatchDraw();
+
             displayList.run(renderer);
 
+            lastUpdate = now;
+
+            drawCount += 1;
+            totalDrawTime += elapsed;
+
+            if (totalDrawTime > INTERVAL) {
+                // r * t = d
+                Log.d(TAG, "total frames: %s / fps: %.02f", drawCount, (float)drawCount / (float)totalDrawTime * 1000);
+                drawCount = totalDrawTime = 0;
+            }
         }
     }
 

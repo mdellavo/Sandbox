@@ -1,14 +1,14 @@
 package org.quuux.opengl.renderer.commands;
 
-import org.quuux.opengl.lib.VBO;
+import org.quuux.opengl.lib.BufferObject;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
 public class GenerateBuffer extends Command {
 
-    private final VBO vbo;
+    private final BufferObject vbo;
 
-    public GenerateBuffer(VBO vbo) {
+    public GenerateBuffer(BufferObject vbo) {
         this.vbo = vbo;
     }
 
@@ -17,7 +17,7 @@ public class GenerateBuffer extends Command {
         renderer.run(this);
     }
 
-    public VBO getVbo() {
+    public BufferObject getVbo() {
         return vbo;
     }
 }

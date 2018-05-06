@@ -1,5 +1,8 @@
 package org.quuux.opengl.util;
 
+import de.javagl.obj.Obj;
+import de.javagl.obj.ObjReader;
+import de.javagl.obj.ObjUtils;
 import de.matthiasmann.twl.utils.PNGDecoder;
 
 import java.io.*;
@@ -47,6 +50,16 @@ public class ResourceUtil {
             e.printStackTrace();
         }
 
+        return rv;
+    }
+
+    public static Obj loadObj(String name) {
+        Obj rv = null;
+        try {
+            rv = ObjUtils.convertToRenderable(ObjReader.read(getResource(name)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return rv;
     }
 }

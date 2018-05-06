@@ -1,5 +1,6 @@
 package org.quuux.opengl.renderer.commands;
 
+import org.quuux.opengl.lib.BufferType;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
@@ -13,17 +14,12 @@ public class BufferData extends Command {
         StreamDraw,
     }
 
-    public enum Target {
-        ArrayBuffer,
-        ElementArrayBuffer,
-    }
-
-    private Target target;
+    private BufferType target;
     private int size;
     private Usage usage;
     private Buffer data;
 
-    public BufferData(Target target, int size, Buffer data, Usage usage) {
+    public BufferData(BufferType target, int size, Buffer data, Usage usage) {
         this.target = target;
         this.size = size;
         this.data = data;
@@ -35,7 +31,7 @@ public class BufferData extends Command {
         renderer.run(this);
     }
 
-    public Target getTarget() {
+    public BufferType getTarget() {
         return target;
     }
 

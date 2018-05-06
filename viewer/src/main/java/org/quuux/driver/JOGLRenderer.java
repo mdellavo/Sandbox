@@ -3,6 +3,7 @@ package org.quuux.driver;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL4;
 
+import org.quuux.opengl.lib.BufferType;
 import org.quuux.opengl.lib.FrameBuffer;
 import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.lib.Texture2D;
@@ -27,11 +28,11 @@ public class JOGLRenderer implements Renderer {
         return _gl.getGL4();
     }
 
-    private int getTarget(BufferData.Target target) {
+    private int getTarget(BufferType target) {
         final int rv;
-        if (target == BufferData.Target.ArrayBuffer)
+        if (target == BufferType.ArrayBuffer)
             rv = GL.GL_ARRAY_BUFFER;
-        else if (target == BufferData.Target.ElementArrayBuffer)
+        else if (target == BufferType.ElementArrayBuffer)
             rv = GL.GL_ELEMENT_ARRAY_BUFFER;
         else
             throw new UnsupportedException("Unknown target: " + target);
@@ -253,12 +254,12 @@ public class JOGLRenderer implements Renderer {
 
     @Override
     public void set(final BindBuffer command) {
-        getGL().glBindBuffer(GL.GL_ARRAY_BUFFER, command.getVBO().vbo);
+        getGL().glBindBuffer(getTarget(command.getTarget()), command.getVBO().vbo);
     }
 
     @Override
     public void clear(final BindBuffer command) {
-        getGL().glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+        getGL().glBindBuffer(getTarget(command.getTarget()), 0);
     }
 
     @Override

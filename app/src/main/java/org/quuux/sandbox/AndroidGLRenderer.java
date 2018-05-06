@@ -6,6 +6,7 @@ import android.opengl.GLES30;
 import android.opengl.GLUtils;
 import android.os.Build;
 
+import org.quuux.opengl.lib.BufferType;
 import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.renderer.Renderer;
 import org.quuux.opengl.renderer.commands.BufferData;
@@ -41,11 +42,13 @@ import java.nio.IntBuffer;
 
 class AndroidGLRenderer implements Renderer {
 
-    private int getTarget(final BufferData.Target target) {
+    private static final boolean DEBUG = false;
+
+    private int getTarget(final BufferType target) {
         final int rv;
-        if (target == BufferData.Target.ArrayBuffer)
+        if (target == BufferType.ArrayBuffer)
             rv = GLES30.GL_ARRAY_BUFFER;
-        else if (target == BufferData.Target.ElementArrayBuffer)
+        else if (target == BufferType.ElementArrayBuffer)
             rv = GLES30.GL_ELEMENT_ARRAY_BUFFER;
         else
             throw new UnsupportedException("Unknown target: " + target);
@@ -262,15 +265,17 @@ class AndroidGLRenderer implements Renderer {
     }
 
     public void checkError() {
-        int error;
-        StringBuilder sb = new StringBuilder();
-        while ((error = GLES30.glGetError()) != GLES30.GL_NO_ERROR) {
-            sb.append(error);
-        }
+        if (DEBUG) {
+            int error;
+            StringBuilder sb = new StringBuilder();
+            while ((error = GLES30.glGetError()) != GLES30.GL_NO_ERROR) {
+                sb.append(error);
+            }
 
-        String msg = sb.toString();
-        if (msg.length() > 0) {
-            throw new RuntimeException("glError: " + msg);
+            String msg = sb.toString();
+            if (msg.length() > 0) {
+                throw new RuntimeException("glError: " + msg);
+            }
         }
     }
 
@@ -372,13 +377,13 @@ class AndroidGLRenderer implements Renderer {
 
     @Override
     public void set(final BindBuffer command) {
-        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, command.getVBO().vbo);
+        GLES30.glBindBuffer(getTarget(command.getTarget()), command.getVBO().vbo);
         checkError();
     }
 
     @Override
     public void clear(final BindBuffer command) {
-        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, 0);
+        GLES30.glBindBuffer(getTarget(command.getTarget()), 0);
         checkError();
     }
 

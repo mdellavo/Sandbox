@@ -1,12 +1,15 @@
 package org.quuux.opengl.renderer.states;
 
-import org.quuux.opengl.lib.VBO;
+import org.quuux.opengl.lib.BufferType;
+import org.quuux.opengl.lib.BufferObject;
 import org.quuux.opengl.renderer.Renderer;
 
 public class BindBuffer extends State {
-    private final VBO vbo;
+    private final BufferObject vbo;
+    private final BufferType target;
 
-    public BindBuffer(VBO vbo) {
+    public BindBuffer(BufferType target, BufferObject vbo) {
+        this.target = target;
         this.vbo = vbo;
     }
 
@@ -20,7 +23,11 @@ public class BindBuffer extends State {
         renderer.clear(this);
     }
 
-    public VBO getVBO() {
+    public BufferObject getVBO() {
         return vbo;
+    }
+
+    public BufferType getTarget() {
+        return target;
     }
 }

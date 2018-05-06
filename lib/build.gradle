@@ -9,5 +9,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     implementation 'org.l33tlabs.twl:pngdecoder:1.0'
     implementation 'org.joml:joml-jdk8:1.9.9'
+    implementation 'de.javagl:obj:0.3.0'
     api 'org.quuux.feller:feller:0.1'
 }

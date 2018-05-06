@@ -2,10 +2,11 @@ package org.quuux.opengl.entities;
 
 import org.joml.Matrix4d;
 import org.joml.Matrix4f;
+import org.quuux.opengl.lib.BufferType;
 import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.lib.Texture2D;
 import org.quuux.opengl.lib.VAO;
-import org.quuux.opengl.lib.VBO;
+import org.quuux.opengl.lib.BufferObject;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.CommandList;
 import org.quuux.opengl.renderer.commands.BufferData;
@@ -45,7 +46,7 @@ public class Quad implements Entity {
     Matrix4f mvp = new Matrix4f();
     FloatBuffer mvpBuffer = GLUtil.floatBuffer(16);
 
-    VBO vbo = new VBO();
+    BufferObject vbo = new BufferObject();
     VAO vao = new VAO();
 
     FloatBuffer vertexBuffer = GLUtil.floatBuffer(vertices);
@@ -63,10 +64,10 @@ public class Quad implements Entity {
         rv.add(new GenerateArray(vao));
         rv.add(new GenerateBuffer(vbo));
 
-        BatchState ctx = new BatchState(new UseProgram(shader), new BindBuffer(vbo), new BindArray(vao));
+        BatchState ctx = new BatchState(new UseProgram(shader), new BindBuffer(BufferType.ArrayBuffer, vbo), new BindArray(vao));
         rv.add(ctx);
 
-        ctx.add(new BufferData(BufferData.Target.ArrayBuffer, vertices.length * 4, vertexBuffer, BufferData.Usage.StaticDraw));
+        ctx.add(new BufferData(BufferType.ArrayBuffer, vertices.length * 4, vertexBuffer, BufferData.Usage.StaticDraw));
         ctx.add(new VertexAttribPointer(0, 3, VertexAttribPointer.Type.Float, false, 5 * 4, 0));
         ctx.add(new EnableVertexAttribArray(0));
         ctx.add(new VertexAttribPointer(1, 2, VertexAttribPointer.Type.Float, false, 5 * 4, 3 * 4));
@@ -80,7 +81,7 @@ public class Quad implements Entity {
     }
 
     public Command buildDisplayList() {
-        BatchState rv = new BatchState(new UseProgram(shader), new BindBuffer(vbo), new BindArray(vao), new BindTexture(texture), new ActivateTexture(0));
+        BatchState rv = new BatchState(new UseProgram(shader), new BindBuffer(BufferType.ArrayBuffer, vbo), new BindArray(vao), new BindTexture(texture), new ActivateTexture(0));
         rv.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
         rv.add(new SetUniform(shader, "texture", 0));
         rv.add(new DrawArrays(DrawArrays.Mode.Triangles, 0, 6));

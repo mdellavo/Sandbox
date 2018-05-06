@@ -1,5 +1,5 @@
 package org.quuux.opengl.lib;
 
-public class VBO {
+public class BufferObject {
     public int vbo = -1;
 }

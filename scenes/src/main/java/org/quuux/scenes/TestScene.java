@@ -1,5 +1,6 @@
 package org.quuux.scenes;
 
+import org.quuux.opengl.entities.Model;
 import org.quuux.opengl.entities.ParticleEmitter;
 import org.quuux.opengl.entities.Quad;
 import org.quuux.opengl.lib.FrameBuffer;
@@ -24,6 +25,8 @@ public class TestScene extends Scene {
     Quad quad = new Quad();
     Texture2D texture = new Texture2D();
 
+    Model model = Model.load("models/sphere.obj");
+
     Command initializeCommand;
     Command drawCommand;
 
@@ -45,8 +48,9 @@ public class TestScene extends Scene {
 
             ctx.add(new BlendFunc(BlendFunc.Factor.SRC_ALPHA, BlendFunc.Factor.ONE_MINUS_SRC_ALPHA));
             ctx.add(new DepthFunc(DepthFunc.Function.LESS));
+            //rv.add(pe.initialize());
+            rv.add(model.initialize());
 
-            rv.add(pe.initialize());
             //rv.add(quad.initialize());
             initializeCommand = rv;
         }
@@ -80,16 +84,17 @@ public class TestScene extends Scene {
                     //new BindFramebuffer(frameBuffer)
             );
             ctx.add(new Clear(Clear.Mode.COLOR_BUFFER, Clear.Mode.DEPTH_BUFFER));
-            ctx.add(pe.draw());
+            //ctx.add(pe.draw());
+            ctx.add(model.draw());
             rv.add(ctx);
 
             // render texture
-            ctx = new BatchState(
-                    new Enable(Enable.Capability.BLEND),
-                    new Enable(Enable.Capability.MULTISAMPLE)
-            );
-            ctx.add(new Clear(Clear.Mode.COLOR_BUFFER));
-            ctx.add(quad.draw());
+//            ctx = new BatchState(
+//                    new Enable(Enable.Capability.BLEND),
+//                    new Enable(Enable.Capability.MULTISAMPLE)
+//            );
+//            ctx.add(new Clear(Clear.Mode.COLOR_BUFFER));
+            //ctx.add(quad.draw());
             //rv.add(ctx);
 
             drawCommand = rv;

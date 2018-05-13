@@ -15,6 +15,8 @@ import org.quuux.opengl.renderer.commands.ClearColor;
 import org.quuux.opengl.renderer.commands.CompileShader;
 import org.quuux.opengl.renderer.commands.CreateProgram;
 import org.quuux.opengl.renderer.commands.DrawArrays;
+import org.quuux.opengl.renderer.commands.DrawElements;
+import org.quuux.opengl.renderer.commands.DrawMode;
 import org.quuux.opengl.renderer.commands.EnableVertexAttribArray;
 import org.quuux.opengl.renderer.commands.GenerateArray;
 import org.quuux.opengl.renderer.commands.GenerateBuffer;
@@ -98,11 +100,11 @@ class AndroidGLRenderer implements Renderer {
         return rv;
     }
 
-    private int getMode(DrawArrays.Mode mode) {
+    private int getMode(DrawMode mode) {
         final int rv;
-        if (mode == DrawArrays.Mode.Points)
+        if (mode == DrawMode.Points)
             rv = GLES30.GL_POINTS;
-        else if (mode == DrawArrays.Mode.Triangles)
+        else if (mode == DrawMode.Triangles)
             rv = GLES30.GL_TRIANGLES;
         else
             throw new UnsupportedException("Unknown mode: " + mode);
@@ -240,6 +242,11 @@ class AndroidGLRenderer implements Renderer {
     public void run(final DrawArrays command) {
         GLES30.glDrawArrays(getMode(command.getMode()), command.getFirst(), command.getCount());
         checkError();
+    }
+
+    @Override
+    public void run(final DrawElements command) {
+        GLES30.glDrawElements(getMode(command.getMode()), command.getCount(), GLES30.GL_UNSIGNED_INT, 0);
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)

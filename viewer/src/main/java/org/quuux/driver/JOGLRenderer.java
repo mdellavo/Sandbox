@@ -71,11 +71,11 @@ public class JOGLRenderer implements Renderer {
         return rv;
     }
 
-    private int getMode(DrawArrays.Mode mode) {
+    private int getMode(DrawMode mode) {
         final int rv;
-        if (mode == DrawArrays.Mode.Triangles)
+        if (mode == DrawMode.Triangles)
             rv = GL.GL_TRIANGLES;
-        else if(mode == DrawArrays.Mode.Points)
+        else if(mode == DrawMode.Points)
             rv = GL.GL_POINTS;
         else
             throw new UnsupportedException("Unknown mode: " + mode);
@@ -205,6 +205,11 @@ public class JOGLRenderer implements Renderer {
     @Override
     public void run(final DrawArrays command) {
         getGL().glDrawArrays(getMode(command.getMode()), command.getFirst(), command.getCount());
+    }
+
+    @Override
+    public void run(final DrawElements command) {
+        getGL().glDrawElements(getMode(command.getMode()), command.getCount(), GL.GL_UNSIGNED_INT, 0);
     }
 
     @Override

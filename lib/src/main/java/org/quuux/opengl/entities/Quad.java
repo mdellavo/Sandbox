@@ -11,6 +11,7 @@ import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.CommandList;
 import org.quuux.opengl.renderer.commands.BufferData;
 import org.quuux.opengl.renderer.commands.DrawArrays;
+import org.quuux.opengl.renderer.commands.DrawMode;
 import org.quuux.opengl.renderer.commands.EnableVertexAttribArray;
 import org.quuux.opengl.renderer.commands.GenerateArray;
 import org.quuux.opengl.renderer.commands.GenerateBuffer;
@@ -84,7 +85,7 @@ public class Quad implements Entity {
         BatchState rv = new BatchState(new UseProgram(shader), new BindBuffer(BufferType.ArrayBuffer, vbo), new BindArray(vao), new BindTexture(texture), new ActivateTexture(0));
         rv.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
         rv.add(new SetUniform(shader, "texture", 0));
-        rv.add(new DrawArrays(DrawArrays.Mode.Triangles, 0, 6));
+        rv.add(new DrawArrays(DrawMode.Triangles, 0, 6));
         return rv;
     }
 

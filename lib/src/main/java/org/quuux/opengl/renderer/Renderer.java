@@ -24,6 +24,7 @@ public interface Renderer {
     void run(CompileShader command);
     void run(CreateProgram command);
     void run(DrawArrays command);
+    void run(DrawElements command);
     void run(GenerateArray command);
     void run(GenerateBuffer command);
     void run(GenerateFramebuffer command);
@@ -46,7 +47,7 @@ public interface Renderer {
     void clear(BindBuffer command);
 
     void set(BindFramebuffer command);
-    void clear(BindFramebuffer command);
+    void clear(BindFramebuffer commJOGLand);
 
     void set(Enable command);
     void clear(Enable command);

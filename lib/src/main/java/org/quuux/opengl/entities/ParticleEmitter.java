@@ -304,7 +304,7 @@ public class ParticleEmitter implements Entity {
     class DrawParticles extends DrawArrays {
 
         public DrawParticles() {
-            super(Mode.Points, 0, particles.size());
+            super(DrawMode.Points, 0, particles.size());
         }
 
         @Override

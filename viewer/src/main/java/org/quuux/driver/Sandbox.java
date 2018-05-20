@@ -46,6 +46,7 @@ class Sandbox implements KeyListener, GLEventListener {
             @Override
             public void windowDestroyed(WindowEvent e) {
                 animator.stop();
+                System.exit(0);
             }
         });
 

@@ -37,6 +37,7 @@ public class TestScene extends Scene {
     @Override
     public Command initialize() {
         quad.setTexture(texture);
+
         Camera.getCamera().setEye(0, 100, 500);
 
         if (initializeCommand == null) {
@@ -69,6 +70,8 @@ public class TestScene extends Scene {
         Camera.getCamera().setEye(eyeX, 5, eyeZ);
 
         pe.update(t);
+        model.update(t);
+
     }
 
     @Override

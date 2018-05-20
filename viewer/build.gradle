@@ -9,7 +9,9 @@ defaultTasks 'jar run'
 mainClassName = "org.quuux.driver.Sandbox"
 
 // "-Djogl.debug.TraceGL"
-applicationDefaultJvmArgs = ["-Djogl.debug.DebugGL",]
+//'-Xdebug', "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
+applicationDefaultJvmArgs = ["-Djogl.debug.DebugGL",  ]
+
 
 jar {
     from {
@@ -18,7 +20,7 @@ jar {
         }
     }
     manifest {
-        attributes 'Main-Class': 'org.quuux.opengl.Sandbox'
+        attributes 'Main-Class': 'org.quuux.driver.Sandbox'
     }
 }
 

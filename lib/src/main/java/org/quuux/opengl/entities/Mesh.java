@@ -1,5 +1,7 @@
 package org.quuux.opengl.entities;
 
+import org.joml.Matrix4d;
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.quuux.opengl.lib.BufferType;
@@ -10,12 +12,15 @@ import org.quuux.opengl.lib.BufferObject;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.CommandList;
 import org.quuux.opengl.renderer.commands.BufferData;
+import org.quuux.opengl.renderer.commands.DrawElements;
+import org.quuux.opengl.renderer.commands.DrawMode;
 import org.quuux.opengl.renderer.commands.EnableVertexAttribArray;
 import org.quuux.opengl.renderer.commands.GenerateArray;
 import org.quuux.opengl.renderer.commands.GenerateBuffer;
 import org.quuux.opengl.renderer.commands.GenerateTexture2D;
 import org.quuux.opengl.renderer.commands.LoadTexture2D;
 import org.quuux.opengl.renderer.commands.SetUniform;
+import org.quuux.opengl.renderer.commands.SetUniformMatrix;
 import org.quuux.opengl.renderer.commands.VertexAttribPointer;
 import org.quuux.opengl.renderer.states.ActivateTexture;
 import org.quuux.opengl.renderer.states.BatchState;
@@ -23,6 +28,7 @@ import org.quuux.opengl.renderer.states.BindArray;
 import org.quuux.opengl.renderer.states.BindBuffer;
 import org.quuux.opengl.renderer.states.BindTexture;
 import org.quuux.opengl.renderer.states.UseProgram;
+import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.util.GLUtil;
 import org.quuux.opengl.util.ResourceUtil;
 
@@ -57,6 +63,10 @@ public class Mesh implements Entity {
     ShaderProgram shader = new ShaderProgram();
     Texture2D texture = new Texture2D();
 
+    Matrix4d model = new Matrix4d().identity();
+    Matrix4f mvp = new Matrix4f();
+    FloatBuffer mvpBuffer = GLUtil.floatBuffer(16);
+
     Command displayList;
 
     CommandList buildState() {
@@ -86,7 +96,7 @@ public class Mesh implements Entity {
         CommandList ctx = buildState();
         rv.add(ctx);
 
-        ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/particle1.png");
+        ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/waves.png");
         ctx.add(new LoadTexture2D(texture, LoadTexture2D.Format.RGBA, image.width, image.height,  LoadTexture2D.Format.RGBA, image.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
 
         ctx.add(new SetUniform(shader, "texture", SetUniform.Type.INT, 0));
@@ -112,8 +122,10 @@ public class Mesh implements Entity {
     public Command draw() {
         if (displayList == null) {
             CommandList ctx = buildState();
+            ctx.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
             ctx.add(new BufferData(BufferType.ArrayBuffer, vertexBuffer.capacity() * 4, vertexBuffer, BufferData.Usage.StaticDraw));
             ctx.add(new BufferData(BufferType.ElementArrayBuffer, indicies.capacity() * 4, indicies, BufferData.Usage.StaticDraw));
+            ctx.add(new DrawElements(DrawMode.Triangles, vertex.size()));
             displayList = ctx;
         }
 
@@ -122,7 +134,8 @@ public class Mesh implements Entity {
 
     @Override
     public void update(long t) {
-
+        Camera.getCamera().modelViewProjectionMatrix(model, mvp);
+        mvp.get(mvpBuffer);
     }
 
     public static Mesh create(Obj obj) {
@@ -139,17 +152,26 @@ public class Mesh implements Entity {
             FloatTuple position = obj.getVertex(i);
             vert.position.set(position.getX(), position.getY(), position.getZ());
             vert.position.get(mesh.vertexBuffer);
+            mesh.vertexBuffer.position(mesh.vertexBuffer.position() + 3);
+
+
 
             FloatTuple normal = obj.getNormal(i);
             vert.normal.set(normal.getX(), normal.getY(), normal.getZ());
             vert.normal.get(mesh.vertexBuffer);
+            mesh.vertexBuffer.position(mesh.vertexBuffer.position() + 3);
 
             FloatTuple texCoord = obj.getTexCoord(i);
             vert.texCoords.set(texCoord.getX(), texCoord.getY());
             vert.texCoords.get(mesh.vertexBuffer);
+            mesh.vertexBuffer.position(mesh.vertexBuffer.position() + 2);
 
             mesh.vertex.add(vert);
         }
+
+        mesh.vertexBuffer.position(0);
+
+        System.out.println("num verticies = " + numVerticies + " / buffer = " + mesh.vertexBuffer.limit() + " / indicies = " + mesh.indicies.limit());
 
         return mesh;
     }

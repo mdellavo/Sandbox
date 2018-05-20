@@ -1,6 +1,7 @@
 package org.quuux.driver;
 
 import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GL4;
 
 import org.quuux.opengl.lib.BufferType;

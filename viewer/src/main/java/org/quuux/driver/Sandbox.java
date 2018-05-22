@@ -15,6 +15,9 @@ import org.quuux.scenes.TestScene;
 
 class Sandbox implements KeyListener, GLEventListener {
 
+    static GLWindow window;
+    static FPSAnimator animator;
+
     Scene scene;
     JOGLRenderer renderer = new JOGLRenderer();
     long lastUpdate;
@@ -26,7 +29,7 @@ class Sandbox implements KeyListener, GLEventListener {
         glCapabilities.setSampleBuffers(true);
         glCapabilities.setNumSamples(8);
 
-        GLWindow window = GLWindow.create(glCapabilities);
+        window = GLWindow.create(glCapabilities);
 
         window.setTitle("OpenGL Sandbox");
         window.setSize(Config.WIDTH, Config.HEIGHT);
@@ -39,14 +42,13 @@ class Sandbox implements KeyListener, GLEventListener {
         window.addGLEventListener(sandbox);
         window.addKeyListener(sandbox);
 
-        final FPSAnimator animator = new FPSAnimator(window, 60);
+        animator = new FPSAnimator(window, 60);
         animator.setUpdateFPSFrames(60 * 5, System.out);
 
         window.addWindowListener(new WindowAdapter() {
             @Override
             public void windowDestroyed(WindowEvent e) {
-                animator.stop();
-                System.exit(0);
+                exit();
             }
         });
 
@@ -92,12 +94,12 @@ class Sandbox implements KeyListener, GLEventListener {
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         GL4 gl = drawable.getGL().getGL4();
         gl.glViewport(0, 0, width, height);
-        Camera.getCamera().setProjection(45, (double)width/(double)height, .1, 1000.);
+        Camera.getCamera().setProjection(45, (double)width/(double)height, .01, 1000.);
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-
+        exit();
     }
 
     @Override
@@ -105,4 +107,9 @@ class Sandbox implements KeyListener, GLEventListener {
 
     }
 
+    public static void exit() {
+        window.setVisible(false);
+        animator.stop();
+        System.exit(0);
+    }
 }

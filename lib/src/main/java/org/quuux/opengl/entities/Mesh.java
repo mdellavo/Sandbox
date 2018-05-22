@@ -154,8 +154,6 @@ public class Mesh implements Entity {
             vert.position.get(mesh.vertexBuffer);
             mesh.vertexBuffer.position(mesh.vertexBuffer.position() + 3);
 
-
-
             FloatTuple normal = obj.getNormal(i);
             vert.normal.set(normal.getX(), normal.getY(), normal.getZ());
             vert.normal.get(mesh.vertexBuffer);

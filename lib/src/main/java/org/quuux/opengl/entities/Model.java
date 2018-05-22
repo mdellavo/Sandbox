@@ -16,7 +16,7 @@ public class Model implements Entity {
 
     @Override
     public void update(long t) {
-
+        meshes.update(t);
     }
 
     @Override

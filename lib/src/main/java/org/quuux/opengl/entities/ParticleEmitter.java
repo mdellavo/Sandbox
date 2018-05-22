@@ -140,9 +140,17 @@ public class ParticleEmitter implements Entity {
         rv.add(new GenerateBuffer(vbo));
         rv.add(new GenerateTexture2D(texture));
 
-        rv.add(ShaderProgram.build(shader, ResourceUtil.getStringResource("shaders/particle.vert.glsl"), ResourceUtil.getStringResource("shaders/particle.frag.glsl")));
+        rv.add(ShaderProgram.build(shader,
+                ResourceUtil.getStringResource("shaders/particle.vert.glsl"),
+                ResourceUtil.getStringResource("shaders/particle.frag.glsl")));
 
-        BatchState ctx = new BatchState(new UseProgram(shader), new BindBuffer(BufferType.ArrayBuffer, vbo), new BindArray(vao), new BindTexture(texture), new ActivateTexture(0));
+        BatchState ctx = new BatchState(
+                new UseProgram(shader),
+                new BindBuffer(BufferType.ArrayBuffer, vbo),
+                new BindArray(vao),
+                new BindTexture(texture),
+                new ActivateTexture(0)
+        );
         rv.add(ctx);
 
         ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/particle1.png");

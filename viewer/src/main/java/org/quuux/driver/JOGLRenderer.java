@@ -220,8 +220,38 @@ public class JOGLRenderer implements Renderer {
 
     @Override
     public void run(final SetUniform command) {
-        if (command.getType() == SetUniform.Type.INT)
-            getGL().glUniform1i(getUniformLocation(command.getProgram(), command.getAttribute()), 0);
+
+        Object[] value = command.getValue();
+
+        if (command.getType() == SetUniform.Type.INT) {
+            switch(value.length) {
+                case 1:
+                    getGL().glUniform1i(getUniformLocation(command.getProgram(), command.getAttribute()), (int) value[0]);
+                    break;
+
+                case 2:
+                    getGL().glUniform2i(getUniformLocation(command.getProgram(), command.getAttribute()), (int) value[0], (int) value[1]);
+                    break;
+
+                case 3:
+                    getGL().glUniform3i(getUniformLocation(command.getProgram(), command.getAttribute()), (int) value[0], (int) value[1], (int) value[2]);
+                    break;
+            }
+        } else if (command.getType() == SetUniform.Type.FLOAT) {
+            switch(value.length) {
+                case 1:
+                    getGL().glUniform1f(getUniformLocation(command.getProgram(), command.getAttribute()), (float) value[0]);
+                    break;
+
+                case 2:
+                    getGL().glUniform2f(getUniformLocation(command.getProgram(), command.getAttribute()), (float) value[0], (float) value[1]);
+                    break;
+
+                case 3:
+                    getGL().glUniform3f(getUniformLocation(command.getProgram(), command.getAttribute()), (float) value[0], (float) value[1], (float) value[2]);
+                    break;
+            }
+        }
     }
 
     @Override

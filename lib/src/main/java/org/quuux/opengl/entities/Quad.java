@@ -24,7 +24,7 @@ import org.quuux.opengl.renderer.states.BindArray;
 import org.quuux.opengl.renderer.states.BindBuffer;
 import org.quuux.opengl.renderer.states.BindTexture;
 import org.quuux.opengl.renderer.states.UseProgram;
-import org.quuux.opengl.scenes.Camera;
+import org.quuux.opengl.scenes.Scene;
 import org.quuux.opengl.util.GLUtil;
 import org.quuux.opengl.util.ResourceUtil;
 
@@ -91,7 +91,7 @@ public class Quad implements Entity {
 
     @Override
     public Command draw() {
-        Camera.getCamera().modelViewProjectionMatrix(model, mvp);
+        Scene.get().getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
 
         if (displayList == null) {

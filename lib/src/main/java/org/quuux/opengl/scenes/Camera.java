@@ -54,9 +54,4 @@ public class Camera {
         dest.set(scratch.set(projectionMatrix).mul(viewMatrix).mul(model));
     }
 
-    public static Camera getCamera() {
-        if (instance == null)
-            instance = new Camera();
-        return instance;
-    }
 }

@@ -10,7 +10,6 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import org.quuux.opengl.renderer.Command;
-import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.scenes.Scene;
 import org.quuux.scenes.TestScene;
 import org.quuux.feller.Log;
@@ -70,9 +69,10 @@ public class SandboxActivity extends Activity {
             Log.d(TAG, "viewport %s x %s", width, height);
 
             GLES20.glViewport(0, 0, width, height);
-            Camera.getCamera().setProjection(45, (double)width/(double)height, .1, 1000.);
+            scene.getCamera().setProjection(45, (double)width/(double)height, .1, 1000.);
 
             scene = new TestScene(width, height);
+
             Command command = scene.initialize();
             command.run(renderer);
 

@@ -1,14 +1,14 @@
 package org.quuux.opengl.renderer.states;
 
 
-import org.quuux.opengl.lib.Texture2D;
+import org.quuux.opengl.lib.Texture;
 import org.quuux.opengl.renderer.Renderer;
 
 public class BindTexture extends State {
 
-    private final Texture2D texture;
+    private final Texture texture;
 
-    public BindTexture(Texture2D texture) {
+    public BindTexture(Texture texture) {
         this.texture = texture;
     }
 
@@ -22,7 +22,7 @@ public class BindTexture extends State {
         renderer.clear(this);
     }
 
-    public Texture2D getTexture() {
+    public Texture getTexture() {
         return texture;
     }
 }

@@ -9,7 +9,6 @@ import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.CommandList;
 import org.quuux.opengl.renderer.commands.*;
 import org.quuux.opengl.renderer.states.*;
-import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.scenes.Scene;
 
 import java.util.logging.Logger;
@@ -38,7 +37,7 @@ public class TestScene extends Scene {
     public Command initialize() {
         quad.setTexture(texture);
 
-        Camera.getCamera().setEye(0, 100, 500);
+        Scene.get().getCamera().setEye(0, 100, 500);
 
         if (initializeCommand == null) {
             CommandList rv = new CommandList();
@@ -67,7 +66,7 @@ public class TestScene extends Scene {
         double angle = (totalElapsed % 5000) / 5000. * 360.;
         double eyeX = 5 * Math.cos(Math.toRadians(angle));
         double eyeZ = 5 * Math.sin(Math.toRadians(angle));
-        Camera.getCamera().setEye(eyeX, 5, eyeZ);
+        Scene.get().getCamera().setEye(eyeX, 5, eyeZ);
 
         pe.update(t);
         model.update(t);

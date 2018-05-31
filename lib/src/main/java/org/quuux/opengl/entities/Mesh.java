@@ -6,7 +6,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.quuux.opengl.lib.BufferType;
 import org.quuux.opengl.lib.ShaderProgram;
-import org.quuux.opengl.lib.Texture2D;
+import org.quuux.opengl.lib.Texture;
 import org.quuux.opengl.lib.VAO;
 import org.quuux.opengl.lib.BufferObject;
 import org.quuux.opengl.renderer.Command;
@@ -17,8 +17,6 @@ import org.quuux.opengl.renderer.commands.DrawMode;
 import org.quuux.opengl.renderer.commands.EnableVertexAttribArray;
 import org.quuux.opengl.renderer.commands.GenerateArray;
 import org.quuux.opengl.renderer.commands.GenerateBuffer;
-import org.quuux.opengl.renderer.commands.GenerateTexture2D;
-import org.quuux.opengl.renderer.commands.LoadTexture2D;
 import org.quuux.opengl.renderer.commands.SetUniform;
 import org.quuux.opengl.renderer.commands.SetUniformMatrix;
 import org.quuux.opengl.renderer.commands.VertexAttribPointer;
@@ -28,7 +26,9 @@ import org.quuux.opengl.renderer.states.BindArray;
 import org.quuux.opengl.renderer.states.BindBuffer;
 import org.quuux.opengl.renderer.states.BindTexture;
 import org.quuux.opengl.renderer.states.UseProgram;
-import org.quuux.opengl.scenes.Camera;
+import org.quuux.opengl.scenes.DirectionalLight;
+import org.quuux.opengl.scenes.PointLight;
+import org.quuux.opengl.scenes.Scene;
 import org.quuux.opengl.util.GLUtil;
 import org.quuux.opengl.util.ResourceUtil;
 
@@ -52,7 +52,8 @@ public class Mesh implements Entity {
     List<Vertex> vertex = new ArrayList<>();
     IntBuffer indicies;
 
-    List<Texture2D> textures = new ArrayList<>();
+    List<Texture> textures = new ArrayList<>();
+    Material material;
 
     FloatBuffer vertexBuffer;
 
@@ -61,7 +62,6 @@ public class Mesh implements Entity {
     VAO vao = new VAO();
 
     ShaderProgram shader = new ShaderProgram();
-    Texture2D texture = new Texture2D();
 
     Matrix4d model = new Matrix4d().identity();
     Matrix4f mvp = new Matrix4f();
@@ -74,11 +74,21 @@ public class Mesh implements Entity {
                 new UseProgram(shader),
                 new BindArray(vao),
                 new BindBuffer(BufferType.ArrayBuffer, vbo),
-                new BindBuffer(BufferType.ElementArrayBuffer, ebo),
-                new BindTexture(texture),
-                new ActivateTexture(0)
+                new BindBuffer(BufferType.ElementArrayBuffer, ebo)
         );
+        for (int i=0; i<textures.size(); i++) {
+            rv.add(new BindTexture(textures.get(i)));
+            rv.add(new ActivateTexture(i));
+        }
         return rv;
+    }
+
+    public void addTexture(Texture texture) {
+        textures.add(texture);
+    }
+
+    public void setMaterial(Material material) {
+        this.material = material;
     }
 
     @Override
@@ -87,7 +97,6 @@ public class Mesh implements Entity {
         rv.add(new GenerateArray(vao));
         rv.add(new GenerateBuffer(vbo));
         rv.add(new GenerateBuffer(ebo));
-        rv.add(new GenerateTexture2D(texture));
 
         rv.add(ShaderProgram.build(shader,
                 ResourceUtil.getStringResource("shaders/mesh.vert.glsl"),
@@ -95,9 +104,6 @@ public class Mesh implements Entity {
 
         CommandList ctx = buildState();
         rv.add(ctx);
-
-        ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/waves.png");
-        ctx.add(new LoadTexture2D(texture, LoadTexture2D.Format.RGBA, image.width, image.height,  LoadTexture2D.Format.RGBA, image.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
 
         ctx.add(new SetUniform(shader, "texture", SetUniform.Type.INT, 0));
 
@@ -123,6 +129,35 @@ public class Mesh implements Entity {
         if (displayList == null) {
             CommandList ctx = buildState();
             ctx.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
+
+            if (material != null) {
+                ctx.add(new SetUniform(shader, "material.ambient", material.ambient));
+                ctx.add(new SetUniform(shader, "material.diffuse", material.diffuse));
+                ctx.add(new SetUniform(shader, "material.specular", material.specular));
+                ctx.add(new SetUniform(shader, "material.shininess", material.shininess));
+            }
+
+            Scene scene = Scene.get();
+            DirectionalLight directionalLight = scene.directionalLight;
+            if (directionalLight != null) {
+                ctx.add(new SetUniform(shader, "dirLight.direction", directionalLight.direction));
+                ctx.add(new SetUniform(shader, "dirLight.ambient", directionalLight.ambient));
+                ctx.add(new SetUniform(shader, "dirLight.diffuse", directionalLight.diffuse));
+                ctx.add(new SetUniform(shader, "dirLight.specular", directionalLight.specular));
+            }
+            
+            for (int i=0; i<scene.pointLights.size(); i++) {
+                PointLight pointLight = scene.pointLights.get(i);
+                String key = String.format("pointLights[%d]", i);
+                ctx.add(new SetUniform(shader, key + ".direction", pointLight.position));
+                ctx.add(new SetUniform(shader, key + ".constant", pointLight.constant));
+                ctx.add(new SetUniform(shader, key + ".linear", pointLight.linear));
+                ctx.add(new SetUniform(shader, key + ".quadratic", pointLight.quadratic));
+                ctx.add(new SetUniform(shader, key + ".ambient", pointLight.ambient));
+                ctx.add(new SetUniform(shader, key + ".diffuse", pointLight.diffuse));
+                ctx.add(new SetUniform(shader, key + ".specular", pointLight.specular));
+            }
+
             ctx.add(new BufferData(BufferType.ArrayBuffer, vertexBuffer.capacity() * 4, vertexBuffer, BufferData.Usage.StaticDraw));
             ctx.add(new BufferData(BufferType.ElementArrayBuffer, indicies.capacity() * 4, indicies, BufferData.Usage.StaticDraw));
             ctx.add(new DrawElements(DrawMode.Triangles, vertex.size()));
@@ -134,7 +169,7 @@ public class Mesh implements Entity {
 
     @Override
     public void update(long t) {
-        Camera.getCamera().modelViewProjectionMatrix(model, mvp);
+        Scene.get().getCamera().modelViewProjectionMatrix(model, mvp);
         mvp.get(mvpBuffer);
     }
 

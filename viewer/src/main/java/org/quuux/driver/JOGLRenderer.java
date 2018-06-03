@@ -167,6 +167,8 @@ public class JOGLRenderer implements Renderer {
         final int rv;
         if (value == 0)
             rv = GL.GL_TEXTURE0;
+        else if (value == 1)
+            rv = GL.GL_TEXTURE1;
         else
             throw new UnsupportedException("Unknown texture unit: " + value);
         return rv;

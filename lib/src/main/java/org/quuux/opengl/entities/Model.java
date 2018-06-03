@@ -4,6 +4,7 @@ import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.util.ResourceUtil;
 
 import de.javagl.obj.Obj;
+import de.javagl.obj.ObjGroup;
 import de.javagl.obj.ObjUtils;
 
 
@@ -42,7 +43,13 @@ public class Model implements Entity {
         System.out.println("loaded model: " + ObjUtils.createInfoString(obj));
 
         Model model = new Model();
-        model.meshes.add(Mesh.create(obj));
+        for (int i=0; i<obj.getNumGroups(); i++) {
+            ObjGroup group = obj.getGroup(i);
+            if (group.getNumFaces() > 0) {
+                Obj groupObj = ObjUtils.groupToObj(obj, group, null);
+                model.meshes.add(Mesh.create(ObjUtils.convertToRenderable(groupObj)));
+            }
+        }
 
         return model;
     }

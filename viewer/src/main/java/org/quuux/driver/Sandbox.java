@@ -35,7 +35,7 @@ class Sandbox implements KeyListener, GLEventListener {
 
         window.setVisible(true);
 
-        Scene scene = new TestScene(Config.WIDTH, Config.HEIGHT);
+        Scene scene = new TestScene();
         Sandbox sandbox = new Sandbox(scene);
 
         window.addGLEventListener(sandbox);

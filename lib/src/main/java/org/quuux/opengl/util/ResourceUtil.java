@@ -57,7 +57,7 @@ public class ResourceUtil {
         Obj rv = null;
         try {
             InputStream in = getResource(name);
-            rv = ObjUtils.convertToRenderable(ObjReader.read(in));
+            rv = ObjReader.read(in);
         } catch (IOException e) {
             e.printStackTrace();
         }

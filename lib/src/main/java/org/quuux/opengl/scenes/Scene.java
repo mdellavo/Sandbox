@@ -31,14 +31,6 @@ public class Scene extends EntityGroup {
         return camera;
     }
 
-    public DirectionalLight getDirectionalLight() {
-        return directionalLight;
-    }
-
-    public List<PointLight> getPointLights() {
-        return pointLights;
-    }
-
     public void dispatchUpdate(long t) {
         this.update(t);
     }

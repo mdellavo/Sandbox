@@ -10,7 +10,7 @@ mainClassName = "org.quuux.driver.Sandbox"
 
 // "-Djogl.debug.TraceGL"
 //'-Xdebug', "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
-applicationDefaultJvmArgs = ["-Djogl.debug.DebugGL",  ]
+applicationDefaultJvmArgs = ["-Djogl.debug.DebugGL"]
 
 
 jar {
@@ -36,5 +36,6 @@ dependencies {
 
     implementation "org.jogamp.gluegen:gluegen-rt-main:2.3.2"
     implementation "org.jogamp.jogl:jogl-all-main:2.3.2"
+
 }
 

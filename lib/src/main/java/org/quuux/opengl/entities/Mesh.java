@@ -1,12 +1,12 @@
 package org.quuux.opengl.entities;
 
 import org.joml.Matrix4d;
-import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 import org.quuux.opengl.lib.BufferType;
 import org.quuux.opengl.lib.ShaderProgram;
-import org.quuux.opengl.lib.Texture;
+import org.quuux.opengl.lib.Texture2D;
 import org.quuux.opengl.lib.VAO;
 import org.quuux.opengl.lib.BufferObject;
 import org.quuux.opengl.renderer.Command;
@@ -17,6 +17,8 @@ import org.quuux.opengl.renderer.commands.DrawMode;
 import org.quuux.opengl.renderer.commands.EnableVertexAttribArray;
 import org.quuux.opengl.renderer.commands.GenerateArray;
 import org.quuux.opengl.renderer.commands.GenerateBuffer;
+import org.quuux.opengl.renderer.commands.GenerateTexture2D;
+import org.quuux.opengl.renderer.commands.LoadTexture2D;
 import org.quuux.opengl.renderer.commands.SetUniform;
 import org.quuux.opengl.renderer.commands.SetUniformMatrix;
 import org.quuux.opengl.renderer.commands.VertexAttribPointer;
@@ -26,6 +28,7 @@ import org.quuux.opengl.renderer.states.BindArray;
 import org.quuux.opengl.renderer.states.BindBuffer;
 import org.quuux.opengl.renderer.states.BindTexture;
 import org.quuux.opengl.renderer.states.UseProgram;
+import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.scenes.DirectionalLight;
 import org.quuux.opengl.scenes.PointLight;
 import org.quuux.opengl.scenes.Scene;
@@ -52,8 +55,10 @@ public class Mesh implements Entity {
     List<Vertex> vertex = new ArrayList<>();
     IntBuffer indicies;
 
-    List<Texture> textures = new ArrayList<>();
-    Material material;
+    Texture2D diffuse = new Texture2D();
+    Texture2D specular = new Texture2D();
+
+    Material material = new Material(diffuse, specular, 32f);
 
     FloatBuffer vertexBuffer;
 
@@ -64,8 +69,10 @@ public class Mesh implements Entity {
     ShaderProgram shader = new ShaderProgram();
 
     Matrix4d model = new Matrix4d().identity();
-    Matrix4f mvp = new Matrix4f();
-    FloatBuffer mvpBuffer = GLUtil.floatBuffer(16);
+
+    FloatBuffer modelBuffer = GLUtil.floatBuffer(16);
+    FloatBuffer viewBuffer = GLUtil.floatBuffer(16);
+    FloatBuffer projectionBuffer = GLUtil.floatBuffer(16);
 
     Command displayList;
 
@@ -74,29 +81,37 @@ public class Mesh implements Entity {
                 new UseProgram(shader),
                 new BindArray(vao),
                 new BindBuffer(BufferType.ArrayBuffer, vbo),
-                new BindBuffer(BufferType.ElementArrayBuffer, ebo)
+                new BindBuffer(BufferType.ElementArrayBuffer, ebo),
+                new BindTexture(diffuse),
+                new ActivateTexture(0),
+                new BindTexture(specular),
+                new ActivateTexture(1)
         );
-        for (int i=0; i<textures.size(); i++) {
-            rv.add(new BindTexture(textures.get(i)));
-            rv.add(new ActivateTexture(i));
-        }
         return rv;
-    }
-
-    public void addTexture(Texture texture) {
-        textures.add(texture);
-    }
-
-    public void setMaterial(Material material) {
-        this.material = material;
     }
 
     @Override
     public Command initialize() {
+        model.scale(20);
+
         CommandList rv = new CommandList();
         rv.add(new GenerateArray(vao));
         rv.add(new GenerateBuffer(vbo));
         rv.add(new GenerateBuffer(ebo));
+
+        rv.add(new GenerateTexture2D(diffuse));
+
+        BatchState tex1State = new BatchState(new BindTexture(diffuse), new ActivateTexture(0));
+        rv.add(tex1State);
+
+        ResourceUtil.DecodedImage diffuseImage = ResourceUtil.getPNGResource("textures/brick-diffuse.png");
+        tex1State.add(new LoadTexture2D(diffuse, LoadTexture2D.Format.RGBA, diffuseImage.width, diffuseImage.height,  LoadTexture2D.Format.RGBA, diffuseImage.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
+
+        rv.add(new GenerateTexture2D(specular));
+        BatchState tex2State = new BatchState(new BindTexture(specular), new ActivateTexture(1));
+        rv.add(tex2State);
+        ResourceUtil.DecodedImage specularImage = ResourceUtil.getPNGResource("textures/brick-specular.png");
+        tex2State.add(new LoadTexture2D(specular, LoadTexture2D.Format.RGBA, specularImage.width, specularImage.height,  LoadTexture2D.Format.RGBA, specularImage.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
 
         rv.add(ShaderProgram.build(shader,
                 ResourceUtil.getStringResource("shaders/mesh.vert.glsl"),
@@ -104,8 +119,6 @@ public class Mesh implements Entity {
 
         CommandList ctx = buildState();
         rv.add(ctx);
-
-        ctx.add(new SetUniform(shader, "texture", SetUniform.Type.INT, 0));
 
         ctx.add(new VertexAttribPointer(0, 3, VertexAttribPointer.Type.Float, false, 8 * 4, 0));
         ctx.add(new EnableVertexAttribArray(0));
@@ -128,14 +141,16 @@ public class Mesh implements Entity {
     public Command draw() {
         if (displayList == null) {
             CommandList ctx = buildState();
-            ctx.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
+            ctx.add(new SetUniformMatrix(shader, "model", 1, false, modelBuffer));
+            ctx.add(new SetUniformMatrix(shader, "view", 1, false, viewBuffer));
+            ctx.add(new SetUniformMatrix(shader, "projection", 1, false, projectionBuffer));
 
-            if (material != null) {
-                ctx.add(new SetUniform(shader, "material.ambient", material.ambient));
-                ctx.add(new SetUniform(shader, "material.diffuse", material.diffuse));
-                ctx.add(new SetUniform(shader, "material.specular", material.specular));
-                ctx.add(new SetUniform(shader, "material.shininess", material.shininess));
-            }
+            Vector3d viewPos =  Scene.get().camera.eye;
+            ctx.add(new SetUniform(shader, "viewPos", (float)viewPos.x, (float)viewPos.y, (float)viewPos.z));
+
+            ctx.add(new SetUniform(shader, "material.diffuse", 0));
+            ctx.add(new SetUniform(shader, "material.specular", 1));
+            ctx.add(new SetUniform(shader, "material.shininess", material.shininess));
 
             Scene scene = Scene.get();
             DirectionalLight directionalLight = scene.directionalLight;
@@ -149,7 +164,7 @@ public class Mesh implements Entity {
             for (int i=0; i<scene.pointLights.size(); i++) {
                 PointLight pointLight = scene.pointLights.get(i);
                 String key = String.format("pointLights[%d]", i);
-                ctx.add(new SetUniform(shader, key + ".direction", pointLight.position));
+                ctx.add(new SetUniform(shader, key + ".position", pointLight.position));
                 ctx.add(new SetUniform(shader, key + ".constant", pointLight.constant));
                 ctx.add(new SetUniform(shader, key + ".linear", pointLight.linear));
                 ctx.add(new SetUniform(shader, key + ".quadratic", pointLight.quadratic));
@@ -169,8 +184,10 @@ public class Mesh implements Entity {
 
     @Override
     public void update(long t) {
-        Scene.get().getCamera().modelViewProjectionMatrix(model, mvp);
-        mvp.get(mvpBuffer);
+        Camera camera = Scene.get().getCamera();
+        model.get(modelBuffer);
+        camera.viewMatrix.get(viewBuffer);
+        camera.projectionMatrix.get(projectionBuffer);
     }
 
     public static Mesh create(Obj obj) {

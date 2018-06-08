@@ -23,27 +23,27 @@ public class TestScene extends Scene {
         camera.setEye(0, 50, 50);
 
         directionalLight.direction.set(-0.2f, -1.0f, -0.3f);
-        directionalLight.ambient.set(0.05f, 0.05f, 0.05f);
-        directionalLight.diffuse.set(0.4f, 0.4f, 0.4f);
+        directionalLight.ambient.set(1f, 1f, 1f);
+        directionalLight.diffuse.set(1f, 1f, 1f);
         directionalLight.specular.set(0.5f, 0.5f, 0.5f);
 
         PointLight pointLight1 = new PointLight();
         pointLights.add(pointLight1);
-        float p1X = (float) (2.5f * Math.cos(Math.toRadians(0)));
-        float p1Y = (float) (2.5f * Math.sin(Math.toRadians(0)));
-        pointLight1.position.set(p1X, p1Y, 5);
+        float p1X = (float) (25f * Math.cos(Math.toRadians(0)));
+        float p1Z = (float) (25f * Math.sin(Math.toRadians(0)));
+        pointLight1.position.set(p1X, 10, p1Z);
         pointLight1.ambient.set(0.05f, 0.05f, 0.05f);
         pointLight1.diffuse.set(0.8f, 0.8f, 0.8f);
         pointLight1.specular.set(1.0f, 1.0f, 1.0f);
         pointLight1.constant = 1.0f;
-        pointLight1.linear = .09f;
-        pointLight1.quadratic = .032f;
+        pointLight1.linear = .9f;
+        pointLight1.quadratic = .32f;
 
         PointLight pointLight2 = new PointLight();
         pointLights.add(pointLight2);
-        float p2X = (float) (2.5f * Math.cos(Math.toRadians(120)));
-        float p2Y = (float) (2.5f * Math.sin(Math.toRadians(120)));
-        pointLight2.position.set(p2X, p2Y, 5);
+        float p2X = (float) (25f * Math.cos(Math.toRadians(120)));
+        float p2Z = (float) (25f * Math.sin(Math.toRadians(120)));
+        pointLight2.position.set(p2X, 10, p2Z);
         pointLight2.ambient.set(0.05f, 0.05f, 0.05f);
         pointLight2.diffuse.set(0.8f, 0.8f, 0.8f);
         pointLight2.specular.set(1.0f, 1.0f, 1.0f);
@@ -53,9 +53,9 @@ public class TestScene extends Scene {
 
         PointLight pointLight3 = new PointLight();
         pointLights.add(pointLight3);
-        float p3X = (float) (2.5f * Math.cos(Math.toRadians(240)));
-        float p3Y = (float) (2.5f * Math.sin(Math.toRadians(240)));
-        pointLight3.position.set(p3X, p3Y, 5);
+        float p3X = (float) (25f * Math.cos(Math.toRadians(240)));
+        float p3Z = (float) (25f * Math.sin(Math.toRadians(240)));
+        pointLight3.position.set(p3X, 10, p3Z);
         pointLight3.ambient.set(0.05f, 0.05f, 0.05f);
         pointLight3.diffuse.set(0.8f, 0.8f, 0.8f);
         pointLight3.specular.set(1.0f, 1.0f, 1.0f);

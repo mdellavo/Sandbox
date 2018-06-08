@@ -43,13 +43,7 @@ public class Model implements Entity {
         System.out.println("loaded model: " + ObjUtils.createInfoString(obj));
 
         Model model = new Model();
-        for (int i=0; i<obj.getNumGroups(); i++) {
-            ObjGroup group = obj.getGroup(i);
-            if (group.getNumFaces() > 0) {
-                Obj groupObj = ObjUtils.groupToObj(obj, group, null);
-                model.meshes.add(Mesh.create(ObjUtils.convertToRenderable(groupObj)));
-            }
-        }
+        model.meshes.add(Mesh.create(ObjUtils.convertToRenderable(obj)));
 
         return model;
     }

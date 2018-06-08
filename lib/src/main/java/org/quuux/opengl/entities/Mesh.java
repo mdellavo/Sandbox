@@ -92,7 +92,7 @@ public class Mesh implements Entity {
 
     @Override
     public Command initialize() {
-        model.scale(20);
+        model.scale(5);
 
         CommandList rv = new CommandList();
         rv.add(new GenerateArray(vao));
@@ -104,13 +104,13 @@ public class Mesh implements Entity {
         BatchState tex1State = new BatchState(new BindTexture(diffuse), new ActivateTexture(0));
         rv.add(tex1State);
 
-        ResourceUtil.DecodedImage diffuseImage = ResourceUtil.getPNGResource("textures/brick-diffuse.png");
+        ResourceUtil.DecodedImage diffuseImage = ResourceUtil.getPNGResource("textures/world-diffuse.png");
         tex1State.add(new LoadTexture2D(diffuse, LoadTexture2D.Format.RGBA, diffuseImage.width, diffuseImage.height,  LoadTexture2D.Format.RGBA, diffuseImage.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
 
         rv.add(new GenerateTexture2D(specular));
         BatchState tex2State = new BatchState(new BindTexture(specular), new ActivateTexture(1));
         rv.add(tex2State);
-        ResourceUtil.DecodedImage specularImage = ResourceUtil.getPNGResource("textures/brick-specular.png");
+        ResourceUtil.DecodedImage specularImage = ResourceUtil.getPNGResource("textures/world-diffuse.png");
         tex2State.add(new LoadTexture2D(specular, LoadTexture2D.Format.RGBA, specularImage.width, specularImage.height,  LoadTexture2D.Format.RGBA, specularImage.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
 
         rv.add(ShaderProgram.build(shader,

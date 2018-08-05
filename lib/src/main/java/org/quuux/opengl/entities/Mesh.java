@@ -1,9 +1,7 @@
 package org.quuux.opengl.entities;
 
 import org.joml.Matrix4d;
-import org.joml.Vector2f;
 import org.joml.Vector3d;
-import org.joml.Vector3f;
 import org.quuux.opengl.lib.BufferType;
 import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.lib.Texture2D;
@@ -12,6 +10,7 @@ import org.quuux.opengl.lib.BufferObject;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.CommandList;
 import org.quuux.opengl.renderer.commands.BufferData;
+import org.quuux.opengl.renderer.commands.DrawArrays;
 import org.quuux.opengl.renderer.commands.DrawElements;
 import org.quuux.opengl.renderer.commands.DrawMode;
 import org.quuux.opengl.renderer.commands.EnableVertexAttribArray;
@@ -38,28 +37,25 @@ import org.quuux.opengl.util.ResourceUtil;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import de.javagl.obj.FloatTuple;
 import de.javagl.obj.Obj;
 import de.javagl.obj.ObjData;
 
+
 public class Mesh implements Entity {
-
-    public static class Vertex {
-        Vector3f position = new Vector3f(),
-                normal = new Vector3f();
-        Vector2f texCoords = new Vector2f();
-    }
-
-    List<Vertex> vertex = new ArrayList<>();
-    IntBuffer indicies;
 
     Texture2D diffuse = new Texture2D();
     Texture2D specular = new Texture2D();
 
     Material material = new Material(diffuse, specular, 32f);
 
+    int numVerticies;
+    IntBuffer indicies;
     FloatBuffer vertexBuffer;
 
     BufferObject vbo = new BufferObject();
@@ -92,7 +88,6 @@ public class Mesh implements Entity {
 
     @Override
     public Command initialize() {
-        model.scale(5);
 
         CommandList rv = new CommandList();
         rv.add(new GenerateArray(vao));
@@ -104,14 +99,14 @@ public class Mesh implements Entity {
         BatchState tex1State = new BatchState(new BindTexture(diffuse), new ActivateTexture(0));
         rv.add(tex1State);
 
-        ResourceUtil.DecodedImage diffuseImage = ResourceUtil.getPNGResource("textures/world-diffuse.png");
-        tex1State.add(new LoadTexture2D(diffuse, LoadTexture2D.Format.RGBA, diffuseImage.width, diffuseImage.height,  LoadTexture2D.Format.RGBA, diffuseImage.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
+        ResourceUtil.DecodedImage diffuseImage = ResourceUtil.getPNGResource("textures/brick-diffuse.png");
+        tex1State.add(new LoadTexture2D(diffuse, LoadTexture2D.Format.RGBA, diffuseImage.width, diffuseImage.height, LoadTexture2D.Format.RGBA, diffuseImage.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
 
         rv.add(new GenerateTexture2D(specular));
         BatchState tex2State = new BatchState(new BindTexture(specular), new ActivateTexture(1));
         rv.add(tex2State);
-        ResourceUtil.DecodedImage specularImage = ResourceUtil.getPNGResource("textures/world-diffuse.png");
-        tex2State.add(new LoadTexture2D(specular, LoadTexture2D.Format.RGBA, specularImage.width, specularImage.height,  LoadTexture2D.Format.RGBA, specularImage.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
+        ResourceUtil.DecodedImage specularImage = ResourceUtil.getPNGResource("textures/brick-specular.png");
+        tex2State.add(new LoadTexture2D(specular, LoadTexture2D.Format.RGBA, specularImage.width, specularImage.height, LoadTexture2D.Format.RGBA, specularImage.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
 
         rv.add(ShaderProgram.build(shader,
                 ResourceUtil.getStringResource("shaders/mesh.vert.glsl"),
@@ -145,8 +140,8 @@ public class Mesh implements Entity {
             ctx.add(new SetUniformMatrix(shader, "view", 1, false, viewBuffer));
             ctx.add(new SetUniformMatrix(shader, "projection", 1, false, projectionBuffer));
 
-            Vector3d viewPos =  Scene.get().camera.eye;
-            ctx.add(new SetUniform(shader, "viewPos", (float)viewPos.x, (float)viewPos.y, (float)viewPos.z));
+            Vector3d viewPos = Scene.get().camera.eye;
+            ctx.add(new SetUniform(shader, "viewPos", (float) viewPos.x, (float) viewPos.y, (float) viewPos.z));
 
             ctx.add(new SetUniform(shader, "material.diffuse", 0));
             ctx.add(new SetUniform(shader, "material.specular", 1));
@@ -160,8 +155,8 @@ public class Mesh implements Entity {
                 ctx.add(new SetUniform(shader, "dirLight.diffuse", directionalLight.diffuse));
                 ctx.add(new SetUniform(shader, "dirLight.specular", directionalLight.specular));
             }
-            
-            for (int i=0; i<scene.pointLights.size(); i++) {
+
+            for (int i = 0; i < scene.pointLights.size(); i++) {
                 PointLight pointLight = scene.pointLights.get(i);
                 String key = String.format("pointLights[%d]", i);
                 ctx.add(new SetUniform(shader, key + ".position", pointLight.position));
@@ -174,8 +169,14 @@ public class Mesh implements Entity {
             }
 
             ctx.add(new BufferData(BufferType.ArrayBuffer, vertexBuffer.capacity() * 4, vertexBuffer, BufferData.Usage.StaticDraw));
-            ctx.add(new BufferData(BufferType.ElementArrayBuffer, indicies.capacity() * 4, indicies, BufferData.Usage.StaticDraw));
-            ctx.add(new DrawElements(DrawMode.Triangles, vertex.size()));
+
+            if (indicies != null) {
+                ctx.add(new BufferData(BufferType.ElementArrayBuffer, indicies.capacity() * 4, indicies, BufferData.Usage.StaticDraw));
+                ctx.add(new DrawElements(DrawMode.Triangles, indicies.capacity()));
+            } else {
+                ctx.add(new DrawArrays(DrawMode.Triangles, 0, numVerticies));
+            }
+
             displayList = ctx;
         }
 
@@ -190,38 +191,245 @@ public class Mesh implements Entity {
         camera.projectionMatrix.get(projectionBuffer);
     }
 
-    public static Mesh create(Obj obj) {
+    public static Mesh fromObj(Obj obj) {
         Mesh mesh = new Mesh();
 
         mesh.indicies = ObjData.getFaceNormalIndices(obj);
+        mesh.numVerticies = obj.getNumVertices();
+        mesh.vertexBuffer = GLUtil.floatBuffer(mesh.numVerticies * 8);
 
-        int numVerticies = obj.getNumVertices();
-        mesh.vertexBuffer = GLUtil.floatBuffer(numVerticies * 8);
-
-        for(int i=0; i<numVerticies; i++) {
-            Mesh.Vertex vert = new Mesh.Vertex();
-
+        for (int i = 0; i < mesh.numVerticies; i++) {
             FloatTuple position = obj.getVertex(i);
-            vert.position.set(position.getX(), position.getY(), position.getZ());
-            vert.position.get(mesh.vertexBuffer);
-            mesh.vertexBuffer.position(mesh.vertexBuffer.position() + 3);
+            mesh.vertexBuffer.put(position.getX());
+            mesh.vertexBuffer.put(position.getY());
+            mesh.vertexBuffer.put(position.getZ());
 
             FloatTuple normal = obj.getNormal(i);
-            vert.normal.set(normal.getX(), normal.getY(), normal.getZ());
-            vert.normal.get(mesh.vertexBuffer);
-            mesh.vertexBuffer.position(mesh.vertexBuffer.position() + 3);
+            mesh.vertexBuffer.put(normal.getX());
+            mesh.vertexBuffer.put(normal.getY());
+            mesh.vertexBuffer.put(normal.getZ());
 
             FloatTuple texCoord = obj.getTexCoord(i);
-            vert.texCoords.set(texCoord.getX(), texCoord.getY());
-            vert.texCoords.get(mesh.vertexBuffer);
-            mesh.vertexBuffer.position(mesh.vertexBuffer.position() + 2);
-
-            mesh.vertex.add(vert);
+            mesh.vertexBuffer.put(texCoord.getX());
+            mesh.vertexBuffer.put(texCoord.getY());
         }
 
         mesh.vertexBuffer.position(0);
 
-        System.out.println("num verticies = " + numVerticies + " / buffer = " + mesh.vertexBuffer.limit() + " / indicies = " + mesh.indicies.limit());
+        System.out.println("num verticies = " + mesh.numVerticies + " / buffer = " + mesh.vertexBuffer.limit() + " / indicies = " + mesh.indicies.limit());
+
+        return mesh;
+    }
+
+    public static Mesh createUVSphere(double radius, int rings, int sectors) {
+
+        final double R = 1. / (double) (rings - 1);
+        final double S = 1. / (double) (sectors - 1);
+
+        Mesh mesh = new Mesh();
+        mesh.numVerticies = rings * sectors * 3;
+        mesh.vertexBuffer = GLUtil.floatBuffer(mesh.numVerticies * 8);
+        mesh.indicies = GLUtil.intBuffer(mesh.numVerticies * 3);
+
+        for (int r = 0; r < rings; r++) {
+            for (int s = 0; s < sectors; s++) {
+                double y = Math.sin(-(Math.PI / 2) + Math.PI * r * R);
+                double x = Math.cos(2 * Math.PI * s * S) * Math.sin(Math.PI * r * R);
+                double z = Math.sin(2 * Math.PI * s * S) * Math.sin(Math.PI * r * R);
+
+                mesh.vertexBuffer.put((float) (x * radius));
+                mesh.vertexBuffer.put((float) (y * radius));
+                mesh.vertexBuffer.put((float) (z * radius));
+
+                mesh.vertexBuffer.put((float) x);
+                mesh.vertexBuffer.put((float) y);
+                mesh.vertexBuffer.put((float) z);
+
+                mesh.vertexBuffer.put((float) (s * S));
+                mesh.vertexBuffer.put((float) (r * R));
+            }
+        }
+
+        for (int r = 0; r < rings; r++) {
+            for (int s = 0; s < sectors; s++) {
+
+                mesh.indicies.put(r * sectors + s);
+                mesh.indicies.put(r * sectors + (s + 1));
+                mesh.indicies.put((r + 1) * sectors + (s + 1));
+
+                mesh.indicies.put((r + 1) * sectors + (s + 1));
+                mesh.indicies.put((r + 1) * sectors + s);
+                mesh.indicies.put(r * sectors + s);
+            }
+        }
+
+        mesh.vertexBuffer.position(0);
+        mesh.indicies.position(0);
+
+        return mesh;
+    }
+
+    static class TriangleIndices {
+        int v1, v2, v3;
+
+        public TriangleIndices(final int v1, final int v2, final int v3) {
+            this.v1 = v1;
+            this.v2 = v2;
+            this.v3 = v3;
+        }
+    }
+
+    static class VertexSet {
+        List<Vector3d> verts = new ArrayList<>();
+
+        int add(Vector3d vert) {
+            vert.normalize();
+            verts.add(vert);
+            return verts.size() - 1;
+        }
+
+        void addAll(Vector3d[] verts) {
+            for(Vector3d vert : verts) {
+                add(vert);
+            }
+        }
+    }
+
+    static class VertexKey {
+        final int a, b;
+
+        VertexKey(int a, int b) {
+            this.a = Math.min(a, b);
+            this.b = Math.max(a, b);
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            return o instanceof VertexKey && ((VertexKey)o).a == a && ((VertexKey)o).b == b;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(a, b);
+        }
+    }
+
+    // return index of point in the middle of p1 and p2
+    static int getMiddlePoint(Map<VertexKey, Integer> cache, VertexSet verts, int a, int b) {
+
+        VertexKey key = new VertexKey(a, b);
+        if (cache.containsKey(key)) {
+           return cache.get(key);
+        }
+
+        Vector3d p1 = verts.verts.get(a);
+        Vector3d p2 = verts.verts.get(b);
+
+        // not in cache, calculate it
+        Vector3d middle = new Vector3d(
+                (p1.x + p2.x) / 2.0,
+                (p1.y + p2.y) / 2.0,
+                (p1.z + p2.z) / 2.0);
+
+        int index = verts.add(middle);
+        cache.put(key, index);
+
+        return index;
+    }
+
+
+    // http://blog.andreaskahler.com/2009/06/creating-icosphere-mesh-in-code.html
+    public static Mesh createIcoSphere(double radius, int recursionLevel) {
+        Mesh mesh = new Mesh();
+        VertexSet vertexSet = new VertexSet();
+        List<TriangleIndices> faces = new ArrayList<>();
+        Map<VertexKey, Integer> cache = new HashMap<>();
+
+        double t = (1.0 + Math.sqrt(5.0)) / 2.0;
+        Vector3d verts[] = {
+                new Vector3d(-1, t, 0),
+                new Vector3d(1, t, 0),
+                new Vector3d(-1, -t, 0),
+                new Vector3d(1, -t, 0),
+
+                new Vector3d(0, -1, t),
+                new Vector3d(0, 1, t),
+                new Vector3d(0, -1, -t),
+                new Vector3d(0, 1, -t),
+
+                new Vector3d(t, 0, -1),
+                new Vector3d(t, 0, 1),
+                new Vector3d(-t, 0, -1),
+                new Vector3d(-t, 0, 1),
+        };
+        vertexSet.addAll(verts);
+
+        faces.add(new TriangleIndices(0, 11, 5));
+        faces.add(new TriangleIndices(0, 5, 1));
+        faces.add(new TriangleIndices(0, 1, 7));
+        faces.add(new TriangleIndices(0, 7, 10));
+        faces.add(new TriangleIndices(0, 10, 11));
+
+        faces.add(new TriangleIndices(1, 5, 9));
+        faces.add(new TriangleIndices(5, 11, 4));
+        faces.add(new TriangleIndices(11, 10, 2));
+        faces.add(new TriangleIndices(10, 7, 6));
+        faces.add(new TriangleIndices(7, 1, 8));
+
+        faces.add(new TriangleIndices(3, 9, 4));
+        faces.add(new TriangleIndices(3, 4, 2));
+        faces.add(new TriangleIndices(3, 2, 6));
+        faces.add(new TriangleIndices(3, 6, 8));
+        faces.add(new TriangleIndices(3, 8, 9));
+
+        faces.add(new TriangleIndices(4, 9, 5));
+        faces.add(new TriangleIndices(2, 4, 11));
+        faces.add(new TriangleIndices(6, 2, 10));
+        faces.add(new TriangleIndices(8, 6, 7));
+        faces.add(new TriangleIndices(9, 8, 1));
+
+        for (int i=0; i < recursionLevel; i++)  {
+            List<TriangleIndices> faces2 = new ArrayList<>();
+            for(TriangleIndices tri : faces) {
+                int a = getMiddlePoint(cache, vertexSet, tri.v1, tri.v2);
+                int b = getMiddlePoint(cache, vertexSet, tri.v2, tri.v3);
+                int c = getMiddlePoint(cache, vertexSet, tri.v3, tri.v1);
+
+                faces2.add(new TriangleIndices(tri.v1, a, c));
+                faces2.add(new TriangleIndices(tri.v2, b, a));
+                faces2.add(new TriangleIndices(tri.v3, c, b));
+                faces2.add(new TriangleIndices(a, b, c));
+            }
+            faces = faces2;
+        }
+
+        mesh.numVerticies = vertexSet.verts.size();
+        mesh.vertexBuffer = GLUtil.floatBuffer(mesh.numVerticies * 8);
+        mesh.indicies = GLUtil.intBuffer(faces.size() * 3);
+
+        for (Vector3d vert : vertexSet.verts) {
+            mesh.vertexBuffer.put((float) (vert.x * radius));
+            mesh.vertexBuffer.put((float) (vert.y * radius));
+            mesh.vertexBuffer.put((float) (vert.z * radius));
+
+            mesh.vertexBuffer.put((float)vert.x);
+            mesh.vertexBuffer.put((float)vert.y);
+            mesh.vertexBuffer.put((float)vert.z);
+
+            mesh.vertexBuffer.put(1);
+            mesh.vertexBuffer.put(1);
+        }
+
+        for (TriangleIndices face : faces) {
+            mesh.indicies.put(face.v1);
+            mesh.indicies.put(face.v2);
+            mesh.indicies.put(face.v3);
+        }
+
+        mesh.vertexBuffer.position(0);
+        mesh.indicies.position(0);
+
+        System.out.println(String.format("num verts = %s / num faces = %s", mesh.vertexBuffer.capacity(), mesh.indicies.capacity()));
 
         return mesh;
     }

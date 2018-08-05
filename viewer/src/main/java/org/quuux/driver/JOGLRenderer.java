@@ -2,6 +2,7 @@ package org.quuux.driver;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GL3ES3;
 import com.jogamp.opengl.GL4;
 
 import org.quuux.opengl.lib.BufferType;
@@ -212,6 +213,7 @@ public class JOGLRenderer implements Renderer {
 
     @Override
     public void run(final DrawElements command) {
+        getGL().glPolygonMode(GL.GL_FRONT_AND_BACK, GL3.GL_LINE);
         getGL().glDrawElements(getMode(command.getMode()), command.getCount(), GL.GL_UNSIGNED_INT, 0);
     }
 

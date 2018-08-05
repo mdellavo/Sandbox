@@ -1,6 +1,6 @@
 package org.quuux.scenes;
 
-import org.quuux.opengl.entities.Model;
+import org.quuux.opengl.entities.Mesh;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.CommandList;
 import org.quuux.opengl.renderer.commands.*;
@@ -13,37 +13,37 @@ public class TestScene extends Scene {
 
     long ticks, totalElapsed;
 
-    Model model = Model.load("models/sphere.obj");
+    Mesh sphere = Mesh.createIcoSphere(25, 2);
 
     Command initializeCommand;
     Command drawCommand;
 
     @Override
     public Command initialize() {
-        camera.setEye(0, 50, 50);
+        camera.setEye(0, 25, 25);
 
         directionalLight.direction.set(-0.2f, -1.0f, -0.3f);
-        directionalLight.ambient.set(1f, 1f, 1f);
-        directionalLight.diffuse.set(1f, 1f, 1f);
+        directionalLight.ambient.set(0.05f, 0.05f, 0.05f);
+        directionalLight.diffuse.set(0.4f, 0.4f, 0.4f);
         directionalLight.specular.set(0.5f, 0.5f, 0.5f);
 
         PointLight pointLight1 = new PointLight();
         pointLights.add(pointLight1);
-        float p1X = (float) (25f * Math.cos(Math.toRadians(0)));
-        float p1Z = (float) (25f * Math.sin(Math.toRadians(0)));
-        pointLight1.position.set(p1X, 10, p1Z);
+        float p1X = (float) (10f * Math.cos(Math.toRadians(0)));
+        float p1Y = (float) (10f * Math.sin(Math.toRadians(0)));
+        pointLight1.position.set(p1X, p1Y, 10);
         pointLight1.ambient.set(0.05f, 0.05f, 0.05f);
         pointLight1.diffuse.set(0.8f, 0.8f, 0.8f);
         pointLight1.specular.set(1.0f, 1.0f, 1.0f);
         pointLight1.constant = 1.0f;
-        pointLight1.linear = .9f;
-        pointLight1.quadratic = .32f;
+        pointLight1.linear = .09f;
+        pointLight1.quadratic = .032f;
 
         PointLight pointLight2 = new PointLight();
         pointLights.add(pointLight2);
-        float p2X = (float) (25f * Math.cos(Math.toRadians(120)));
-        float p2Z = (float) (25f * Math.sin(Math.toRadians(120)));
-        pointLight2.position.set(p2X, 10, p2Z);
+        float p2X = (float) (10f * Math.cos(Math.toRadians(120)));
+        float p2Y = (float) (10f * Math.sin(Math.toRadians(120)));
+        pointLight2.position.set(p2X, p2Y, 10);
         pointLight2.ambient.set(0.05f, 0.05f, 0.05f);
         pointLight2.diffuse.set(0.8f, 0.8f, 0.8f);
         pointLight2.specular.set(1.0f, 1.0f, 1.0f);
@@ -53,9 +53,9 @@ public class TestScene extends Scene {
 
         PointLight pointLight3 = new PointLight();
         pointLights.add(pointLight3);
-        float p3X = (float) (25f * Math.cos(Math.toRadians(240)));
-        float p3Z = (float) (25f * Math.sin(Math.toRadians(240)));
-        pointLight3.position.set(p3X, 10, p3Z);
+        float p3X = (float) (10f * Math.cos(Math.toRadians(240)));
+        float p3Y = (float) (10f * Math.sin(Math.toRadians(240)));
+        pointLight3.position.set(p3X, p3Y, 10);
         pointLight3.ambient.set(0.05f, 0.05f, 0.05f);
         pointLight3.diffuse.set(0.8f, 0.8f, 0.8f);
         pointLight3.specular.set(1.0f, 1.0f, 1.0f);
@@ -71,7 +71,7 @@ public class TestScene extends Scene {
 
             ctx.add(new BlendFunc(BlendFunc.Factor.SRC_ALPHA, BlendFunc.Factor.ONE_MINUS_SRC_ALPHA));
             ctx.add(new DepthFunc(DepthFunc.Function.LESS));
-            rv.add(model.initialize());
+            rv.add(sphere.initialize());
 
             initializeCommand = rv;
         }
@@ -90,7 +90,7 @@ public class TestScene extends Scene {
 
         camera.setEye(eyeX, 50, eyeZ);
 
-        model.update(t);
+        sphere.update(t);
     }
 
     @Override
@@ -99,12 +99,12 @@ public class TestScene extends Scene {
             CommandList rv = new CommandList();
 
             BatchState ctx = new BatchState(
-                    new Enable(Enable.Capability.BLEND),
-                    new Enable(Enable.Capability.DEPTH_TEST),
-                    new Enable(Enable.Capability.MULTISAMPLE)
+                    //new Enable(Enable.Capability.BLEND),
+                    new Enable(Enable.Capability.DEPTH_TEST)
+                    //new Enable(Enable.Capability.MULTISAMPLE)
             );
             ctx.add(new Clear(Clear.Mode.COLOR_BUFFER, Clear.Mode.DEPTH_BUFFER));
-            ctx.add(model.draw());
+            ctx.add(sphere.draw());
             rv.add(ctx);
 
             drawCommand = rv;

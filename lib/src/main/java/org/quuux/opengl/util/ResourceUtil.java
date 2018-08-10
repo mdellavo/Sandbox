@@ -2,7 +2,6 @@ package org.quuux.opengl.util;
 
 import de.javagl.obj.Obj;
 import de.javagl.obj.ObjReader;
-import de.javagl.obj.ObjUtils;
 import de.matthiasmann.twl.utils.PNGDecoder;
 
 import java.io.*;
@@ -35,6 +34,7 @@ public class ResourceUtil {
     }
 
     public static DecodedImage getPNGResource(String name) {
+        System.out.println(String.format("load png %s", name));
 
         DecodedImage rv = null;
         try {

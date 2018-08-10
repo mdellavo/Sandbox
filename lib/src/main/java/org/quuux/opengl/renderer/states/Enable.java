@@ -22,12 +22,12 @@ public class Enable extends State {
     }
 
     @Override
-    void set(Renderer renderer) {
+    public void set(Renderer renderer) {
         renderer.set(this);
     }
 
     @Override
-    void clear(Renderer renderer) {
+    public void clear(Renderer renderer) {
         renderer.clear(this);
     }
 

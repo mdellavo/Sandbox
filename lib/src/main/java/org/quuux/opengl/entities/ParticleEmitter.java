@@ -51,7 +51,7 @@ public class ParticleEmitter implements Entity {
     BufferObject vbo = new BufferObject();
     VAO vao = new VAO();
 
-    Texture2D texture = new Texture2D();
+    Texture2D texture = new Texture2D("particle1", 0);
     ShaderProgram shader = new ShaderProgram();
 
     Command displayList;
@@ -139,7 +139,6 @@ public class ParticleEmitter implements Entity {
         CommandList rv = new CommandList();
         rv.add(new GenerateArray(vao));
         rv.add(new GenerateBuffer(vbo));
-        rv.add(new GenerateTexture2D(texture));
 
         rv.add(ShaderProgram.build(shader,
                 ResourceUtil.getStringResource("shaders/particle.vert.glsl"),
@@ -148,14 +147,11 @@ public class ParticleEmitter implements Entity {
         BatchState ctx = new BatchState(
                 new UseProgram(shader),
                 new BindBuffer(BufferType.ArrayBuffer, vbo),
-                new BindArray(vao),
-                new BindTexture(texture),
-                new ActivateTexture(0)
+                new BindArray(vao)
         );
         rv.add(ctx);
 
-        ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource("textures/particle1.png");
-        ctx.add(new LoadTexture2D(texture, LoadTexture2D.Format.RGBA, image.width, image.height,  LoadTexture2D.Format.RGBA, image.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
+        rv.add(texture.initialize());
 
         ctx.add(new SetUniform(shader, "texture", SetUniform.Type.INT, 0));
 
@@ -174,7 +170,7 @@ public class ParticleEmitter implements Entity {
     @Override
     public Command draw() {
         if (displayList == null) {
-            BatchState rv = new BatchState(new UseProgram(shader), new BindBuffer(BufferType.ArrayBuffer, vbo),  new BindArray(vao), new BindTexture(texture), new ActivateTexture(0));
+            BatchState rv = new BatchState(new UseProgram(shader), new BindBuffer(BufferType.ArrayBuffer, vbo),  new BindArray(vao), texture.bind());
             rv.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
             rv.add(new BufferData(BufferType.ArrayBuffer, vertexBuffer.capacity() * 4, vertexBuffer, BufferData.Usage.StreamDraw));
             rv.add(new DrawParticles());

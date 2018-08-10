@@ -80,13 +80,12 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 void main()
 {
 
-//    vec3 norm = normalize(Normal);
-//    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 norm = normalize(Normal);
+    vec3 viewDir = normalize(viewPos - FragPos);
 
-//    vec3 result = CalcDirLight(dirLight, norm, viewDir);
-//    for(int i = 0; i < NUM_POINT_LIGHTS; i++)
-//        result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+    vec3 result = CalcDirLight(dirLight, norm, viewDir);
+    for(int i = 0; i < NUM_POINT_LIGHTS; i++)
+            result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
 
-    vec3 result = vec3(texture(material.diffuse, TexCoords));
-    FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    FragColor = vec4(result, 1.0);
 }

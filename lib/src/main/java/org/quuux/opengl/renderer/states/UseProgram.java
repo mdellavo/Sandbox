@@ -12,12 +12,12 @@ public class UseProgram extends State {
     }
 
     @Override
-    void set(final Renderer renderer) {
+    public void set(final Renderer renderer) {
         renderer.set(this);
     }
 
     @Override
-    void clear(final Renderer renderer) {
+    public void clear(final Renderer renderer) {
         renderer.clear(this);
     }
 

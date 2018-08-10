@@ -52,7 +52,7 @@ public class Quad implements Entity {
 
     FloatBuffer vertexBuffer = GLUtil.floatBuffer(vertices);
 
-    Texture2D texture = new Texture2D();
+    Texture2D texture = new Texture2D("brick", 0);
     ShaderProgram shader = new ShaderProgram();
 
     Command displayList;

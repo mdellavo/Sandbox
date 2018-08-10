@@ -3,8 +3,8 @@ package org.quuux.opengl.entities;
 import org.joml.Matrix4d;
 import org.joml.Vector3d;
 import org.quuux.opengl.lib.BufferType;
+import org.quuux.opengl.lib.Material;
 import org.quuux.opengl.lib.ShaderProgram;
-import org.quuux.opengl.lib.Texture2D;
 import org.quuux.opengl.lib.VAO;
 import org.quuux.opengl.lib.BufferObject;
 import org.quuux.opengl.renderer.Command;
@@ -16,16 +16,12 @@ import org.quuux.opengl.renderer.commands.DrawMode;
 import org.quuux.opengl.renderer.commands.EnableVertexAttribArray;
 import org.quuux.opengl.renderer.commands.GenerateArray;
 import org.quuux.opengl.renderer.commands.GenerateBuffer;
-import org.quuux.opengl.renderer.commands.GenerateTexture2D;
-import org.quuux.opengl.renderer.commands.LoadTexture2D;
 import org.quuux.opengl.renderer.commands.SetUniform;
 import org.quuux.opengl.renderer.commands.SetUniformMatrix;
 import org.quuux.opengl.renderer.commands.VertexAttribPointer;
-import org.quuux.opengl.renderer.states.ActivateTexture;
 import org.quuux.opengl.renderer.states.BatchState;
 import org.quuux.opengl.renderer.states.BindArray;
 import org.quuux.opengl.renderer.states.BindBuffer;
-import org.quuux.opengl.renderer.states.BindTexture;
 import org.quuux.opengl.renderer.states.UseProgram;
 import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.scenes.DirectionalLight;
@@ -49,10 +45,7 @@ import de.javagl.obj.ObjData;
 
 public class Mesh implements Entity {
 
-    Texture2D diffuse = new Texture2D();
-    Texture2D specular = new Texture2D();
-
-    Material material = new Material(diffuse, specular, 32f);
+    Material material;
 
     int numVerticies;
     IntBuffer indicies;
@@ -72,16 +65,18 @@ public class Mesh implements Entity {
 
     Command displayList;
 
+
+    protected Mesh(Material material) {
+        this.material = material;
+    }
+
     CommandList buildState() {
         BatchState rv = new BatchState(
                 new UseProgram(shader),
                 new BindArray(vao),
                 new BindBuffer(BufferType.ArrayBuffer, vbo),
                 new BindBuffer(BufferType.ElementArrayBuffer, ebo),
-                new BindTexture(diffuse),
-                new ActivateTexture(0),
-                new BindTexture(specular),
-                new ActivateTexture(1)
+                material.bind()
         );
         return rv;
     }
@@ -94,19 +89,7 @@ public class Mesh implements Entity {
         rv.add(new GenerateBuffer(vbo));
         rv.add(new GenerateBuffer(ebo));
 
-        rv.add(new GenerateTexture2D(diffuse));
-
-        BatchState tex1State = new BatchState(new BindTexture(diffuse), new ActivateTexture(0));
-        rv.add(tex1State);
-
-        ResourceUtil.DecodedImage diffuseImage = ResourceUtil.getPNGResource("textures/brick-diffuse.png");
-        tex1State.add(new LoadTexture2D(diffuse, LoadTexture2D.Format.RGBA, diffuseImage.width, diffuseImage.height, LoadTexture2D.Format.RGBA, diffuseImage.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
-
-        rv.add(new GenerateTexture2D(specular));
-        BatchState tex2State = new BatchState(new BindTexture(specular), new ActivateTexture(1));
-        rv.add(tex2State);
-        ResourceUtil.DecodedImage specularImage = ResourceUtil.getPNGResource("textures/brick-specular.png");
-        tex2State.add(new LoadTexture2D(specular, LoadTexture2D.Format.RGBA, specularImage.width, specularImage.height, LoadTexture2D.Format.RGBA, specularImage.buffer, LoadTexture2D.Filter.LINEAR, LoadTexture2D.Filter.LINEAR));
+        rv.add(material.initialize());
 
         rv.add(ShaderProgram.build(shader,
                 ResourceUtil.getStringResource("shaders/mesh.vert.glsl"),
@@ -143,8 +126,8 @@ public class Mesh implements Entity {
             Vector3d viewPos = Scene.get().camera.eye;
             ctx.add(new SetUniform(shader, "viewPos", (float) viewPos.x, (float) viewPos.y, (float) viewPos.z));
 
-            ctx.add(new SetUniform(shader, "material.diffuse", 0));
-            ctx.add(new SetUniform(shader, "material.specular", 1));
+            ctx.add(new SetUniform(shader, "material.diffuse", 1));
+            ctx.add(new SetUniform(shader, "material.specular", 2));
             ctx.add(new SetUniform(shader, "material.shininess", material.shininess));
 
             Scene scene = Scene.get();
@@ -191,8 +174,8 @@ public class Mesh implements Entity {
         camera.projectionMatrix.get(projectionBuffer);
     }
 
-    public static Mesh fromObj(Obj obj) {
-        Mesh mesh = new Mesh();
+    public static Mesh fromObj(Material material, Obj obj) {
+        Mesh mesh = new Mesh(material);
 
         mesh.indicies = ObjData.getFaceNormalIndices(obj);
         mesh.numVerticies = obj.getNumVertices();
@@ -221,12 +204,12 @@ public class Mesh implements Entity {
         return mesh;
     }
 
-    public static Mesh createUVSphere(double radius, int rings, int sectors) {
+    public static Mesh createUVSphere(Material material, double radius, int rings, int sectors) {
 
         final double R = 1. / (double) (rings - 1);
         final double S = 1. / (double) (sectors - 1);
 
-        Mesh mesh = new Mesh();
+        Mesh mesh = new Mesh(material);
         mesh.numVerticies = rings * sectors * 3;
         mesh.vertexBuffer = GLUtil.floatBuffer(mesh.numVerticies * 8);
         mesh.indicies = GLUtil.intBuffer(mesh.numVerticies * 3);
@@ -339,8 +322,8 @@ public class Mesh implements Entity {
 
 
     // http://blog.andreaskahler.com/2009/06/creating-icosphere-mesh-in-code.html
-    public static Mesh createIcoSphere(double radius, int recursionLevel) {
-        Mesh mesh = new Mesh();
+    public static Mesh createIcoSphere(Material material, double radius, int recursionLevel) {
+        Mesh mesh = new Mesh(material);
         VertexSet vertexSet = new VertexSet();
         List<TriangleIndices> faces = new ArrayList<>();
         Map<VertexKey, Integer> cache = new HashMap<>();
@@ -416,8 +399,10 @@ public class Mesh implements Entity {
             mesh.vertexBuffer.put((float)vert.y);
             mesh.vertexBuffer.put((float)vert.z);
 
-            mesh.vertexBuffer.put(1);
-            mesh.vertexBuffer.put(1);
+            double theta = (Math.atan2(vert.x, vert.z) / Math.PI) / 2.f + 0.5f;
+            double phi = (Math.asin(-vert.y) / (Math.PI / 2.f)) / 2.f + 0.5f;
+            mesh.vertexBuffer.put((float) theta);
+            mesh.vertexBuffer.put((float) phi);
         }
 
         for (TriangleIndices face : faces) {
@@ -430,6 +415,26 @@ public class Mesh implements Entity {
         mesh.indicies.position(0);
 
         System.out.println(String.format("num verts = %s / num faces = %s", mesh.vertexBuffer.capacity(), mesh.indicies.capacity()));
+
+        return mesh;
+    }
+
+    public static Mesh createQuad(Material material) {
+        float vertices[] = {
+                // verticies       // texture coords
+                1,  1, 0,  1, 1,  // top right
+                1, -1, 0,  1, 0,  // bottom right
+                -1,  1, 0,  0, 1,  // top left
+
+                1, -1, 0,  1, 0,  // bottom right
+                -1, -1, 0,  0, 0,  // bottom left
+                -1,  1, 0,  0, 1,  // top left
+        };
+        Mesh mesh = new Mesh(material);
+
+        mesh.numVerticies = 6;
+        mesh.vertexBuffer = GLUtil.floatBuffer(vertices.length);
+        mesh.vertexBuffer.put(vertices);
 
         return mesh;
     }

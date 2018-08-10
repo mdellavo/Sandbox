@@ -213,7 +213,7 @@ public class JOGLRenderer implements Renderer {
 
     @Override
     public void run(final DrawElements command) {
-        getGL().glPolygonMode(GL.GL_FRONT_AND_BACK, GL3.GL_LINE);
+        //getGL().glPolygonMode(GL.GL_FRONT_AND_BACK, GL3.GL_LINE);
         getGL().glDrawElements(getMode(command.getMode()), command.getCount(), GL.GL_UNSIGNED_INT, 0);
     }
 

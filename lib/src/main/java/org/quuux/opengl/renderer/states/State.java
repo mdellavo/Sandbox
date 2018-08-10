@@ -5,8 +5,8 @@ import org.quuux.opengl.renderer.Renderer;
 
 
 public abstract class State extends CommandList {
-    abstract void set(Renderer renderer);
-    abstract void clear(Renderer renderer);
+    public abstract void set(Renderer renderer);
+    public abstract void clear(Renderer renderer);
 
     @Override
     public void run(Renderer renderer) {

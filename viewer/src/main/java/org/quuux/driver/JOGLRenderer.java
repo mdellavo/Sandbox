@@ -240,6 +240,7 @@ public class JOGLRenderer implements Renderer {
 
     @Override
     public void run(final DrawArrays command) {
+        //getGL().glPolygonMode(GL.GL_FRONT_AND_BACK, GL3.GL_LINE);
         getGL().glDrawArrays(getMode(command.getMode()), command.getFirst(), command.getCount());
     }
 

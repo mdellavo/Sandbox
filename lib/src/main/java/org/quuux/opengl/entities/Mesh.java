@@ -421,20 +421,21 @@ public class Mesh implements Entity {
 
     public static Mesh createQuad(Material material) {
         float vertices[] = {
-                // verticies       // texture coords
-                1,  1, 0,  1, 1,  // top right
-                1, -1, 0,  1, 0,  // bottom right
-                -1,  1, 0,  0, 1,  // top left
+                // vert    normal   texture-coords
+                 1,  1, 0, 0, 0, 1, 1, 1,  // top right
+                 1, -1, 0, 0, 0, 1, 1, 0,  // bottom right
+                -1,  1, 0, 0, 0, 1, 0, 1,  // top left
 
-                1, -1, 0,  1, 0,  // bottom right
-                -1, -1, 0,  0, 0,  // bottom left
-                -1,  1, 0,  0, 1,  // top left
+                 1, -1, 0, 0, 0, 1, 1, 0,  // bottom right
+                -1, -1, 0, 0, 0, 1, 0, 0,  // bottom left
+                -1,  1, 0, 0, 0, 1, 0, 1,  // top left
         };
         Mesh mesh = new Mesh(material);
 
         mesh.numVerticies = 6;
         mesh.vertexBuffer = GLUtil.floatBuffer(vertices.length);
         mesh.vertexBuffer.put(vertices);
+        mesh.vertexBuffer.position(0);
 
         return mesh;
     }

@@ -70,7 +70,9 @@ public class TestScene extends Scene {
         pointLight3.linear = .9f;
         pointLight3.quadratic = .32f;
 
-        ground.model.scale(50f);
+        ground.model.translate(0, -30, 0);
+        ground.model.rotate(Math.toRadians(90), 1, 0, 0);
+        ground.model.scale(50);
 
         if (initializeCommand == null) {
             CommandList rv = new CommandList();

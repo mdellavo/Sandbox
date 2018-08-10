@@ -51,7 +51,7 @@ public class ParticleEmitter implements Entity {
     BufferObject vbo = new BufferObject();
     VAO vao = new VAO();
 
-    Texture2D texture = new Texture2D("particle1", 0);
+    Texture2D texture = new Texture2D("particle1");
     ShaderProgram shader = new ShaderProgram();
 
     Command displayList;
@@ -151,7 +151,7 @@ public class ParticleEmitter implements Entity {
         );
         rv.add(ctx);
 
-        rv.add(texture.initialize());
+        rv.add(texture.initialize(0));
 
         ctx.add(new SetUniform(shader, "texture", SetUniform.Type.INT, 0));
 
@@ -170,7 +170,7 @@ public class ParticleEmitter implements Entity {
     @Override
     public Command draw() {
         if (displayList == null) {
-            BatchState rv = new BatchState(new UseProgram(shader), new BindBuffer(BufferType.ArrayBuffer, vbo),  new BindArray(vao), texture.bind());
+            BatchState rv = new BatchState(new UseProgram(shader), new BindBuffer(BufferType.ArrayBuffer, vbo),  new BindArray(vao), texture.bind(0));
             rv.add(new SetUniformMatrix(shader, "mvp", 1, false, mvpBuffer));
             rv.add(new BufferData(BufferType.ArrayBuffer, vertexBuffer.capacity() * 4, vertexBuffer, BufferData.Usage.StreamDraw));
             rv.add(new DrawParticles());

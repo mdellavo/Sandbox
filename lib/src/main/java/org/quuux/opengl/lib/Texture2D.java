@@ -15,8 +15,8 @@ public class Texture2D extends Texture {
     LoadTexture2D.Format format = LoadTexture2D.Format.RGBA;
     LoadTexture2D.Filter filter = LoadTexture2D.Filter.LINEAR;
 
-    public Texture2D(final String key, int unit) {
-        super(key, unit);
+    public Texture2D(final String key) {
+        super(key);
     }
 
     String getKey() {
@@ -24,22 +24,24 @@ public class Texture2D extends Texture {
     }
 
     @Override
-    public Command initialize() {
+    public Command initialize(int unit) {
         CommandList rv = new CommandList();
         rv.add(new GenerateTexture2D(this));
+        rv.add(new ActivateTexture(unit));
 
-        BatchState state = new BatchState(new BindTexture(this), new ActivateTexture(unit));
-        rv.add(state);
-
+        BindTexture ctx = new BindTexture(this);
+        rv.add(ctx);
         ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource(getKey());
-
-        state.add(new LoadTexture2D(this, internalFormat, image.width, image.height, format, image.buffer, filter, filter));
+        ctx.add(new LoadTexture2D(this, internalFormat, image.width, image.height, format, image.buffer, filter, filter));
 
         return rv;
     }
 
     @Override
-    public State bind() {
-        return new BindTexture(this);
+    public State bind(int unit) {
+        return new BatchState(
+                new ActivateTexture(unit),
+                new BindTexture(this)
+        );
     }
 }

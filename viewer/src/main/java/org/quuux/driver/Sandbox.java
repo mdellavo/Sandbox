@@ -87,6 +87,7 @@ class Sandbox implements KeyListener, GLEventListener {
 
         Command displayList = scene.dispatchDraw();
         displayList.run(renderer);
+        //exit();
     }
 
     @Override

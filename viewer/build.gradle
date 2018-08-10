@@ -10,7 +10,7 @@ mainClassName = "org.quuux.driver.Sandbox"
 
 // "-Djogl.debug.TraceGL"
 //'-Xdebug', "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
-applicationDefaultJvmArgs = ["-Djogl.debug.DebugGL"]
+applicationDefaultJvmArgs = ["-Djogl.debug.DebugGL", "-Djogl.debug.TraceGL"]
 
 
 jar {

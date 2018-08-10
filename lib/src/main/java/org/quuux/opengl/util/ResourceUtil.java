@@ -34,8 +34,6 @@ public class ResourceUtil {
     }
 
     public static DecodedImage getPNGResource(String name) {
-        System.out.println(String.format("load png %s", name));
-
         DecodedImage rv = null;
         try {
             PNGDecoder decoder = new PNGDecoder(getResource(name));

@@ -14,8 +14,11 @@ public class TestScene extends Scene {
 
     long ticks, totalElapsed;
 
-    Material material = Material.load("world", 32f);
-    Mesh globe = Mesh.createIcoSphere(material, 20, 3);
+    Material worldmap = Material.load("world", 32f);
+    Material brick = Material.load("brick", 32f);
+
+    Mesh globe = Mesh.createIcoSphere(worldmap, 20, 3);
+    Mesh ground = Mesh.createQuad(brick);
 
     Command initializeCommand;
     Command drawCommand;
@@ -67,6 +70,8 @@ public class TestScene extends Scene {
         pointLight3.linear = .9f;
         pointLight3.quadratic = .32f;
 
+        ground.model.scale(50f);
+
         if (initializeCommand == null) {
             CommandList rv = new CommandList();
             rv.add(new ClearColor(0, 0, 0, 1));
@@ -76,6 +81,7 @@ public class TestScene extends Scene {
             ctx.add(new BlendFunc(BlendFunc.Factor.SRC_ALPHA, BlendFunc.Factor.ONE_MINUS_SRC_ALPHA));
             ctx.add(new DepthFunc(DepthFunc.Function.LESS));
             rv.add(globe.initialize());
+            rv.add(ground.initialize());
 
             initializeCommand = rv;
         }
@@ -95,6 +101,7 @@ public class TestScene extends Scene {
         camera.setEye(eyeX, 50, eyeZ);
 
         globe.update(t);
+        ground.update(t);
     }
 
     @Override
@@ -109,6 +116,7 @@ public class TestScene extends Scene {
             );
             ctx.add(new Clear(Clear.Mode.COLOR_BUFFER, Clear.Mode.DEPTH_BUFFER));
             ctx.add(globe.draw());
+            ctx.add(ground.draw());
             rv.add(ctx);
 
             drawCommand = rv;

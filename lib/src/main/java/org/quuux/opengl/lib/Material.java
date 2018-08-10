@@ -21,17 +21,15 @@ public class Material {
 
     public Command initialize() {
         CommandList rv = new CommandList();
-        rv.add(diffuse.initialize());
-        rv.add(specular.initialize());
+        rv.add(diffuse.initialize(0));
+        rv.add(specular.initialize(1));
         return rv;
     }
 
     public State bind() {
         BatchState rv = new BatchState(
-                diffuse.bind(),
-                new ActivateTexture(0),
-                specular.bind(),
-                new ActivateTexture(1)
+                diffuse.bind(0),
+                specular.bind(1)
         );
         return rv;
     }
@@ -40,13 +38,13 @@ public class Material {
         return String.format("%s-%s", key, type);
     }
 
-    public static Texture loadTexture(String key, String type, int unit) {
-        return new Texture2D(getTextureKey(key, type), unit);
+    public static Texture loadTexture(String key, String type) {
+        return new Texture2D(getTextureKey(key, type));
     }
 
     public static Material load( String key, float shininess) {
-        Texture diffuse = loadTexture(key, "diffuse", 0);
-        Texture specular = loadTexture(key, "specular", 0);
+        Texture diffuse = loadTexture(key, "diffuse");
+        Texture specular = loadTexture(key, "specular");
         return new Material(key, diffuse, specular, shininess);
     }
 }

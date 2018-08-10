@@ -45,7 +45,7 @@ import de.javagl.obj.ObjData;
 
 public class Mesh implements Entity {
 
-    Material material;
+    public Material material;
 
     int numVerticies;
     IntBuffer indicies;
@@ -57,7 +57,7 @@ public class Mesh implements Entity {
 
     ShaderProgram shader = new ShaderProgram();
 
-    Matrix4d model = new Matrix4d().identity();
+    public Matrix4d model = new Matrix4d().identity();
 
     FloatBuffer modelBuffer = GLUtil.floatBuffer(16);
     FloatBuffer viewBuffer = GLUtil.floatBuffer(16);
@@ -126,8 +126,8 @@ public class Mesh implements Entity {
             Vector3d viewPos = Scene.get().camera.eye;
             ctx.add(new SetUniform(shader, "viewPos", (float) viewPos.x, (float) viewPos.y, (float) viewPos.z));
 
-            ctx.add(new SetUniform(shader, "material.diffuse", 1));
-            ctx.add(new SetUniform(shader, "material.specular", 2));
+            ctx.add(new SetUniform(shader, "material.diffuse", 0));
+            ctx.add(new SetUniform(shader, "material.specular", 1));
             ctx.add(new SetUniform(shader, "material.shininess", material.shininess));
 
             Scene scene = Scene.get();

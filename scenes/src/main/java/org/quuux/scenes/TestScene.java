@@ -32,7 +32,7 @@ public class TestScene extends Scene {
         directionalLight.diffuse.set(0.5f, 0.5f, 0.5f);
         directionalLight.specular.set(0.25f, 0.25f, 0.25f);
 
-        double lightDistance = 22;
+        double lightDistance = 25;
 
         PointLight pointLight1 = new PointLight();
         pointLights.add(pointLight1);

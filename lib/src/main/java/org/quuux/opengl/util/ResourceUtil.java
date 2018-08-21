@@ -1,5 +1,7 @@
 package org.quuux.opengl.util;
 
+import org.joml.Vector3f;
+
 import de.javagl.obj.Obj;
 import de.javagl.obj.ObjReader;
 import de.matthiasmann.twl.utils.PNGDecoder;
@@ -10,10 +12,10 @@ import java.util.Scanner;
 
 public class ResourceUtil {
 
-    public static class DecodedImage {
+    public static class Bitmap {
         public int width, height;
         public ByteBuffer buffer;
-        public DecodedImage(ByteBuffer buffer, int width, int height) {
+        public Bitmap(ByteBuffer buffer, int width, int height) {
             this.buffer = buffer;
             this.width = width;
             this.height = height;
@@ -33,21 +35,38 @@ public class ResourceUtil {
         return slurp(getResource(name));
     }
 
-    public static DecodedImage getPNGResource(String name) {
-        DecodedImage rv = null;
+    public static Bitmap getPNGResource(String name) {
+        Bitmap rv = null;
         try {
-            PNGDecoder decoder = new PNGDecoder(getResource(name));
+            InputStream in = getResource(name);
+            if (in == null)
+                return null;
+            PNGDecoder decoder = new PNGDecoder(in);
 
             ByteBuffer buffer = ByteBuffer.allocateDirect(4 * decoder.getWidth() * decoder.getHeight());
             decoder.decode(buffer, decoder.getWidth() * 4, PNGDecoder.Format.RGBA);
             buffer.flip();
 
-            rv = new DecodedImage(buffer, decoder.getWidth(), decoder.getHeight());
+            rv = new Bitmap(buffer, decoder.getWidth(), decoder.getHeight());
             System.out.println(String.format("load png %s (width=%s, height=%s)", name, rv.width, rv.height));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        return rv;
+    }
+
+    public static Bitmap getColor(Vector3f color, float alpha) {
+        byte rgba[] = new byte[] {
+                (byte) (255 * color.x),
+                (byte) (255 * color.y),
+                (byte) (255 * color.z),
+                (byte) (255 * alpha),
+        };
+        ByteBuffer buffer = ByteBuffer.allocateDirect(rgba.length);
+        buffer.put(rgba);
+        buffer.flip();
+        Bitmap rv = new Bitmap(buffer, 1, 1);
         return rv;
     }
 

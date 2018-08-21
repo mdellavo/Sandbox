@@ -11,16 +11,14 @@ import org.quuux.opengl.renderer.states.State;
 import org.quuux.opengl.util.ResourceUtil;
 
 public class Texture2D extends Texture {
+    private final ResourceUtil.Bitmap bitmap;
+
     LoadTexture2D.Format internalFormat = LoadTexture2D.Format.RGBA;
     LoadTexture2D.Format format = LoadTexture2D.Format.RGBA;
     LoadTexture2D.Filter filter = LoadTexture2D.Filter.LINEAR;
 
-    public Texture2D(final String key) {
-        super(key);
-    }
-
-    String getKey() {
-        return String.format("textures/%s.png", this.key);
+    public Texture2D(ResourceUtil.Bitmap bitmap) {
+        this.bitmap = bitmap;
     }
 
     @Override
@@ -31,8 +29,8 @@ public class Texture2D extends Texture {
 
         BindTexture ctx = new BindTexture(this);
         rv.add(ctx);
-        ResourceUtil.DecodedImage image = ResourceUtil.getPNGResource(getKey());
-        ctx.add(new LoadTexture2D(this, internalFormat, image.width, image.height, format, image.buffer, filter, filter));
+
+        ctx.add(new LoadTexture2D(this, internalFormat, bitmap.width, bitmap.height, format, bitmap.buffer, filter, filter));
 
         return rv;
     }

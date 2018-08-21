@@ -1,5 +1,6 @@
 package org.quuux.scenes;
 
+import org.joml.Vector3f;
 import org.quuux.opengl.lib.Material;
 import org.quuux.opengl.entities.Mesh;
 import org.quuux.opengl.renderer.Command;
@@ -8,6 +9,9 @@ import org.quuux.opengl.renderer.commands.*;
 import org.quuux.opengl.renderer.states.*;
 import org.quuux.opengl.scenes.PointLight;
 import org.quuux.opengl.scenes.Scene;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class TestScene extends Scene {
@@ -19,20 +23,21 @@ public class TestScene extends Scene {
 
     Mesh globe = Mesh.createIcoSphere(worldmap, 20, 3);
     Mesh ground = Mesh.createQuad(brick);
+    List<Mesh> bulbs = new ArrayList<>();
 
     Command initializeCommand;
     Command drawCommand;
 
     @Override
     public Command initialize() {
-        camera.setEye(0, 25, 25);
+        camera.setEye(0, 50, 50);
 
         directionalLight.direction.set(-0.2f, -1.0f, -0.3f);
         directionalLight.ambient.set(0.05f, 0.05f, 0.05f);
         directionalLight.diffuse.set(0.5f, 0.5f, 0.5f);
         directionalLight.specular.set(0.25f, 0.25f, 0.25f);
 
-        double lightDistance = 25;
+        double lightDistance = 22;
 
         PointLight pointLight1 = new PointLight();
         pointLights.add(pointLight1);
@@ -72,7 +77,13 @@ public class TestScene extends Scene {
 
         ground.model.translate(0, -30, 0);
         ground.model.rotate(Math.toRadians(90), 1, 0, 0);
-        ground.model.scale(50);
+        ground.model.scale(100);
+
+        for (PointLight pointLight : pointLights) {
+            Mesh bulb = Mesh.createCube(Material.color(pointLight.ambient, 1));
+            bulb.model.translate(pointLight.position);
+            bulbs.add(bulb);
+        }
 
         if (initializeCommand == null) {
             CommandList rv = new CommandList();
@@ -82,8 +93,13 @@ public class TestScene extends Scene {
 
             ctx.add(new BlendFunc(BlendFunc.Factor.SRC_ALPHA, BlendFunc.Factor.ONE_MINUS_SRC_ALPHA));
             ctx.add(new DepthFunc(DepthFunc.Function.LESS));
-            rv.add(globe.initialize());
-            rv.add(ground.initialize());
+
+            for (Mesh bulb : bulbs) {
+                ctx.add(bulb.initialize());
+            }
+            ctx.add(globe.initialize());
+            ctx.add(ground.initialize());
+
 
             initializeCommand = rv;
         }
@@ -104,6 +120,10 @@ public class TestScene extends Scene {
 
         globe.update(t);
         ground.update(t);
+
+        for (Mesh bulb : bulbs) {
+            bulb.update(t);
+        }
     }
 
     @Override
@@ -117,8 +137,12 @@ public class TestScene extends Scene {
                     new Enable(Enable.Capability.MULTISAMPLE)
             );
             ctx.add(new Clear(Clear.Mode.COLOR_BUFFER, Clear.Mode.DEPTH_BUFFER));
-            ctx.add(globe.draw());
             ctx.add(ground.draw());
+            ctx.add(globe.draw());
+            for (Mesh bulb : bulbs) {
+                ctx.add(bulb.draw());
+            }
+
             rv.add(ctx);
 
             drawCommand = rv;

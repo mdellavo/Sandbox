@@ -51,7 +51,7 @@ public class ParticleEmitter implements Entity {
     BufferObject vbo = new BufferObject();
     VAO vao = new VAO();
 
-    Texture2D texture = new Texture2D("particle1");
+    Texture2D texture = new Texture2D(ResourceUtil.getPNGResource("particle1"));
     ShaderProgram shader = new ShaderProgram();
 
     Command displayList;

@@ -1,13 +1,19 @@
 package org.quuux.opengl.renderer;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class CommandList extends Command {
 
-    ArrayList<Command> commands = new ArrayList<>();
+    List<Command> commands = new ArrayList<>();
 
     public void add(Command command) {
         commands.add(command);
+    }
+
+    public void addAll(Collection<Command> commands) {
+        commands.addAll(commands);
     }
 
     @Override

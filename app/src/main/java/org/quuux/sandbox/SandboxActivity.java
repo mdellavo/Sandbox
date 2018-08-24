@@ -69,7 +69,7 @@ public class SandboxActivity extends Activity {
             Log.d(TAG, "viewport %s x %s", width, height);
 
             GLES20.glViewport(0, 0, width, height);
-            scene.getCamera().setProjection(45, (double)width/(double)height, .1, 1000.);
+            scene.getCamera().setProjection(45, (double)width/(double)height, 1, 1000.);
 
             scene = new TestScene();
 

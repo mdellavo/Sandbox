@@ -1,5 +1,8 @@
 package org.quuux.scenes;
 
+import org.joml.Vector3d;
+import org.joml.Vector3f;
+import org.quuux.opengl.entities.Entity;
 import org.quuux.opengl.lib.Material;
 import org.quuux.opengl.entities.Mesh;
 import org.quuux.opengl.renderer.Command;
@@ -8,6 +11,9 @@ import org.quuux.opengl.renderer.commands.*;
 import org.quuux.opengl.renderer.states.*;
 import org.quuux.opengl.scenes.PointLight;
 import org.quuux.opengl.scenes.Scene;
+
+import java.util.Collections;
+import java.util.Comparator;
 
 public class TestScene extends Scene {
 
@@ -19,8 +25,10 @@ public class TestScene extends Scene {
     Mesh globe = Mesh.createIcoSphere(worldmap, 20, 3);
     Mesh ground = Mesh.createQuad(brick);
 
-    Command initializeCommand;
-    Command drawCommand;
+    CommandList initializeCommand;
+    CommandList drawCommand;
+
+    CommandList meshBatch = new CommandList();
 
     public TestScene() {
         super();
@@ -135,7 +143,23 @@ public class TestScene extends Scene {
             ctx.add(super.draw());
             drawCommand = rv;
         }
-
         return drawCommand;
     }
+
+    Comparator<Entity> entityComparator = new Comparator<Entity>() {
+
+        Vector3d v1 = new Vector3d();
+        Vector3d v2 = new Vector3d();
+
+        @Override
+        public int compare(final Entity e1, final Entity e2) {
+            Mesh m1 = (Mesh)e1;
+            Mesh m2 = (Mesh)e2;
+            m1.model.getTranslation(v1);
+            m2.model.getTranslation(v2);
+            double d1 = v1.distance(camera.eye);
+            double d2 = v2.distance(camera.eye);
+            return Double.compare(d1, d2);
+        }
+    };
 }

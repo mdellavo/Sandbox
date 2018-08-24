@@ -94,7 +94,7 @@ class Sandbox implements KeyListener, GLEventListener {
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         GL4 gl = drawable.getGL().getGL4();
         gl.glViewport(0, 0, width, height);
-        Scene.get().getCamera().setProjection(45, (double)width/(double)height, .01, 1000.);
+        Scene.get().getCamera().setProjection(45, (double)width/(double)height, 1, 1000.);
     }
 
     @Override

@@ -34,8 +34,8 @@ public class TestScene extends Scene {
 
         camera.setEye(0, 50, 50);
 
-        directionalLight.direction.set(-0.2f, -1.0f, -0.3f);
-        directionalLight.ambient.set(.1f, 0.1f, 0.1f);
+        directionalLight.direction.set(-1.0f, -1.0f, 0.0f);
+        directionalLight.ambient.set(.5f, .5f, .5f);
         directionalLight.diffuse.set(0.3f, 0.3f, 0.3f);
         directionalLight.specular.set(0.2f, 0.2f, 0.2f);
 
@@ -118,12 +118,6 @@ public class TestScene extends Scene {
     public void update(long t) {
         ticks += 1;
         totalElapsed += t;
-
-        double angle = (totalElapsed % 5000) / 5000. * 360.;
-        double eyeX = 50 * Math.cos(Math.toRadians(angle));
-        double eyeZ = 50 * Math.sin(Math.toRadians(angle));
-
-        //camera.setEye(eyeX, 50, eyeZ);
 
         super.update(t);
     }

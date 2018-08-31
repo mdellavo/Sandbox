@@ -1,8 +1,6 @@
 package org.quuux.driver;
 
 import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL3;
-import com.jogamp.opengl.GL3ES3;
 import com.jogamp.opengl.GL4;
 
 import org.quuux.opengl.lib.BufferType;
@@ -105,6 +103,8 @@ public class JOGLRenderer implements Renderer {
             rv = GL.GL_LINEAR;
         else if (filter == LoadTexture2D.Filter.NEAREST)
             rv = GL.GL_NEAREST;
+        else if (filter == LoadTexture2D.Filter.LINEAR_MIPMAP_LINEAR)
+            rv = GL.GL_LINEAR_MIPMAP_LINEAR;
         else
             throw new UnsupportedException("Unknown filter: " + filter);
         return rv;
@@ -161,6 +161,17 @@ public class JOGLRenderer implements Renderer {
             rv = GL.GL_LESS;
         else
             throw new UnsupportedException("Unknown depth function: " + depthFunc);
+        return rv;
+    }
+
+    private int getWrap(LoadTexture2D.Wrap wrap) {
+        final int rv;
+        if (wrap == LoadTexture2D.Wrap.CLAMP)
+            rv = GL.GL_CLAMP_TO_EDGE;
+        else if (wrap == LoadTexture2D.Wrap.REPEAT)
+            rv = GL.GL_REPEAT;
+        else
+            throw new UnsupportedException("unknown wrap mode: " + wrap);
         return rv;
     }
 
@@ -416,7 +427,12 @@ public class JOGLRenderer implements Renderer {
         gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, getFormat(command.getInternalFormat()), command.getWidth(), command.getHeight(), 0, getFormat(command.getFormat()), GL.GL_UNSIGNED_BYTE, command.getBuffer());
 
         gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, getFilter(command.getMin()));
+        gl.glGenerateMipmap(GL.GL_TEXTURE_2D);
+
         gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, getFilter(command.getMag()));
+
+        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, getWrap(command.getWrapS()));
+        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, getWrap(command.getWrapT()));
     }
 
     @Override

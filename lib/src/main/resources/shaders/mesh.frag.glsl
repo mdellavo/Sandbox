@@ -80,8 +80,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 
 void main()
 {
+    vec3 norm = texture(material.normal, TexCoords).rgb;
+    norm = normalize(norm * 2.0 - 1.0);
 
-    vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
 
     vec3 result = CalcDirLight(dirLight, norm, viewDir);

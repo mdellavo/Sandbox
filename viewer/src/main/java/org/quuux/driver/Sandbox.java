@@ -87,7 +87,6 @@ class Sandbox implements KeyListener, GLEventListener {
 
         Command displayList = scene.dispatchDraw();
         displayList.run(renderer);
-        //exit();
     }
 
     @Override
@@ -99,7 +98,36 @@ class Sandbox implements KeyListener, GLEventListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        exit();
+        int key = e.getKeyCode();
+
+        float inc = .05f;
+
+        if ( key == KeyEvent.VK_LEFT ) {
+            scene.camera.eye.rotateY(inc);
+        } else if ( key == KeyEvent.VK_RIGHT ) {
+            scene.camera.eye.rotateY(-inc);
+
+        } else if ( key == KeyEvent.VK_DOWN) {
+            scene.camera.eye.rotateX(-inc);
+        } else if ( key == KeyEvent.VK_UP ) {
+            scene.camera.eye.rotateX(inc);
+
+        } else if ( key == KeyEvent.VK_W ) {
+            scene.camera.eye.add(0, 0, inc);
+        } else if ( key == KeyEvent.VK_A ) {
+            scene.camera.eye.add(-inc, 0, 0);
+        } else if ( key == KeyEvent.VK_S ) {
+            scene.camera.eye.add(0, 0, -inc);
+        } else if ( key == KeyEvent.VK_D ) {
+            scene.camera.eye.add(inc, 0, 0);
+
+        } else if (key == KeyEvent.VK_ESCAPE) {
+            exit();
+        }
+
+        //System.out.println(String.format("center = %s / eye = %s", scene.camera.center, scene.camera.eye));
+
+        scene.camera.updateViewMatrix();
     }
 
     @Override

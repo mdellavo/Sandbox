@@ -65,6 +65,7 @@ public class Material {
     public static Material color(Vector3f color, float shininess) {
         ResourceUtil.Bitmap diffuse = ResourceUtil.getColor(color, 1);
         ResourceUtil.Bitmap specular = ResourceUtil.getColor(new Vector3f(1, 1, 1), 1);
+        //ResourceUtil.Bitmap normal = ResourceUtil.getColor(new Vector3f(0, 0, 1), 1);
         return new Material(new Texture2D(diffuse), new Texture2D(specular), null, shininess);
     }
 }

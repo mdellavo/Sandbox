@@ -18,6 +18,12 @@ public class LoadTexture2D extends Command {
     public enum Filter {
         NEAREST,
         LINEAR,
+        LINEAR_MIPMAP_LINEAR,
+    }
+
+    public enum Wrap {
+        CLAMP,
+        REPEAT,
     }
 
     private final Texture2D texture;
@@ -28,8 +34,10 @@ public class LoadTexture2D extends Command {
     private final ByteBuffer buffer;
     private final Filter min;
     private final Filter mag;
+    private final Wrap wrapS;
+    private final Wrap wrapT;
 
-    public LoadTexture2D(Texture2D texture, Format internalFormat, int width, int height, Format format, ByteBuffer buffer, Filter min, Filter mag) {
+    public LoadTexture2D(Texture2D texture, Format internalFormat, int width, int height, Format format, ByteBuffer buffer, Filter min, Filter mag, Wrap wrapS, Wrap wrapT) {
         this.texture = texture;
         this.internalFormat = internalFormat;
         this.width = width;
@@ -38,6 +46,8 @@ public class LoadTexture2D extends Command {
         this.buffer = buffer;
         this.min = min;
         this.mag = mag;
+        this.wrapS = wrapS;
+        this.wrapT = wrapT;
     }
     
     @Override
@@ -75,5 +85,13 @@ public class LoadTexture2D extends Command {
 
     public Filter getMag() {
         return mag;
+    }
+
+    public Wrap getWrapS() {
+        return wrapS;
+    }
+
+    public Wrap getWrapT() {
+        return wrapT;
     }
 }

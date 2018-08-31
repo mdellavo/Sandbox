@@ -1,7 +1,6 @@
 package org.quuux.scenes;
 
 import org.joml.Vector3d;
-import org.joml.Vector3f;
 import org.quuux.opengl.entities.Entity;
 import org.quuux.opengl.lib.Material;
 import org.quuux.opengl.entities.Mesh;
@@ -12,23 +11,23 @@ import org.quuux.opengl.renderer.states.*;
 import org.quuux.opengl.scenes.PointLight;
 import org.quuux.opengl.scenes.Scene;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 public class TestScene extends Scene {
 
     long ticks, totalElapsed;
 
-    Material worldmap = Material.load("world", 32f);
-    Material brick = Material.load("brick", 32f);
+    Material worldmap = Material.load("world", 1f);
+    Material brick = Material.load("brick", 1f);
 
     Mesh globe = Mesh.createIcoSphere(worldmap, 20, 3);
     Mesh ground = Mesh.createQuad(brick);
+    List<Mesh> bulbs = new ArrayList<>();
 
     CommandList initializeCommand;
     CommandList drawCommand;
-
-    CommandList meshBatch = new CommandList();
 
     public TestScene() {
         super();
@@ -36,11 +35,11 @@ public class TestScene extends Scene {
         camera.setEye(0, 50, 50);
 
         directionalLight.direction.set(-0.2f, -1.0f, -0.3f);
-        directionalLight.ambient.set(0.05f, 0.05f, 0.05f);
-        directionalLight.diffuse.set(0.5f, 0.5f, 0.5f);
-        directionalLight.specular.set(0.25f, 0.25f, 0.25f);
+        directionalLight.ambient.set(.1f, 0.1f, 0.1f);
+        directionalLight.diffuse.set(0.3f, 0.3f, 0.3f);
+        directionalLight.specular.set(0.2f, 0.2f, 0.2f);
 
-        double lightDistance = 22;
+        double lightDistance = 20.1;
 
         PointLight pointLight1 = new PointLight();
         pointLights.add(pointLight1);
@@ -89,6 +88,7 @@ public class TestScene extends Scene {
             Mesh bulb = Mesh.createCube(Material.color(pointLight.ambient, 1));
             bulb.model.translate(pointLight.position);
             entities.add(bulb);
+            bulbs.add(bulb);
         }
 
     }
@@ -123,7 +123,7 @@ public class TestScene extends Scene {
         double eyeX = 50 * Math.cos(Math.toRadians(angle));
         double eyeZ = 50 * Math.sin(Math.toRadians(angle));
 
-        camera.setEye(eyeX, 50, eyeZ);
+        //camera.setEye(eyeX, 50, eyeZ);
 
         super.update(t);
     }

@@ -15,7 +15,10 @@ public class Texture2D extends Texture {
 
     LoadTexture2D.Format internalFormat = LoadTexture2D.Format.RGBA;
     LoadTexture2D.Format format = LoadTexture2D.Format.RGBA;
-    LoadTexture2D.Filter filter = LoadTexture2D.Filter.LINEAR;
+    LoadTexture2D.Filter minFilter = LoadTexture2D.Filter.LINEAR_MIPMAP_LINEAR;
+    LoadTexture2D.Filter magFilter = LoadTexture2D.Filter.LINEAR;
+    LoadTexture2D.Wrap wrapS = LoadTexture2D.Wrap.REPEAT;
+    LoadTexture2D.Wrap wrapT = LoadTexture2D.Wrap.REPEAT;
 
     public Texture2D(ResourceUtil.Bitmap bitmap) {
         this.bitmap = bitmap;
@@ -30,7 +33,7 @@ public class Texture2D extends Texture {
         BindTexture ctx = new BindTexture(this);
         rv.add(ctx);
 
-        ctx.add(new LoadTexture2D(this, internalFormat, bitmap.width, bitmap.height, format, bitmap.buffer, filter, filter));
+        ctx.add(new LoadTexture2D(this, internalFormat, bitmap.width, bitmap.height, format, bitmap.buffer, minFilter, magFilter, wrapS, wrapT));
 
         return rv;
     }

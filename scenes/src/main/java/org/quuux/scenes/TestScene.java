@@ -32,7 +32,7 @@ public class TestScene extends Scene {
     public TestScene() {
         super();
 
-        camera.setEye(0, 50, 50);
+        camera.setPosition(0, 50, 50);
 
         directionalLight.direction.set(-1.0f, -1.0f, 0.0f);
         directionalLight.ambient.set(.5f, .5f, .5f);
@@ -151,8 +151,8 @@ public class TestScene extends Scene {
             Mesh m2 = (Mesh)e2;
             m1.model.getTranslation(v1);
             m2.model.getTranslation(v2);
-            double d1 = v1.distance(camera.eye);
-            double d2 = v2.distance(camera.eye);
+            double d1 = v1.distance(camera.position);
+            double d2 = v2.distance(camera.position);
             return Double.compare(d1, d2);
         }
     };

@@ -9,6 +9,7 @@ import com.jogamp.opengl.*;
 import com.jogamp.opengl.util.FPSAnimator;
 
 import org.quuux.opengl.renderer.Command;
+import org.quuux.opengl.scenes.Camera;
 import org.quuux.opengl.scenes.Scene;
 import org.quuux.scenes.TestScene;
 
@@ -100,27 +101,24 @@ class Sandbox implements KeyListener, GLEventListener {
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
 
-        float inc = .05f;
+        double inc = 1f;
 
         if ( key == KeyEvent.VK_LEFT ) {
-            scene.camera.eye.rotateY(inc);
+            scene.camera.rotate(-inc, 0);
         } else if ( key == KeyEvent.VK_RIGHT ) {
-            scene.camera.eye.rotateY(-inc);
-
+            scene.camera.rotate(inc, 0);
         } else if ( key == KeyEvent.VK_DOWN) {
-            scene.camera.eye.rotateX(-inc);
+            scene.camera.rotate(0, -inc);
         } else if ( key == KeyEvent.VK_UP ) {
-            scene.camera.eye.rotateX(inc);
-
+            scene.camera.rotate(0, inc);
         } else if ( key == KeyEvent.VK_W ) {
-            scene.camera.eye.add(0, 0, inc);
+            scene.camera.move(Camera.Direction.FORWARD, inc);
         } else if ( key == KeyEvent.VK_A ) {
-            scene.camera.eye.add(-inc, 0, 0);
+            scene.camera.move(Camera.Direction.LEFT, inc);
         } else if ( key == KeyEvent.VK_S ) {
-            scene.camera.eye.add(0, 0, -inc);
+            scene.camera.move(Camera.Direction.BACK, inc);
         } else if ( key == KeyEvent.VK_D ) {
-            scene.camera.eye.add(inc, 0, 0);
-
+            scene.camera.move(Camera.Direction.RIGHT, inc);
         } else if (key == KeyEvent.VK_ESCAPE) {
             exit();
         }

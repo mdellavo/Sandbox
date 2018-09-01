@@ -211,7 +211,7 @@ public class ParticleEmitter implements Entity {
             vertexBuffer.put(offset + 5, colorComponent(rgb, 0));
             vertexBuffer.put(offset + 6,  (1 - agePercentile));
 
-            double distance = Scene.get().getCamera().center.distance(p.position);
+            double distance = new Vector3d().distance(p.position);
             double size = (PARTICLE_SIZE/distance) * agePercentile;
             if (size > PARTICLE_SIZE)
                 size = PARTICLE_SIZE;
@@ -300,8 +300,8 @@ public class ParticleEmitter implements Entity {
         @Override
         public int compare(Particle o1, Particle o2) {
             Camera camera = Scene.get().getCamera();
-            double d1 = camera.eye.distance(o1.position);
-            double d2 = camera.eye.distance(o2.position);
+            double d1 = camera.position.distance(o1.position);
+            double d2 = camera.position.distance(o2.position);
             return -Double.compare(d1, d2);
         }
     };

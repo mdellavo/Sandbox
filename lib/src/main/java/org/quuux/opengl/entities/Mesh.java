@@ -123,7 +123,7 @@ public class Mesh implements Entity {
             ctx.add(new SetUniformMatrix(shader, "view", 1, false, viewBuffer));
             ctx.add(new SetUniformMatrix(shader, "projection", 1, false, projectionBuffer));
 
-            Vector3d viewPos = Scene.get().camera.eye;
+            Vector3d viewPos = Scene.get().camera.position;
             ctx.add(new SetUniform(shader, "viewPos", (float) viewPos.x, (float) viewPos.y, (float) viewPos.z));
 
             ctx.add(new SetUniform(shader, "material.diffuse", 0));

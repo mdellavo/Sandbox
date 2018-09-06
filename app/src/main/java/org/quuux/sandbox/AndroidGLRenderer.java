@@ -23,7 +23,7 @@ import org.quuux.opengl.renderer.commands.GenerateBuffer;
 import org.quuux.opengl.renderer.commands.GenerateFramebuffer;
 import org.quuux.opengl.renderer.commands.GenerateTexture2D;
 import org.quuux.opengl.renderer.commands.LinkProgram;
-import org.quuux.opengl.renderer.commands.LoadTexture2D;
+import org.quuux.opengl.renderer.commands.LoadTexture;
 import org.quuux.opengl.renderer.commands.SetUniform;
 import org.quuux.opengl.renderer.commands.SetUniformMatrix;
 import org.quuux.opengl.renderer.commands.VertexAttribPointer;
@@ -111,24 +111,24 @@ class AndroidGLRenderer implements Renderer {
         return rv;
     }
 
-    private int getFormat(LoadTexture2D.Format format) {
+    private int getFormat(LoadTexture.Format format) {
         final int rv;
-        if (format == LoadTexture2D.Format.RGBA)
+        if (format == LoadTexture.Format.RGBA)
             rv = GLES30.GL_RGBA;
-        else if (format == LoadTexture2D.Format.RGB)
+        else if (format == LoadTexture.Format.RGB)
             rv = GLES30.GL_RGB;
-        else if (format == LoadTexture2D.Format.RGBA16F)
+        else if (format == LoadTexture.Format.RGBA16F)
             rv = GLES30.GL_RGBA16F;
         else
             throw new UnsupportedException("Unknown format: " + format.toString());
         return rv;
     }
 
-    private int getFilter(LoadTexture2D.Filter filter) {
+    private int getFilter(LoadTexture.Filter filter) {
         final int rv;
-        if (filter == LoadTexture2D.Filter.LINEAR)
+        if (filter == LoadTexture.Filter.LINEAR)
             rv = GLES30.GL_LINEAR;
-        else if (filter == LoadTexture2D.Filter.NEAREST)
+        else if (filter == LoadTexture.Filter.NEAREST)
             rv = GLES30.GL_NEAREST;
         else
             throw new UnsupportedException("Unknown filter: " + filter.toString());
@@ -316,7 +316,7 @@ class AndroidGLRenderer implements Renderer {
     }
 
     @Override
-    public void run(final LoadTexture2D command) {
+    public void run(final LoadTexture command) {
         GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, getFilter(command.getMin()));
         checkError();
         GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, getFilter(command.getMag()));

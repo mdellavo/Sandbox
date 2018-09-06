@@ -6,9 +6,11 @@ import org.quuux.opengl.renderer.Renderer;
 
 public class BindTexture extends State {
 
+    private final TextureTarget target;
     private final Texture texture;
 
-    public BindTexture(Texture texture) {
+    public BindTexture(TextureTarget target, Texture texture) {
+        this.target = target;
         this.texture = texture;
     }
 
@@ -24,5 +26,9 @@ public class BindTexture extends State {
 
     public Texture getTexture() {
         return texture;
+    }
+
+    public TextureTarget getTarget() {
+        return target;
     }
 }

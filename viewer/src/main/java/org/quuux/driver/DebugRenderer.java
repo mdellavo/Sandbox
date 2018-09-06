@@ -82,7 +82,7 @@ public class DebugRenderer extends JOGLRenderer {
     }
 
     @Override
-    public void run(LoadTexture2D command) {
+    public void run(LoadTexture command) {
         log(command);
         super.run(command);
     }

@@ -30,7 +30,7 @@ public interface Renderer {
     void run(GenerateFramebuffer command);
     void run(GenerateTexture2D command);
     void run(LinkProgram command);
-    void run(LoadTexture2D command);
+    void run(LoadTexture command);
     void run(SetUniformMatrix command);
     void run(SetUniform command);
     void run(VertexAttribPointer command);
@@ -38,6 +38,8 @@ public interface Renderer {
     void run(ClearColor command);
     void run(BlendFunc command);
     void run(DepthFunc command);
+    void run(TextureParameter command);
+    void run(GenerateMipMap command);
 
     // States
     void set(ActivateTexture command);

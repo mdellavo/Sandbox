@@ -3,10 +3,11 @@ package org.quuux.opengl.renderer.commands;
 import org.quuux.opengl.lib.Texture2D;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
+import org.quuux.opengl.renderer.states.TextureTarget;
 
 import java.nio.ByteBuffer;
 
-public class LoadTexture2D extends Command {
+public class LoadTexture extends Command {
 
     public enum Format {
         RGB,
@@ -15,39 +16,22 @@ public class LoadTexture2D extends Command {
         RGBA16F,
     }
 
-    public enum Filter {
-        NEAREST,
-        LINEAR,
-        LINEAR_MIPMAP_LINEAR,
-    }
-
-    public enum Wrap {
-        CLAMP,
-        REPEAT,
-    }
-
     private final Texture2D texture;
+    private final TextureTarget target;
     private final Format internalFormat;
     private final int width;
     private final int height;
     private final Format format;
     private final ByteBuffer buffer;
-    private final Filter min;
-    private final Filter mag;
-    private final Wrap wrapS;
-    private final Wrap wrapT;
 
-    public LoadTexture2D(Texture2D texture, Format internalFormat, int width, int height, Format format, ByteBuffer buffer, Filter min, Filter mag, Wrap wrapS, Wrap wrapT) {
+    public LoadTexture(Texture2D texture, TextureTarget target, Format internalFormat, int width, int height, Format format, ByteBuffer buffer) {
         this.texture = texture;
+        this.target = target;
         this.internalFormat = internalFormat;
         this.width = width;
         this.height = height;
         this.format = format;
         this.buffer = buffer;
-        this.min = min;
-        this.mag = mag;
-        this.wrapS = wrapS;
-        this.wrapT = wrapT;
     }
     
     @Override
@@ -79,19 +63,7 @@ public class LoadTexture2D extends Command {
         return buffer;
     }
 
-    public Filter getMin() {
-        return min;
-    }
-
-    public Filter getMag() {
-        return mag;
-    }
-
-    public Wrap getWrapS() {
-        return wrapS;
-    }
-
-    public Wrap getWrapT() {
-        return wrapT;
+    public TextureTarget getTarget() {
+        return target;
     }
 }

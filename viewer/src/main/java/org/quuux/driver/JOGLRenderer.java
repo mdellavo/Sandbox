@@ -82,28 +82,28 @@ public class JOGLRenderer implements Renderer {
         return rv;
     }
 
-    private int getFormat(LoadTexture2D.Format format) {
+    private int getFormat(LoadTexture.Format format) {
         final int rv;
-        if (format == LoadTexture2D.Format.RGBA)
+        if (format == LoadTexture.Format.RGBA)
             rv = GL.GL_RGBA;
-        else if (format == LoadTexture2D.Format.RGB)
+        else if (format == LoadTexture.Format.RGB)
             rv = GL.GL_RGB;
-        else if (format == LoadTexture2D.Format.SRGB_ALPHA)
+        else if (format == LoadTexture.Format.SRGB_ALPHA)
             rv = GL.GL_SRGB_ALPHA;
-        else if (format == LoadTexture2D.Format.RGBA16F)
+        else if (format == LoadTexture.Format.RGBA16F)
             rv = GL.GL_RGBA16F;
         else
             throw new UnsupportedException("Unknown format: " + format);
         return rv;
     }
 
-    private int getFilter(LoadTexture2D.Filter filter) {
+    private int getFilter(TextureParameter.Filter filter) {
         final int rv;
-        if (filter == LoadTexture2D.Filter.LINEAR)
+        if (filter == TextureParameter.Filter.LINEAR)
             rv = GL.GL_LINEAR;
-        else if (filter == LoadTexture2D.Filter.NEAREST)
+        else if (filter == TextureParameter.Filter.NEAREST)
             rv = GL.GL_NEAREST;
-        else if (filter == LoadTexture2D.Filter.LINEAR_MIPMAP_LINEAR)
+        else if (filter == TextureParameter.Filter.LINEAR_MIPMAP_LINEAR)
             rv = GL.GL_LINEAR_MIPMAP_LINEAR;
         else
             throw new UnsupportedException("Unknown filter: " + filter);
@@ -164,11 +164,11 @@ public class JOGLRenderer implements Renderer {
         return rv;
     }
 
-    private int getWrap(LoadTexture2D.Wrap wrap) {
+    private int getWrap(TextureParameter.Wrap wrap) {
         final int rv;
-        if (wrap == LoadTexture2D.Wrap.CLAMP)
+        if (wrap == TextureParameter.Wrap.CLAMP)
             rv = GL.GL_CLAMP_TO_EDGE;
-        else if (wrap == LoadTexture2D.Wrap.REPEAT)
+        else if (wrap == TextureParameter.Wrap.REPEAT)
             rv = GL.GL_REPEAT;
         else
             throw new UnsupportedException("unknown wrap mode: " + wrap);
@@ -327,6 +327,35 @@ public class JOGLRenderer implements Renderer {
         getGL().glDepthFunc(getDepthFunc(command.getDepthFunc()));
     }
 
+    public int getTextureParameter(TextureParameter.Parameter parameter) {
+        final int rv;
+        switch (parameter) {
+            case MIN_FILTER: rv = GL.GL_TEXTURE_MIN_FILTER; break;
+            case MAG_FILTER: rv = GL.GL_TEXTURE_MAG_FILTER; break;
+            case WRAP_S: rv = GL.GL_TEXTURE_WRAP_S; break;
+            case WRAP_T: rv = GL.GL_TEXTURE_WRAP_T; break;
+            default:
+                throw new UnsupportedException("unknown texture parameter: " + parameter);
+        }
+        return rv;
+    }
+
+    @Override
+    public void run(final TextureParameter command) {
+        TextureParameter.Parameter param = command.getParameter();
+
+        if (param == TextureParameter.Parameter.MIN_FILTER || param == TextureParameter.Parameter.MAG_FILTER) {
+            getGL().glTexParameteri(getTextureTarget(command.getTarget()), getTextureParameter(command.getParameter()), getFilter(command.getFilter()));
+        } else if (param == TextureParameter.Parameter.WRAP_S || param == TextureParameter.Parameter.WRAP_T) {
+            getGL().glTexParameteri(getTextureTarget(command.getTarget()), getTextureParameter(command.getParameter()), getWrap(command.getWrap()));
+        }
+    }
+
+    @Override
+    public void run(final GenerateMipMap command) {
+        getGL().glGenerateMipmap(getTextureTarget(command.getTarget()));
+    }
+
     @Override
     public void set(final ActivateTexture command) {
         getGL().glActiveTexture(getTextureUnit(command.getTextureUnit()));
@@ -358,7 +387,33 @@ public class JOGLRenderer implements Renderer {
 
     @Override
     public void set(final BindTexture command) {
-        getGL().glBindTexture(GL.GL_TEXTURE_2D, command.getTexture().texture);
+        getGL().glBindTexture(getTextureTarget(command.getTarget()), command.getTexture().texture);
+    }
+
+    private int getTextureTarget(final TextureTarget target) {
+        int rv;
+
+        if (target == TextureTarget.CUBE_MAP) {
+            rv = GL.GL_TEXTURE_CUBE_MAP;
+        } else if (target == TextureTarget.TEXTURE_2D) {
+            rv = GL.GL_TEXTURE_2D;
+        } else if (target == TextureTarget.CUBE_MAP_NEGATIVE_X) {
+            rv = GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_X;
+        } else if (target == TextureTarget.CUBE_MAP_POSITIVE_X) {
+            rv = GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+        } else if (target == TextureTarget.CUBE_MAP_NEGATIVE_Y) {
+            rv = GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y;
+        } else if (target == TextureTarget.CUBE_MAP_POSITIVE_Y) {
+            rv = GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Y;
+        } else if (target == TextureTarget.CUBE_MAP_NEGATIVE_Z) {
+            rv = GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z;
+        } else if (target == TextureTarget.CUBE_MAP_POSITIVE_Z) {
+            rv = GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Z;
+        } else {
+            throw new UnsupportedException("Unknown target: " + target);
+        }
+
+        return rv;
     }
 
     @Override
@@ -419,21 +474,13 @@ public class JOGLRenderer implements Renderer {
     }
 
     @Override
-    public void run(final LoadTexture2D command) {
+    public void run(final LoadTexture command) {
         GL gl = getGL();
         if (command.getBuffer() != null)
             getGL().glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 4);
 
-        gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, getFormat(command.getInternalFormat()), command.getWidth(), command.getHeight(), 0, getFormat(command.getFormat()), GL.GL_UNSIGNED_BYTE, command.getBuffer());
-
-        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, getFilter(command.getMin()));
-        gl.glGenerateMipmap(GL.GL_TEXTURE_2D);
-
-        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, getFilter(command.getMag()));
-
-        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, getWrap(command.getWrapS()));
-        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, getWrap(command.getWrapT()));
-    }
+        gl.glTexImage2D(getTextureTarget(command.getTarget()), 0, getFormat(command.getInternalFormat()), command.getWidth(), command.getHeight(), 0, getFormat(command.getFormat()), GL.GL_UNSIGNED_BYTE, command.getBuffer());
+        }
 
     @Override
     public void run(final GenerateFramebuffer command) {

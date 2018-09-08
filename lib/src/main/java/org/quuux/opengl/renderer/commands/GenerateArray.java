@@ -1,14 +1,14 @@
 package org.quuux.opengl.renderer.commands;
 
-import org.quuux.opengl.lib.VAO;
+import org.quuux.opengl.lib.ArrayObject;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
 public class GenerateArray extends Command {
 
-    private final VAO vao;
+    private final ArrayObject vao;
 
-    public GenerateArray(VAO vao) {
+    public GenerateArray(ArrayObject vao) {
         this.vao = vao;
     }
 
@@ -17,7 +17,7 @@ public class GenerateArray extends Command {
         renderer.run(this);
     }
 
-    public VAO getVao() {
+    public ArrayObject getVao() {
         return vao;
     }
 }

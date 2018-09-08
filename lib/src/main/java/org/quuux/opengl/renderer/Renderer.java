@@ -28,7 +28,7 @@ public interface Renderer {
     void run(GenerateArray command);
     void run(GenerateBuffer command);
     void run(GenerateFramebuffer command);
-    void run(GenerateTexture2D command);
+    void run(GenerateTexture command);
     void run(LinkProgram command);
     void run(LoadTexture command);
     void run(SetUniformMatrix command);

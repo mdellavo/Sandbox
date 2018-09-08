@@ -14,7 +14,7 @@ import org.joml.Vector3d;
 import org.quuux.opengl.lib.BufferType;
 import org.quuux.opengl.lib.ShaderProgram;
 import org.quuux.opengl.lib.Texture2D;
-import org.quuux.opengl.lib.VAO;
+import org.quuux.opengl.lib.ArrayObject;
 import org.quuux.opengl.lib.BufferObject;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.CommandList;
@@ -49,7 +49,7 @@ public class ParticleEmitter implements Entity {
     FloatBuffer vertexBuffer = GLUtil.floatBuffer(8 * TOTAL_PARTICLES);
 
     BufferObject vbo = new BufferObject();
-    VAO vao = new VAO();
+    ArrayObject vao = new ArrayObject();
 
     Texture2D texture = new Texture2D(ResourceUtil.getPNGResource("particle1"));
     ShaderProgram shader = new ShaderProgram();

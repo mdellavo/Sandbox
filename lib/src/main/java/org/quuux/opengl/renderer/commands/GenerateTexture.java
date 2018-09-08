@@ -1,15 +1,15 @@
 package org.quuux.opengl.renderer.commands;
 
 
-import org.quuux.opengl.lib.Texture2D;
+import org.quuux.opengl.lib.Texture;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.Renderer;
 
-public class GenerateTexture2D extends Command {
+public class GenerateTexture extends Command {
 
-    private final Texture2D texture;
+    private final Texture texture;
 
-    public GenerateTexture2D(Texture2D texture) {
+    public GenerateTexture(Texture texture) {
         this.texture = texture;
     }
 
@@ -18,7 +18,7 @@ public class GenerateTexture2D extends Command {
         renderer.run(this);
     }
 
-    public Texture2D getTexture() {
+    public Texture getTexture() {
         return texture;
     }
 }

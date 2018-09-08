@@ -2,6 +2,7 @@ package org.quuux.scenes;
 
 import org.joml.Vector3d;
 import org.quuux.opengl.entities.Entity;
+import org.quuux.opengl.lib.Cubemap;
 import org.quuux.opengl.lib.Material;
 import org.quuux.opengl.entities.Mesh;
 import org.quuux.opengl.renderer.Command;
@@ -21,6 +22,8 @@ public class TestScene extends Scene {
 
     Material worldmap = Material.load("world", 1f);
     Material brick = Material.load("brick", 1f);
+
+    Cubemap cubemap = Cubemap.load("space-1");
 
     Mesh globe = Mesh.createIcoSphere(worldmap, 20, 3);
     Mesh ground = Mesh.createQuad(brick);

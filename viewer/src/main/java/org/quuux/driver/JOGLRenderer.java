@@ -467,7 +467,7 @@ public class JOGLRenderer implements Renderer {
     }
 
     @Override
-    public void run(final GenerateTexture2D command) {
+    public void run(final GenerateTexture command) {
         IntBuffer buffer = GLUtil.intBuffer(1);
         getGL().glGenTextures(1, buffer);
         command.getTexture().texture = buffer.get();

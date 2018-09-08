@@ -8,5 +8,4 @@ public abstract class Texture {
 
     public abstract Command initialize(int unit);
     public abstract State bind(int unit);
-
 }

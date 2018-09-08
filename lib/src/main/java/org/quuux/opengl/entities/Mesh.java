@@ -5,7 +5,7 @@ import org.joml.Vector3d;
 import org.quuux.opengl.lib.BufferType;
 import org.quuux.opengl.lib.Material;
 import org.quuux.opengl.lib.ShaderProgram;
-import org.quuux.opengl.lib.VAO;
+import org.quuux.opengl.lib.ArrayObject;
 import org.quuux.opengl.lib.BufferObject;
 import org.quuux.opengl.renderer.Command;
 import org.quuux.opengl.renderer.CommandList;
@@ -45,7 +45,7 @@ import de.javagl.obj.ObjData;
 
 public class Mesh implements Entity {
 
-    public Material material;
+    Material material;
 
     int numVerticies;
     IntBuffer indicies;
@@ -53,7 +53,7 @@ public class Mesh implements Entity {
 
     BufferObject vbo = new BufferObject();
     BufferObject ebo = new BufferObject();
-    VAO vao = new VAO();
+    ArrayObject vao = new ArrayObject();
 
     ShaderProgram shader = new ShaderProgram();
 

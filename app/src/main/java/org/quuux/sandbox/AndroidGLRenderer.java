@@ -21,11 +21,13 @@ import org.quuux.opengl.renderer.commands.EnableVertexAttribArray;
 import org.quuux.opengl.renderer.commands.GenerateArray;
 import org.quuux.opengl.renderer.commands.GenerateBuffer;
 import org.quuux.opengl.renderer.commands.GenerateFramebuffer;
-import org.quuux.opengl.renderer.commands.GenerateTexture2D;
+import org.quuux.opengl.renderer.commands.GenerateMipMap;
+import org.quuux.opengl.renderer.commands.GenerateTexture;
 import org.quuux.opengl.renderer.commands.LinkProgram;
 import org.quuux.opengl.renderer.commands.LoadTexture;
 import org.quuux.opengl.renderer.commands.SetUniform;
 import org.quuux.opengl.renderer.commands.SetUniformMatrix;
+import org.quuux.opengl.renderer.commands.TextureParameter;
 import org.quuux.opengl.renderer.commands.VertexAttribPointer;
 import org.quuux.opengl.renderer.states.ActivateTexture;
 import org.quuux.opengl.renderer.states.BindArray;
@@ -124,11 +126,11 @@ class AndroidGLRenderer implements Renderer {
         return rv;
     }
 
-    private int getFilter(LoadTexture.Filter filter) {
+    private int getFilter(TextureParameter.Filter filter) {
         final int rv;
-        if (filter == LoadTexture.Filter.LINEAR)
+        if (filter == TextureParameter.Filter.LINEAR)
             rv = GLES30.GL_LINEAR;
-        else if (filter == LoadTexture.Filter.NEAREST)
+        else if (filter == TextureParameter.Filter.NEAREST)
             rv = GLES30.GL_NEAREST;
         else
             throw new UnsupportedException("Unknown filter: " + filter.toString());
@@ -294,7 +296,7 @@ class AndroidGLRenderer implements Renderer {
     }
 
     @Override
-    public void run(final GenerateTexture2D command) {
+    public void run(final GenerateTexture command) {
         IntBuffer buffer = GLUtil.intBuffer(1);
         GLES30.glGenTextures(1, buffer);
         checkError();
@@ -317,10 +319,6 @@ class AndroidGLRenderer implements Renderer {
 
     @Override
     public void run(final LoadTexture command) {
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, getFilter(command.getMin()));
-        checkError();
-        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, getFilter(command.getMag()));
-        checkError();
         Bitmap bitmap = getBitmap(command.getBuffer(), command.getWidth(), command.getHeight());
         GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitmap, 0);
         checkError();
@@ -369,6 +367,19 @@ class AndroidGLRenderer implements Renderer {
     public void run(final DepthFunc command) {
         GLES30.glDepthFunc(getDepthFunc(command.getDepthFunc()));
         checkError();
+    }
+
+    @Override
+    public void run(final TextureParameter command) {
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, getFilter(command.getMin()));
+        checkError();
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, getFilter(command.getMag()));
+        checkError();
+    }
+
+    @Override
+    public void run(final GenerateMipMap command) {
+
     }
 
     @Override

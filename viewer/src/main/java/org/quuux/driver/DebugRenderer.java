@@ -70,7 +70,7 @@ public class DebugRenderer extends JOGLRenderer {
     }
 
     @Override
-    public void run(GenerateTexture2D command) {
+    public void run(GenerateTexture command) {
         log(command);
         super.run(command);
     }

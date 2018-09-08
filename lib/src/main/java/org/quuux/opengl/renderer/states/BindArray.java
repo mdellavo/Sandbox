@@ -1,13 +1,13 @@
 package org.quuux.opengl.renderer.states;
 
 
-import org.quuux.opengl.lib.VAO;
+import org.quuux.opengl.lib.ArrayObject;
 import org.quuux.opengl.renderer.Renderer;
 
 public class BindArray extends State {
-    private final VAO vao;
+    private final ArrayObject vao;
 
-    public BindArray(VAO vao) {
+    public BindArray(ArrayObject vao) {
         this.vao = vao;
     }
 
@@ -21,7 +21,7 @@ public class BindArray extends State {
         renderer.clear(this);
     }
 
-    public VAO getVAO() {
+    public ArrayObject getVAO() {
         return vao;
     }
 }

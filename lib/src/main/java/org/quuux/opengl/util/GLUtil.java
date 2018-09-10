@@ -27,6 +27,7 @@ public class GLUtil {
     public static FloatBuffer floatBuffer(final float[] vertices) {
         FloatBuffer buffer = floatBuffer(vertices.length);
         buffer.put(vertices);
+        buffer.position(0);
         return buffer;
     }
 }

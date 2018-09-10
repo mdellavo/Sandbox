@@ -47,7 +47,6 @@ public class Mesh implements Entity {
 
     Material material;
 
-    int numVerticies;
     IntBuffer indicies;
     FloatBuffer vertexBuffer;
 
@@ -157,7 +156,7 @@ public class Mesh implements Entity {
                 ctx.add(new BufferData(BufferType.ElementArrayBuffer, indicies.capacity() * 4, indicies, BufferData.Usage.StaticDraw));
                 ctx.add(new DrawElements(DrawMode.Triangles, indicies.capacity()));
             } else {
-                ctx.add(new DrawArrays(DrawMode.Triangles, 0, numVerticies));
+                ctx.add(new DrawArrays(DrawMode.Triangles, 0, vertexBuffer.capacity() / 8));
             }
 
             displayList = ctx;
@@ -178,10 +177,10 @@ public class Mesh implements Entity {
         Mesh mesh = new Mesh(material);
 
         mesh.indicies = ObjData.getFaceNormalIndices(obj);
-        mesh.numVerticies = obj.getNumVertices();
-        mesh.vertexBuffer = GLUtil.floatBuffer(mesh.numVerticies * 8);
+        int numVerticies = obj.getNumVertices();
+        mesh.vertexBuffer = GLUtil.floatBuffer(numVerticies * 8);
 
-        for (int i = 0; i < mesh.numVerticies; i++) {
+        for (int i = 0; i < numVerticies; i++) {
             FloatTuple position = obj.getVertex(i);
             mesh.vertexBuffer.put(position.getX());
             mesh.vertexBuffer.put(position.getY());
@@ -199,7 +198,7 @@ public class Mesh implements Entity {
 
         mesh.vertexBuffer.position(0);
 
-        System.out.println("num verticies = " + mesh.numVerticies + " / buffer = " + mesh.vertexBuffer.limit() + " / indicies = " + mesh.indicies.limit());
+        System.out.println("num verticies = " + numVerticies + " / buffer = " + mesh.vertexBuffer.limit() + " / indicies = " + mesh.indicies.limit());
 
         return mesh;
     }
@@ -210,9 +209,9 @@ public class Mesh implements Entity {
         final double S = 1. / (double) (sectors - 1);
 
         Mesh mesh = new Mesh(material);
-        mesh.numVerticies = rings * sectors * 3;
-        mesh.vertexBuffer = GLUtil.floatBuffer(mesh.numVerticies * 8);
-        mesh.indicies = GLUtil.intBuffer(mesh.numVerticies * 3);
+        int numVerticies = rings * sectors * 3;
+        mesh.vertexBuffer = GLUtil.floatBuffer(numVerticies * 8);
+        mesh.indicies = GLUtil.intBuffer(numVerticies * 3);
 
         for (int r = 0; r < rings; r++) {
             for (int s = 0; s < sectors; s++) {
@@ -386,8 +385,8 @@ public class Mesh implements Entity {
             faces = faces2;
         }
 
-        mesh.numVerticies = vertexSet.verts.size();
-        mesh.vertexBuffer = GLUtil.floatBuffer(mesh.numVerticies * 8);
+        int numVerticies = vertexSet.verts.size();
+        mesh.vertexBuffer = GLUtil.floatBuffer(numVerticies * 8);
         mesh.indicies = GLUtil.intBuffer(faces.size() * 3);
 
         for (Vector3d vert : vertexSet.verts) {
@@ -421,10 +420,7 @@ public class Mesh implements Entity {
 
     public static Mesh create(Material material, float[] vertices) {
         Mesh mesh = new Mesh(material);
-        mesh.numVerticies = vertices.length / 8;
-        mesh.vertexBuffer = GLUtil.floatBuffer(vertices.length);
-        mesh.vertexBuffer.put(vertices);
-        mesh.vertexBuffer.position(0);
+        mesh.vertexBuffer = GLUtil.floatBuffer(vertices);
         return mesh;
     }
 
